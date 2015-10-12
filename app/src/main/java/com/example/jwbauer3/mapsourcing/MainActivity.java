@@ -1,37 +1,79 @@
 package com.example.jwbauer3.mapsourcing;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.ScrollView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.jwbauer3.mapsourcing.Edge;
+import com.example.jwbauer3.mapsourcing.MyView;
+import com.example.jwbauer3.mapsourcing.Node;
 
+import java.util.ArrayList;
+
+public class MainActivity extends Activity {
+
+    private ArrayList<Node> nodes;
+    private ArrayList<Edge> edges;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        nodes = new ArrayList<Node>();
+        edges = new ArrayList<Edge>();
+        setUp();
+        //setContentView(new MyView(this, nodes, edges));
         setContentView(R.layout.activity_main);
+        //ImageView imageView = (ImageView)findViewById(R.id.ImageView);
+        //ArrayList<View> test = new ArrayList<View>();
+        //test.add(new MyView(this, nodes, edges));
+        //imageView.addTouchables(test);
+        //imageView.invalidate();
+
+
+        ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView_myViewScrollview);
+        int height = scrollView.getHeight();
+
+        MyView myView = (MyView)findViewById(R.id.MyViewTest);
+        myView.setMinimumHeight(height);
+        //myView.touchDown();
+        myView.setNodesEdges(nodes, edges);
+        myView.setListener();
+        //MyView myView = new MyView(this, nodes, edges);
+        //ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView_myViewScrollview);
+        scrollView.invalidate();
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void setUp() {
+        //width, height
+        Node test1 = new Node(0, 150);
+        Node test2 = new Node(400, -350);
+        Node test3 = new Node(-300, 400);
+        Node test4 = new Node(800, 800);
+        Node test5 = new Node(1212, 1911);
+        Edge con1 = new Edge(test1, test2);
+        Edge con2 = new Edge(test2, test4);
+        Edge con3 = new Edge(test1, test3);
+        Edge con4 = new Edge(test3, test4);
+        nodes.add(test1);
+        nodes.add(test2);
+        nodes.add(test3);
+        nodes.add(test4);
+        nodes.add(test5);
+        edges.add(con1);
+        edges.add(con2);
+        edges.add(con3);
+        edges.add(con4);
     }
+    public void pressed(View view){
+        //MyView myView = (MyView)findViewById(R.id.MyViewTest);
+        ScrollView myView = (ScrollView)findViewById(R.id.ScrollView_myViewScrollview);
+        //myView.touchDown();
+        //myView.setNodesEdges(nodes, edges);
+        //myView.setListener();
+        int width = myView.getWidth();
+        int height = myView.getHeight();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        Toast.makeText(getApplicationContext(), "Height = " + height + " : Width = " + width, Toast.LENGTH_SHORT).show();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
