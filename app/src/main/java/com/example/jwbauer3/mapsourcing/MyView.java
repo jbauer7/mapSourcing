@@ -18,6 +18,7 @@ public class MyView extends View {
 
     private boolean clicked;
     private ArrayList<Node> nodes;
+    private ArrayList<Node> clickedNodes = new ArrayList<>();
     private ArrayList<Edge> edges;
     private int xOffset = 0;
     private int yOffset = 0;
@@ -57,19 +58,22 @@ public class MyView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // TODO Auto-generated method stub
+        //Call the base on draw
         super.onDraw(canvas);
-        int x = getWidth();
-        int y = getHeight();
+
+        //Create a paintbrush type object
         Paint paint = new Paint();
+
+        //Set the background color
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.YELLOW);
         canvas.drawPaint(paint);
-        // Use Color.parseColor to define HTML colors
 
+        //Update the paintbrush to make lines (for edges)
         paint.setStrokeWidth(25);
         paint.setColor(Color.parseColor("#7070FF"));
 
+        //Draw all the edges
         for (int ctr = 0; ctr < edges.size(); ctr++) {
             Edge curEdge = edges.get(ctr);
             int xStart = curEdge.getStart().getxPos();
@@ -78,18 +82,21 @@ public class MyView extends View {
             int yEnd = curEdge.getEnd().getyPos();
             canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
         }
-        if (clicked) {
-            paint.setColor(Color.parseColor("#CD5C5C"));
-        } else {
-            paint.setColor(Color.parseColor("#66FF33"));
-        }
-        //canvas.drawCircle(0+radius,0+radius, radius, paint);
+
+        //Update the paintbrush with the color of nodes
+        paint.setColor(Color.parseColor("#66FF33"));
+
+        //Draw all the nodes
         for (int ctr = 0; ctr < nodes.size(); ctr++) {
             Node curNode = nodes.get(ctr);
             canvas.drawCircle(curNode.getxPos() + xOffset, curNode.getyPos() + yOffset, radius, paint);
         }
 
-
+        //Update any nodes that have been clicked
+        paint.setColor(Color.parseColor("#CD5C5C"));
+        for (Node node : clickedNodes) {
+            canvas.drawCircle(node.getxPos() + xOffset, node.getyPos() + yOffset, radius, paint);
+        }
     }
 
     /*
@@ -119,7 +126,7 @@ public class MyView extends View {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    touchDown();
+                    touchDown(event);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -134,9 +141,23 @@ public class MyView extends View {
         }
     }
 
-    public boolean touchDown() {
-        clicked = !clicked;
-        invalidate();
+    private Node findNodeByPosition(int xPos, int yPos) {
+
+        for(Node node : nodes) {
+            if (Math.sqrt(Math.pow(xPos - (node.getxPos() + xOffset), 2) + Math.pow(yPos - (node.getyPos() + yOffset), 2)) <= radius) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean touchDown(MotionEvent event) {
+        Node found = findNodeByPosition((int) event.getX(), (int) event.getY());
+        if (found != null) {
+            clickedNodes.add(found);
+            invalidate();
+        }
         return true;
     }
 
@@ -172,6 +193,8 @@ public class MyView extends View {
 
             height = maxY - minY;
             width = maxX - minX;
+
+            //Offsets are added, so invert the minimum values here
             xOffset = -minX;
             yOffset = -minY;
         }
