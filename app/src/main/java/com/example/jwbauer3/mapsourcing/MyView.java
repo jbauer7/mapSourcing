@@ -24,35 +24,35 @@ public class MyView extends View {
     private int yOffset = 0;
     private int radius = 100;
 
-    public MyView(Context context, ArrayList<Node> nodes, ArrayList<Edge> edges) {
-        super(context);
-        this.nodes = nodes;
-        this.edges = edges;
-        //TouchListener tl = new TouchListener();
-        //this.setOnTouchListener(tl);
-
-    }
-
+    //Android needed constructor
     public MyView(Context context) {
         super(context);
-        // TODO Auto-generated constructor stub
+        setListener();
     }
-
+    //Android needed constructor
     public MyView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setListener();
     }
-
+    //Android needed constructor
     public MyView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        setListener();
     }
-
+    /*
+    Allows the nodes/edges to be set from an outside source
+     */
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
         this.edges = edges;
         invalidate();
     }
-
-    public void setListener() {
+    /*
+    Sets the OnTouchListener for this view.
+     */
+    private void setListener() {
+        //TODO: is it better to have this be public, and call only when nodes/edges are set?
+            //ie: put this line inside of setNodesEdges() method?
         this.setOnTouchListener(new MyOnTouchListener());
     }
 
@@ -92,7 +92,7 @@ public class MyView extends View {
             canvas.drawCircle(curNode.getxPos() + xOffset, curNode.getyPos() + yOffset, radius, paint);
         }
 
-        //Update any nodes that have been clicked
+        //Redraw any nodes that have been clicked
         paint.setColor(Color.parseColor("#CD5C5C"));
         for (Node node : clickedNodes) {
             canvas.drawCircle(node.getxPos() + xOffset, node.getyPos() + yOffset, radius, paint);
@@ -100,50 +100,13 @@ public class MyView extends View {
     }
 
     /*
-    @Override
-    public boolean onTouchEvent( MotionEvent event) {
-
-        int xpos = (int) event.getX();
-        int ypos = (int) event.getY();
-        int xCenter = 100;
-        int yCenter = 100;
-        int radius = 100;
-        if (Math.sqrt(Math.pow(xpos - xCenter, 2) + Math.pow(ypos - yCenter, 2)) <= radius) {
-           // clicked = !clicked;
-            invalidate();
-        } else {
-            System.out.println("Outside circle");
-        }
-
-        return true;
-    }
-    */
-    class MyOnTouchListener implements OnTouchListener {
-
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    touchDown(event);
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    // touch move code
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    // touch up code
-                    break;
-            }
-            return true;
-        }
-    }
-
+    Finds nodes by a given clicked x and y position.
+    If no node, then null is returned.
+     */
     private Node findNodeByPosition(int xPos, int yPos) {
 
-        for(Node node : nodes) {
+        //what is the behavior if two nodes can return true?
+        for (Node node : nodes) {
             if (Math.sqrt(Math.pow(xPos - (node.getxPos() + xOffset), 2) + Math.pow(yPos - (node.getyPos() + yOffset), 2)) <= radius) {
                 return node;
             }
@@ -152,10 +115,19 @@ public class MyView extends View {
         return null;
     }
 
-    public boolean touchDown(MotionEvent event) {
+    /*
+    Handles the response for this
+     */
+    private boolean touchDown(MotionEvent event) {
         Node found = findNodeByPosition((int) event.getX(), (int) event.getY());
         if (found != null) {
-            clickedNodes.add(found);
+            //if the node was already pressed, remove it.
+            if (clickedNodes.contains(found)) {
+                clickedNodes.remove(found);
+            } else { //node was not currently pressed, add it.
+                clickedNodes.add(found);
+            }
+            //update the image
             invalidate();
         }
         return true;
@@ -201,6 +173,32 @@ public class MyView extends View {
         setMeasuredDimension(width, height);
 
     }
+
+    /*
+    Custom class to define the onTouch properties of the MyView View.
+     */
+    class MyOnTouchListener implements OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touchDown(event);
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    // touch move code
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    // touch up code
+                    break;
+            }
+            return true;
+        }
+    }
+
 }
 
 
