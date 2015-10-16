@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
         myView.setMinimumHeight(height);
         //myView.touchDown();
         myView.setNodesEdges(nodes, edges);
-        myView.setListener();
+        //myView.setListener();
         //MyView myView = new MyView(this, nodes, edges);
         //ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView_myViewScrollview);
         scrollView.invalidate();
