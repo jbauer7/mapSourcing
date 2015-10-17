@@ -5,18 +5,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
 
 /**
- * Created by Nikhil on 10/11/2015.
+ * created by Nikhil on 10/11/2015.
  */
 public class MyView extends View {
 
-
-    private boolean clicked;
     private ArrayList<Node> nodes;
     private ArrayList<Node> clickedNodes = new ArrayList<>();
     private ArrayList<Edge> edges;
@@ -29,16 +28,19 @@ public class MyView extends View {
         super(context);
         setListener();
     }
+
     //Android needed constructor
     public MyView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setListener();
     }
+
     //Android needed constructor
     public MyView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setListener();
     }
+
     /*
     Allows the nodes/edges to be set from an outside source
      */
@@ -47,12 +49,13 @@ public class MyView extends View {
         this.edges = edges;
         invalidate();
     }
+
     /*
     Sets the OnTouchListener for this view.
      */
     private void setListener() {
         //TODO: is it better to have this be public, and call only when nodes/edges are set?
-            //ie: put this line inside of setNodesEdges() method?
+        //ie: put this line inside of setNodesEdges() method?
         this.setOnTouchListener(new MyOnTouchListener());
     }
 
@@ -194,6 +197,7 @@ public class MyView extends View {
                 case MotionEvent.ACTION_UP:
                     // touch up code
                     break;
+
             }
             return true;
         }
