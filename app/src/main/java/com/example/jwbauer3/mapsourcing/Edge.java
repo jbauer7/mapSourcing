@@ -1,5 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
+import android.widget.Toast;
+
 import com.example.jwbauer3.mapsourcing.Node;
 
 /**
@@ -10,7 +12,7 @@ public class Edge {
 
     private Node start, end;
     private int weight, direction;
-    private EdgeData edgeData;
+    protected EdgeData edgeData;
 
     public Edge(Node start, Node end){
         this.start = start;
@@ -19,7 +21,7 @@ public class Edge {
         direction =0;
     }
 
-    private void startLogEdgeData()
+    public void startLogEdgeData()
     {
         new Thread(new Runnable() {
             @Override
@@ -44,6 +46,7 @@ public class Edge {
                 }
             }
         }).start();
+
     }
 
     public Node getStart() {return start;}

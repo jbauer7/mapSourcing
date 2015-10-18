@@ -73,7 +73,14 @@ public class MainActivity extends Activity {
         int width = myView.getWidth();
         int height = myView.getHeight();
 
-        Toast.makeText(getApplicationContext(), "Height = " + height + " : Width = " + width, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "Height = " + height + " : Width = " + width, Toast.LENGTH_SHORT).show();
+
+        //Edge data logging testing (sorry for using your button)
+        Edge con4 = edges.get(edges.size()-1);
+        con4.startLogEdgeData();
+        EdgeData edgeData = con4.edgeData;
+
+        Toast.makeText(getApplicationContext(), "stepsThusFar = " + edgeData.stepsThusFar + " : direction = " + edgeData.direction, Toast.LENGTH_LONG).show();
 
     }
 }
