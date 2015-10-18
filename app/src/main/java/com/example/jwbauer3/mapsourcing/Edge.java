@@ -1,5 +1,6 @@
 package com.example.jwbauer3.mapsourcing;
 
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.example.jwbauer3.mapsourcing.Node;
@@ -23,17 +24,18 @@ public class Edge {
 
     public void startLogEdgeData()
     {
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
+
             @Override
             public void run() {
+                Looper.prepare();
                 edgeData = new EdgeData();
                 int numOfLogs = 10;
                 while(true)
                 {
                     edgeData.logData();
-
                     try {
-                        wait(1000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -45,8 +47,7 @@ public class Edge {
                     }
                 }
             }
-        }).start();
-
+        }).start(); */
     }
 
     public Node getStart() {return start;}
