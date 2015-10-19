@@ -19,12 +19,13 @@ public class Edge {
         this.start = start;
         this.end = end;
         weight = 0;
+
         direction =0;
     }
 
     public void startLogEdgeData()
     {
-        /*new Thread(new Runnable() {
+        new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -47,7 +48,7 @@ public class Edge {
                     }
                 }
             }
-        }).start(); */
+        }).start();
     }
 
     public Node getStart() {return start;}
