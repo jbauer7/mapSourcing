@@ -1,16 +1,17 @@
 package com.example.jwbauer3.mapsourcing;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.IBinder;
 import android.util.Log;
 
 import java.util.ArrayList;
 /*Service handles the collection of sensor data in the background*/
-public class EdgeLogService extends IntentService implements SensorEventListener{
+public class EdgeLogService extends Service implements SensorEventListener{
     protected ArrayList<Float> stepsThusFar;
     protected ArrayList<Long> timestamps;
     protected ArrayList<Float> direction;
@@ -18,12 +19,23 @@ public class EdgeLogService extends IntentService implements SensorEventListener
     private float currSteps;
     private float currDirection;
 
-
-    public EdgeLogService(){
-        super("EdgeLogService");
+    public void onCreate() {
+        Thread thread = new Thread()
+        {
+            @Override
+            public void run() {
+                    sensorThread();
+                    logData();
+            }
+        };
+        thread.start();
     }
 
-    protected void onHandleIntent(Intent workIntent) {
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    public void sensorThread() {
         this.stepsThusFar = new ArrayList<>();
         this.timestamps = new ArrayList<>();
         this.direction = new ArrayList<>();
@@ -37,26 +49,26 @@ public class EdgeLogService extends IntentService implements SensorEventListener
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-
-
     //Logs direction and time when a step has been detected
     public void logData() {
+        for(int i = 0; i<10; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             stepsThusFar.add(currSteps);
             direction.add(currDirection);
             timestamps.add(System.currentTimeMillis());
-           // We ended up printing to the log to test
-           // Log.i("data", "steps"+currSteps+" direction"+ currDirection);
+        }
     }
-
 
     @Override
     public void onSensorChanged (SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
             currSteps++;
-            //we decided to save everything to the log for each step
-            logData();
         }
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+        else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
             currDirection = event.values[0];
         }
     }
