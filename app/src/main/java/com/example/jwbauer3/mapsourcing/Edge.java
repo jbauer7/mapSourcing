@@ -23,7 +23,14 @@ public class Edge {
         direction =0;
     }
 
-    public void startLogEdgeData()
+    public Node getStart() {return start;}
+    public Node getEnd() {return end;}
+    public int getWeight(){return weight;}
+    public int getDirection(){return direction;}
+    public void setWeight(int weight){this.weight=weight;}
+    public void setDirection(int direction){this.direction= direction;}
+
+  /*  public void startLogEdgeData()
     {
         new Thread(new Runnable() {
 
@@ -49,14 +56,5 @@ public class Edge {
                 }
             }
         }).start();
-    }
-
-    public Node getStart() {return start;}
-    public Node getEnd() {return end;}
-    public int getWeight(){return weight;}
-    public int getDirection(){return direction;}
-
-    public void setWeight(int weight){this.weight=weight;}
-    public void setDirection(int direction){this.direction= direction;}
-
+    }*/
 }

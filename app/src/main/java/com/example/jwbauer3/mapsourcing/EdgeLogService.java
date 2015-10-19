@@ -9,7 +9,7 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 import java.util.ArrayList;
-
+/*Service handles the collection of sensor data in the background*/
 public class EdgeLogService extends IntentService implements SensorEventListener{
     protected ArrayList<Float> stepsThusFar;
     protected ArrayList<Long> timestamps;
@@ -17,6 +17,7 @@ public class EdgeLogService extends IntentService implements SensorEventListener
     protected SensorManager sensorManager;
     private float currSteps;
     private float currDirection;
+
 
     public EdgeLogService(){
         super("EdgeLogService");
@@ -38,7 +39,7 @@ public class EdgeLogService extends IntentService implements SensorEventListener
 
 
 
-
+    //Logs direction and time when a step has been detected
     public void logData() {
             stepsThusFar.add(currSteps);
             direction.add(currDirection);
