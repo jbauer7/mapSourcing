@@ -1,6 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ScrollView;
@@ -62,8 +63,12 @@ public class MainActivity extends Activity {
         edges.add(con1);
         edges.add(con2);
         edges.add(con3);
-        con4.startLogEdgeData();
         edges.add(con4);
+
+        //starts background service for collecting edge datas
+        //con4.startLogEdgeData();
+        startService(new Intent(this, EdgeLogService.class));
+
     }
     public void pressed(View view){
         //MyView myView = (MyView)findViewById(R.id.MyViewTest);
@@ -79,9 +84,6 @@ public class MainActivity extends Activity {
         //Edge data logging testing (sorry for using your button)
         /*Edge con4 = edges.get(edges.size()-1);
         EdgeData edgeData = con4.edgeData;
-
-        Toast.makeText(getApplicationContext(), "stepsThusFar = " + edgeData.stepsThusFar + " : direction = " + edgeData.direction, Toast.LENGTH_LONG).show();
-        */
-
+*/
     }
 }

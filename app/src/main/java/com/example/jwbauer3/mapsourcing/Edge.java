@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.example.jwbauer3.mapsourcing.Node;
 
 /**
- * Created by Nikhil on 10/11/2015.
+ * created by Nikhil on 10/11/2015.
  */
 public class Edge extends Drawable {
 
@@ -26,8 +26,11 @@ public class Edge extends Drawable {
         direction = 0;
     }
 
-    public void startLogEdgeData() {
-        /*new Thread(new Runnable() {
+
+
+    public void startLogEdgeData()
+    {
+        new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -50,7 +53,7 @@ public class Edge extends Drawable {
                     }
                 }
             }
-        }).start(); */
+        }).start();
     }
 
     public Node getStart() {
