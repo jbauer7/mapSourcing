@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 /**
  * Created by njaunich on 10/18/15.
+ * Moved this activity to a background service in EdgeLogService
  */
 public class EdgeData extends Activity implements SensorEventListener {
     protected ArrayList<Float> stepsThusFar;

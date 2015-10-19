@@ -65,8 +65,7 @@ public class MainActivity extends Activity {
         edges.add(con3);
         edges.add(con4);
 
-        //starts background service for collecting edge datas
-        //con4.startLogEdgeData();
+        //starts background service for collecting edge data
         startService(new Intent(this, EdgeLogService.class));
 
     }
