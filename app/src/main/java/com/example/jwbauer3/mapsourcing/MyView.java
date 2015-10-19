@@ -9,12 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.PriorityQueue;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * created by Nikhil on 10/11/2015.
