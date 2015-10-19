@@ -5,11 +5,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -22,24 +27,26 @@ public class MyView extends View {
     private int xOffset = 0;
     private int yOffset = 0;
     private int radius = 100;
+    private PriorityQueue<Drawable> drawables;
 
-    //Android needed constructor
     public MyView(Context context) {
         super(context);
         setListener();
+        setPriorityQueue();
     }
 
-    //Android needed constructor
     public MyView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setListener();
+        setPriorityQueue();
     }
 
-    //Android needed constructor
-    public MyView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public MyView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         setListener();
+        setPriorityQueue();
     }
+
 
     /*
     Allows the nodes/edges to be set from an outside source
@@ -47,6 +54,10 @@ public class MyView extends View {
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
         this.edges = edges;
+
+        drawables.addAll(nodes);
+        drawables.addAll(edges);
+
         invalidate();
     }
 
@@ -57,6 +68,17 @@ public class MyView extends View {
         //TODO: is it better to have this be public, and call only when nodes/edges are set?
         //ie: put this line inside of setNodesEdges() method?
         this.setOnTouchListener(new MyOnTouchListener());
+    }
+
+    private void setPriorityQueue() {
+        //instantiate Set with a custom comparator that looks at priority.
+        //TODO: pick a better magic number for init capacity
+        drawables = new PriorityQueue<Drawable>(10, new Comparator<Drawable>() {
+            @Override
+            public int compare(Drawable lhs, Drawable rhs) {
+                return lhs.getPriority() - rhs.getPriority();
+            }
+        });
     }
 
     @Override
@@ -72,68 +94,31 @@ public class MyView extends View {
         paint.setColor(Color.YELLOW);
         canvas.drawPaint(paint);
 
-        //Update the paintbrush to make lines (for edges)
-        paint.setStrokeWidth(25);
-        paint.setColor(Color.parseColor("#7070FF"));
-
-        //Draw all the edges
-        for (int ctr = 0; ctr < edges.size(); ctr++) {
-            Edge curEdge = edges.get(ctr);
-            int xStart = curEdge.getStart().getxPos();
-            int yStart = curEdge.getStart().getyPos();
-            int xEnd = curEdge.getEnd().getxPos();
-            int yEnd = curEdge.getEnd().getyPos();
-            canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
+        for (Drawable element : drawables) {
+            element.draw(canvas, xOffset, yOffset);
         }
 
-        //Update the paintbrush with the color of nodes
-        paint.setColor(Color.parseColor("#66FF33"));
-
-        //Draw all the nodes
-        for (int ctr = 0; ctr < nodes.size(); ctr++) {
-            Node curNode = nodes.get(ctr);
-            canvas.drawCircle(curNode.getxPos() + xOffset, curNode.getyPos() + yOffset, radius, paint);
-        }
-
-        //Redraw any nodes that have been clicked
-        paint.setColor(Color.parseColor("#CD5C5C"));
-        for (Node node : clickedNodes) {
-            canvas.drawCircle(node.getxPos() + xOffset, node.getyPos() + yOffset, radius, paint);
-        }
-    }
-
-    /*
-    Finds nodes by a given clicked x and y position.
-    If no node, then null is returned.
-     */
-    private Node findNodeByPosition(int xPos, int yPos) {
-
-        //what is the behavior if two nodes can return true?
-        for (Node node : nodes) {
-            if (Math.sqrt(Math.pow(xPos - (node.getxPos() + xOffset), 2) + Math.pow(yPos - (node.getyPos() + yOffset), 2)) <= radius) {
-                return node;
-            }
-        }
-
-        return null;
     }
 
     /*
     Handles the response for this
      */
-    private boolean touchDown(MotionEvent event) {
-        Node found = findNodeByPosition((int) event.getX(), (int) event.getY());
-        if (found != null) {
-            //if the node was already pressed, remove it.
-            if (clickedNodes.contains(found)) {
-                clickedNodes.remove(found);
-            } else { //node was not currently pressed, add it.
-                clickedNodes.add(found);
+    private void touchDown(MotionEvent event) {
+        //TODO: always search the entire queue, change to search through a reversed list
+        //problem arises from priority queue puts the lowest elements first, but we click highest
+        //that are at the end of the list.
+        Drawable selectedElement = null;
+        for (Drawable element : drawables) {
+            if (element.contains((int) event.getX(), (int) event.getY(), xOffset, yOffset)) {
+                selectedElement = element;
+                //break;
             }
-            //update the image
+        }
+        if (selectedElement != null) {
+            selectedElement.toggleAttribute("clicked");
             invalidate();
         }
-        return true;
+
     }
 
     @Override
