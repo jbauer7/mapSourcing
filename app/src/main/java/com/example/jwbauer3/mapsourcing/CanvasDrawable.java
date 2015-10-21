@@ -7,11 +7,11 @@ import java.util.ArrayList;
 /**
  * Created by Nikhil on 10/18/2015.
  */
-public abstract class Drawable {
+public abstract class CanvasDrawable {
 
     protected int priority;
     protected ArrayList<String> attributes;
-    public Drawable(int priority) {
+    public CanvasDrawable(int priority) {
         this.priority = priority;
         attributes = new ArrayList<>();
     }

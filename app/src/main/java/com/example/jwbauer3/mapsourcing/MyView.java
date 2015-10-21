@@ -2,15 +2,18 @@ package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -23,7 +26,23 @@ public class MyView extends View {
     private int xOffset = 0;
     private int yOffset = 0;
     private int radius = 100;
-    private PriorityQueue<Drawable> drawables;
+    private PriorityQueue<CanvasDrawable> drawables;
+
+    //TODO: use enum
+    private static int NONE = 0;
+    private static int DRAG = 1;
+    private static int ZOOM = 2;
+    private int mode = NONE;
+    private float startX=0f;
+    private float startY=0f;
+    private float transX=0f;
+    private float tranxY=0f;
+    private float prevTransX=0f;
+    private float prevTransY=0f;
+
+
+    private Float scaleFactor = 1.f;
+    private ScaleGestureDetector myDetector;
 
     public MyView(Context context) {
         super(context);
@@ -64,14 +83,15 @@ public class MyView extends View {
         //TODO: is it better to have this be public, and call only when nodes/edges are set?
         //ie: put this line inside of setNodesEdges() method?
         this.setOnTouchListener(new MyOnTouchListener());
+        myDetector = new ScaleGestureDetector(getContext(), new MyScaleListener());
     }
 
     private void setPriorityQueue() {
         //instantiate Set with a custom comparator that looks at priority.
         //TODO: pick a better magic number for init capacity
-        drawables = new PriorityQueue<Drawable>(10, new Comparator<Drawable>() {
+        drawables = new PriorityQueue<CanvasDrawable>(10, new Comparator<CanvasDrawable>() {
             @Override
-            public int compare(Drawable lhs, Drawable rhs) {
+            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
                 return lhs.getPriority() - rhs.getPriority();
             }
         });
@@ -82,18 +102,30 @@ public class MyView extends View {
         //Call the base on draw
         super.onDraw(canvas);
 
+        canvas.save();
+        canvas.scale(scaleFactor, scaleFactor);
+        canvas.translate(transX/scaleFactor, tranxY/scaleFactor);
+        setBackgroundImage(canvas);
+
         //Create a paintbrush type object
         Paint paint = new Paint();
 
         //Set the background color
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.YELLOW);
-        canvas.drawPaint(paint);
+       // paint.setStyle(Paint.Style.FILL);
+        //paint.setColor(Color.YELLOW);
+        //canvas.drawPaint(paint);
 
-        for (Drawable element : drawables) {
+        for (CanvasDrawable element : drawables) {
             element.draw(canvas, xOffset, yOffset);
         }
 
+        canvas.restore();
+
+    }
+    private void setBackgroundImage(Canvas canvas){
+        Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null);
+        background.setBounds(0,0,1500,900);
+        background.draw(canvas);
     }
 
     /*
@@ -103,8 +135,8 @@ public class MyView extends View {
         //TODO: always search the entire queue, change to search through a reversed list
         //problem arises from priority queue puts the lowest elements first, but we click highest
         //that are at the end of the list.
-        Drawable selectedElement = null;
-        for (Drawable element : drawables) {
+        CanvasDrawable selectedElement = null;
+        for (CanvasDrawable element : drawables) {
             if (element.contains((int) event.getX(), (int) event.getY(), xOffset, yOffset)) {
                 selectedElement = element;
                 //break;
@@ -154,7 +186,9 @@ public class MyView extends View {
             xOffset = -minX;
             yOffset = -minY;
         }
-        setMeasuredDimension(width, height);
+        //should be height, width. 5k,5k is for displaying the background.
+        //TODO: figure out bounds for screen
+        setMeasuredDimension(1312, 2011);
 
     }
 
@@ -168,19 +202,72 @@ public class MyView extends View {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    mode = DRAG;
+                    startX = event.getX()-prevTransX;
+                    startY = event.getY()-prevTransY;
                     touchDown(event);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    // touch move code
+                    transX = event.getX() - startX;
+                    tranxY = event.getY() - startY;
+                    break;
+
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    mode = ZOOM;
                     break;
 
                 case MotionEvent.ACTION_UP:
                     // touch up code
+                    mode = NONE;
+                    prevTransX = transX;
+                    prevTransY = tranxY;
+                    break;
+
+                case MotionEvent.ACTION_POINTER_UP:
+                    mode = DRAG;
+                    //maybe don't need these.
+                    prevTransX = transX;
+                    prevTransY = tranxY;
                     break;
 
             }
+
+
+            //zooming
+            myDetector.onTouchEvent(event);
+
+            if(mode == DRAG && scaleFactor != 1f || mode == ZOOM){
+                invalidate();
+            }
             return true;
+        }
+
+    }
+
+    class MyScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener{
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            //.postScale(detector.getScaleFactor(), detector.getScaleFactor(), detector.getFocusX(), detector.getFocusY());
+            //Canvas canvas = new Canvas();
+
+            //canvas.scale(detector.getScaleFactor(), detector.getScaleFactor(), detector.getFocusX(), detector.getFocusY());
+            //cubed so it zooms faster
+            scaleFactor *= detector.getScaleFactor();// * detector.getScaleFactor() * detector.getScaleFactor();
+            invalidate();
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            // return drawMatrix != null;
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+
         }
     }
 

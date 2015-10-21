@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by Nikhil on 10/11/2015.
  */
-public class Node extends Drawable {
+public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
     private int xPos, yPos;
