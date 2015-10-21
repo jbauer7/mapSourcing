@@ -67,7 +67,6 @@ public class MainActivity extends Activity {
 
         //starts background service for collecting edge data
         startService(new Intent(this, EdgeLogService.class));
-
     }
     public void pressed(View view){
         //MyView myView = (MyView)findViewById(R.id.MyViewTest);
