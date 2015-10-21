@@ -17,6 +17,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
     private float currSteps;
     private float currDirection;
     private float currPressure;
+    private float x, y, z;
 
     public void onCreate() {
         Thread thread = new Thread()
@@ -45,6 +46,9 @@ public class EdgeLogService extends Service implements SensorEventListener{
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),
                 SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     //Logs direction and time when a step has been detected
@@ -52,7 +56,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
         while(true) {
             try {Thread.sleep(100);}
             catch (InterruptedException e){e.printStackTrace();}
-            LogData loggedData = new LogData(currSteps, currDirection, currPressure, System.currentTimeMillis());
+            LogData loggedData = new LogData(currSteps, currDirection, currPressure, System.currentTimeMillis(),
+                    x, y, z);
             send(loggedData);
         }
     }
@@ -66,8 +71,19 @@ public class EdgeLogService extends Service implements SensorEventListener{
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {currSteps++;}
         else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
+        else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {accellerometerInfo(event);}
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    //detect whether a step has been taken
+    //if so, increment the step counter
+    public void accellerometerInfo(SensorEvent event){
+        //movement
+        x = event.values[0];
+        y = event.values[1];
+        z = event.values[2];
+
+    }
 }

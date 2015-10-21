@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by Nikhil on 10/18/2015.
  */
-public abstract class Drawable {
+public abstract class  Drawable {
 
     protected int priority;
     protected ArrayList<String> attributes;
