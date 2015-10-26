@@ -78,10 +78,10 @@ public class EdgeLogService extends Service implements SensorEventListener{
         else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, rot, 0, event.values.length);
+            System.arraycopy(event.values, 0, acc, 0, event.values.length);
         }
         else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            System.arraycopy(event.values, 0, acc, 0, event.values.length);
+            System.arraycopy(event.values, 0, rot, 0, event.values.length);
             }
     }
 
