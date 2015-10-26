@@ -123,9 +123,9 @@ public class MyView extends View {
 
     }
     private void setBackgroundImage(Canvas canvas){
-        Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null);
-        background.setBounds(0,0,1500,900);
-        background.draw(canvas);
+        //Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null);
+        //background.setBounds(0,0,1500,900);
+        //background.draw(canvas);
     }
 
     /*

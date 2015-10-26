@@ -12,7 +12,7 @@ public class Edge extends CanvasDrawable {
     private static final int DEFAULTEDGEPRIORITY = 100;
     private Node start, end;
     private int weight, direction;
-    protected EdgeData edgeData;
+    //protected EdgeData edgeData;
 
     public Edge(Node start, Node end) {
         super(DEFAULTEDGEPRIORITY);

@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
         edges.add(con4);
 
         //starts background service for collecting edge data
-        startService(new Intent(this, EdgeLogService.class));
+        //startService(new Intent(this, EdgeLogService.class));
     }
     public void pressed(View view){
         //MyView myView = (MyView)findViewById(R.id.MyViewTest);
@@ -83,5 +83,10 @@ public class MainActivity extends Activity {
         /*Edge con4 = edges.get(edges.size()-1);
         EdgeData edgeData = con4.edgeData;
 */
+    }
+
+    public void switchActivity(View view){
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
     }
 }

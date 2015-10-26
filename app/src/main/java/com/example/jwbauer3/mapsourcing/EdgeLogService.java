@@ -7,8 +7,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.os.Binder;
 import android.util.Log;
 import com.example.jwbauer3.mapsourcing.LogData;
+
+import java.util.ArrayList;
 
 
 /*Service handles the collection of sensor data in the background*/
@@ -18,6 +21,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
     private float currDirection;
     private float currPressure;
     private float[] acc, rot;
+    private final IBinder mBinder = new LocalBinder();
+    private ArrayList<LogData> currData = new ArrayList<>();
 
     public void onCreate() {
         Thread thread = new Thread()
@@ -34,8 +39,23 @@ public class EdgeLogService extends Service implements SensorEventListener{
         thread.start();
     }
 
+    public class LocalBinder extends Binder {
+        EdgeLogService getService() {
+            return EdgeLogService.this;
+        }
+    }
+
+
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
+    }
+
+    public ArrayList<LogData> getCurrData(){
+        return currData;
+    }
+
+    public void clearData(){
+        currData.clear();
     }
 
     public void sensorThread() {
@@ -64,7 +84,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
             catch (InterruptedException e){e.printStackTrace();}
             LogData loggedData = new LogData(currSteps, currDirection, currPressure,
                     System.currentTimeMillis(), acc, rot);
-            send(loggedData);
+            currData.add(loggedData);
         }
     }
 
