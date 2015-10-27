@@ -43,20 +43,21 @@
         android:id="@+id/Button_TestButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:onClick="pressed"
-        android:text="Push Me" />
+        android:text="Push Me"
+        android:layout_alignTop="@+id/button2"
+        android:layout_alignEnd="@+id/TextViewHello" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MapMode"
+        android:text="Map Mode"
         android:id="@+id/button2"
+        android:onClick="switchActivity"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="switchActivity" />
+        android:layout_alignEnd="@+id/ScrollView_myViewScrollview"
+        android:layout_marginEnd="53dp" />
 
 
 </RelativeLayout>

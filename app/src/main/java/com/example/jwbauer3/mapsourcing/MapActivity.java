@@ -16,8 +16,6 @@ import java.util.ArrayList;
 
 
 public class MapActivity extends AppCompatActivity {
-
-    private boolean mapping = false;
     private Node firstNode;
     private Node prevNode;
     EdgeLogService mService;
@@ -29,12 +27,13 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        Node firstNode = new Node(0,0);
+        //First node will start at the origin
+        firstNode = new Node(0,0);
         prevNode = firstNode;
 
+        //Bind to the EdgeLogService
         Intent intent = new Intent(this, EdgeLogService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
@@ -59,28 +58,36 @@ public class MapActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     public void createNode(View vew){
         ArrayList<LogData> currData = mService.getCurrData();
-        float direction=0;
-        for(int i=0; i< currData.size(); i++) {
-            direction+=currData.get(i).getDirection();
-        }
-        direction/=currData.size();
+        float direction=aveDir(currData);
         int steps= (int) currData.get(currData.size()-1).getSteps();
 
-      //log data steps direction
-        Node newNode = new Node(prevNode.getxPos()-steps*(int)Math.cos((double) direction+90.0),prevNode.getyPos()+ steps*(int)Math.sin((double) direction+90.0));
+        //Calculate xy location of the current node
+        int xDir = prevNode.getxPos() - (steps * (int) Math.cos((double) direction + 90.0));
+        int yDir = prevNode.getyPos() + (steps * (int) Math.sin((double) direction + 90.0));
+
+        Node newNode = new Node(xDir,yDir);
         Edge currEdge= new Edge(prevNode, newNode);
         currEdge.setDirection((int) direction);
-        currEdge.setWeight((int) currData.get(currData.size() - 1).getSteps());
+        currEdge.setWeight(steps);
         prevNode.setEdges(currEdge);
         newNode.setEdges(currEdge);
         prevNode=newNode;
 
       //  Toast.makeText(getApplicationContext(), "CurrSteps : " +
               //  Float.toString(mService.getCurrSteps()),Toast.LENGTH_SHORT).show();
+
+        //clear data and start recording for next edge
         mService.clearData();
+    }
+
+    public float aveDir(ArrayList<LogData> currData){
+        int direction=0;
+        for(int i=0; i< currData.size(); i++) {
+            direction+=currData.get(i).getDirection();
+        }
+        return direction/currData.size();
     }
 
     private ServiceConnection mConnection = new ServiceConnection(){
