@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.content.Intent;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class MapActivity extends AppCompatActivity {
     private Node prevNode;
     EdgeLogService mService;
     boolean mBound = false;
+    int prevSteps;
 
 
     @Override
@@ -30,6 +32,7 @@ public class MapActivity extends AppCompatActivity {
         //First node will start at the origin
         firstNode = new Node(0,0);
         prevNode = firstNode;
+        prevSteps=0;
 
         //Bind to the EdgeLogService
         Intent intent = new Intent(this, EdgeLogService.class);
@@ -58,14 +61,16 @@ public class MapActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     public void createNode(View vew){
         ArrayList<LogData> currData = mService.getCurrData();
         float direction=aveDir(currData);
-        int steps= (int) currData.get(currData.size()-1).getSteps();
+        int steps= (int) currData.get(currData.size()-1).getSteps() - prevSteps;
+        prevSteps = (int) currData.get(currData.size()-1).getSteps();
 
         //Calculate xy location of the current node
-        int xDir = prevNode.getxPos() - (steps * (int) Math.cos((double) direction + 90.0));
-        int yDir = prevNode.getyPos() + (steps * (int) Math.sin((double) direction + 90.0));
+        int xDir =  (prevNode.getxPos() + (int)(steps *  Math.sin((double) direction * Math.PI / 180)));
+        int yDir =  (prevNode.getyPos() + (int)(steps *  Math.cos((double) direction * Math.PI / 180)));
 
         Node newNode = new Node(xDir,yDir);
         Edge currEdge= new Edge(prevNode, newNode);
@@ -74,13 +79,24 @@ public class MapActivity extends AppCompatActivity {
         prevNode.setEdges(currEdge);
         newNode.setEdges(currEdge);
 
-        Toast.makeText(getApplicationContext(), "Parent Node  x:"+Float.toString(prevNode.getxPos())
+        TextView out = (TextView) findViewById(R.id.output);
+        out.setText("Parent Node  x:"+Float.toString(prevNode.getxPos())
+                +" y:"+Float.toString(prevNode.getyPos())+"\nChild Node     x:"+Float.toString(newNode.getxPos())
+                +" y:"+Float.toString(newNode.getyPos())+"\nEdge direction:"+Float.toString(currEdge.getDirection())
+                +"\nweight:"+Float.toString(currEdge.getWeight()));
+
+       /* Toast.makeText(getApplicationContext(), "Parent Node  x:"+Float.toString(prevNode.getxPos())
                         +" y:"+Float.toString(prevNode.getyPos())+" Child Node x:"+Float.toString(newNode.getxPos())
                 +" y:"+Float.toString(newNode.getxPos())+" Edge direction:"+Float.toString(currEdge.getDirection())
                 +" weight:"+Float.toString(currEdge.getWeight()),Toast.LENGTH_LONG).show();
+                */
 
         prevNode=newNode;
         //clear data and start recording for next edge
+        //mService.clearData();
+    }
+
+    public void clrButton(View view){
         mService.clearData();
     }
 
