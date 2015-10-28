@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -32,45 +33,46 @@ public class MainActivity extends Activity {
         //imageView.invalidate();
 
 
-        ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView_myViewScrollview);
-        int height = scrollView.getHeight();
+
+        LinearLayout linearLayout = (LinearLayout)findViewById(R.id.LinearLayout_main_wrapper);
+        int height = linearLayout.getHeight();
 
         MyView myView = (MyView)findViewById(R.id.MyViewTest);
-        myView.setMinimumHeight(height);
+        //myView.setMinimumHeight(height);
         //myView.touchDown();
         myView.setNodesEdges(nodes, edges);
         //myView.setListener();
         //MyView myView = new MyView(this, nodes, edges);
         //ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView_myViewScrollview);
-        scrollView.invalidate();
+        linearLayout.invalidate();
     }
     private void setUp() {
         //width, height
         Node test1 = new Node(0, 150);
         Node test2 = new Node(400, -350);
         Node test3 = new Node(-300, 400);
-        Node test4 = new Node(800, 800);
-        Node test5 = new Node(1212, 1911);
+        //Node test4 = new Node(800, 800);
+        //Node test5 = new Node(1212, 1911);
         Edge con1 = new Edge(test1, test2);
-        Edge con2 = new Edge(test2, test4);
+        //Edge con2 = new Edge(test2, test4);
         Edge con3 = new Edge(test1, test3);
-        Edge con4 = new Edge(test3, test4);
+        //Edge con4 = new Edge(test3, test4);
         nodes.add(test1);
         nodes.add(test2);
         nodes.add(test3);
-        nodes.add(test4);
-        nodes.add(test5);
+        //nodes.add(test4);
+        //nodes.add(test5);
         edges.add(con1);
-        edges.add(con2);
+        //edges.add(con2);
         edges.add(con3);
-        edges.add(con4);
+        //edges.add(con4);
 
         //starts background service for collecting edge data
         //startService(new Intent(this, EdgeLogService.class));
     }
     public void pressed(View view){
         //MyView myView = (MyView)findViewById(R.id.MyViewTest);
-        ScrollView myView = (ScrollView)findViewById(R.id.ScrollView_myViewScrollview);
+        LinearLayout myView = (LinearLayout)findViewById(R.id.LinearLayout_main_wrapper);
         //myView.touchDown();
         //myView.setNodesEdges(nodes, edges);
         //myView.setListener();

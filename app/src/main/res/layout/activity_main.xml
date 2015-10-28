@@ -16,48 +16,43 @@
         android:text="@string/hello_world"
         android:textSize="24sp" />
 
-    <ScrollView
-        android:id="@+id/ScrollView_myViewScrollview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:id="@+id/LinearLayout_main_wrapper"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_above="@+id/Button_TestButton"
         android:layout_below="@id/TextViewHello"
         android:background="@android:color/darker_gray">
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-            <com.example.jwbauer3.mapsourcing.MyView
-                android:id="@+id/MyViewTest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fillViewport="true" />
+        <com.example.jwbauer3.mapsourcing.MyView
+            android:id="@+id/MyViewTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fillViewport="true" />
 
-        </HorizontalScrollView>
-
-    </ScrollView>
+    </LinearLayout>
 
 
     <Button
         android:id="@+id/Button_TestButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="pressed"
-        android:text="Push Me"
+        android:layout_alignEnd="@+id/TextViewHello"
         android:layout_alignTop="@+id/button2"
-        android:layout_alignEnd="@+id/TextViewHello" />
+        android:onClick="pressed"
+        android:text="Push Me" />
 
     <Button
+        android:id="@+id/button2"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Map Mode"
-        android:id="@+id/button2"
-        android:onClick="switchActivity"
+        android:layout_alignEnd="@+id/LinearLayout_main_wrapper"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/ScrollView_myViewScrollview"
-        android:layout_marginEnd="53dp" />
+        android:layout_marginEnd="53dp"
+        android:onClick="switchActivity"
+        android:text="Map Mode" />
 
 
 </RelativeLayout>

@@ -53,9 +53,9 @@ public class Node extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int xPos, int yPos, int xOffset, int yOffset) {
+    public boolean contains(int clickedX, int clickedY, int xOffset, int yOffset) {
         //TODO: MAGIC NUMBER FOR RADIUS
-        return (Math.sqrt(Math.pow(xPos - (this.getxPos() + xOffset), 2) + Math.pow(yPos - (this.getyPos() + yOffset), 2)) <= 100);
+        return (Math.sqrt(Math.pow(clickedX - (this.getxPos() + xOffset), 2) + Math.pow(clickedY - (this.getyPos() + yOffset), 2)) <= 100);
     }
 
     public boolean equals(Object toCompare) {
