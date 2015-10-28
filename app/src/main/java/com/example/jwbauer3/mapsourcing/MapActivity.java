@@ -73,11 +73,13 @@ public class MapActivity extends AppCompatActivity {
         currEdge.setWeight(steps);
         prevNode.setEdges(currEdge);
         newNode.setEdges(currEdge);
+
+        Toast.makeText(getApplicationContext(), "Parent Node  x:"+Float.toString(prevNode.getxPos())
+                        +" y:"+Float.toString(prevNode.getyPos())+" Child Node x:"+Float.toString(newNode.getxPos())
+                +" y:"+Float.toString(newNode.getxPos())+" Edge direction:"+Float.toString(currEdge.getDirection())
+                +" weight:"+Float.toString(currEdge.getWeight()),Toast.LENGTH_LONG).show();
+
         prevNode=newNode;
-
-      //  Toast.makeText(getApplicationContext(), "CurrSteps : " +
-              //  Float.toString(mService.getCurrSteps()),Toast.LENGTH_SHORT).show();
-
         //clear data and start recording for next edge
         mService.clearData();
     }
