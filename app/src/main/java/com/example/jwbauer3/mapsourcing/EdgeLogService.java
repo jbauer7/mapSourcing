@@ -31,8 +31,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
             public void run() {
                     acc = new float[3];
                     rot = new float[3];
-
                     sensorThread();
+                    logData();
             }
         };
         thread.start();
@@ -54,6 +54,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
     }
 
     public void clearData(){
+        currSteps=0;
         currData.clear();
     }
 
@@ -79,12 +80,13 @@ public class EdgeLogService extends Service implements SensorEventListener{
 
     //Logs direction and time when a step has been detected
     public void logData() {
-          //  try {Thread.sleep(100);}
-          //  catch (InterruptedException e){e.printStackTrace();}
+       while(true){
+        try {Thread.sleep(100);}
+            catch (InterruptedException e){e.printStackTrace();}
             LogData loggedData = new LogData(currSteps, currDirection, currPressure,
                     System.currentTimeMillis(), acc, rot);
             currData.add(loggedData);
-      //  }
+        }
     }
 
     public void send(LogData loggedData){
@@ -95,7 +97,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
     public void onSensorChanged (SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
             currSteps++;
-            logData();
+        //    logData();
         }
         else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
