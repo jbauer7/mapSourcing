@@ -69,7 +69,7 @@ public class Edge extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int xPos, int yPos, int xOffset, int yOffset) {
+    public boolean contains(int xPos, int yPos, int xOffset, int yOffset, float scaleFactor) {
         //TODO: implement algorithm that can determine if the point is on the line
         //TODO: get access to the width of the line
         //TODO: limit the clickable portion to not be past the line.
