@@ -55,7 +55,8 @@ public class Node extends CanvasDrawable {
 
     @Override
     public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
-        //xoffset and offset include translated and scale factor already
+        //transxoffset and transyoffset include translated and scale factor already
+        //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
         int displayedRadius = (int)(RADIUS *scaleFactor);
         int scaledXPosition = (int)((this.getxPos() + transXoffset)*scaleFactor);
         int scaledYPosition = (int)((this.getyPos() + transYoffset)*scaleFactor);

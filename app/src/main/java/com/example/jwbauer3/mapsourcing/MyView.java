@@ -115,7 +115,6 @@ public class MyView extends View {
 
         canvas.save();
 
-
         canvas.scale(scaleFactor, scaleFactor);
         canvas.translate(transX / scaleFactor, transY / scaleFactor);
 
@@ -267,6 +266,12 @@ public class MyView extends View {
 
             //zooming
             myDetector.onTouchEvent(event);
+
+            //TODO: magic number for max zoom
+            //allow 4x zoom at maximum
+            if (scaleFactor >4){
+                scaleFactor = 4;
+            }
 
             //todo: add a case for landscape/portrait
             //if we zoomed out too far width wise, make the scale factor set to a minimum. PORTRAIT ONLY
