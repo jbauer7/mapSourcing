@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.lang.Object;
 
 
 public class MapActivity extends AppCompatActivity {
@@ -22,6 +23,7 @@ public class MapActivity extends AppCompatActivity {
     EdgeLogService mService;
     boolean mBound = false;
     int prevSteps;
+    float prevDirection = 1000;
 
 
     @Override
@@ -64,6 +66,7 @@ public class MapActivity extends AppCompatActivity {
 
     public void createNode(View vew){
         ArrayList<LogData> currData = mService.getCurrData();
+        String turn = "";
         float direction=aveDir(currData);
         int steps= (int) currData.get(currData.size()-1).getSteps() - prevSteps;
         prevSteps = (int) currData.get(currData.size()-1).getSteps();
@@ -85,13 +88,47 @@ public class MapActivity extends AppCompatActivity {
                 +" y:"+Float.toString(newNode.getyPos())+"\nEdge direction:"+Float.toString(currEdge.getDirection())
                 +"\nweight:"+Float.toString(currEdge.getWeight()));
 
+
+
+        //this doesn't work yet
+        //it's supposed to be me testing how to determine what direction of a turn we just made
+        if(prevDirection != 1000){
+            if(prevDirection - currEdge.getDirection() > 35 || currEdge.getDirection() - prevDirection >35){
+                if(prevDirection <= 45 || currEdge.getDirection() <= 45){
+                    if(prevDirection > currEdge.getDirection()){
+                        turn = "left";
+                    }
+                    else{
+                        turn = "right";
+                    }
+                }
+                else{
+                    if(prevDirection > currEdge.getDirection()){
+                        turn = "right";
+                    }
+                    else{
+                        turn = "left";
+                    }
+                }
+            }
+            else{
+                turn = "no";
+            }
+
+            Toast.makeText(getApplicationContext(), turn + " turn",Toast.LENGTH_LONG).show();
+        }
+
+        prevDirection = currEdge.getDirection();
+
+
+
        /* Toast.makeText(getApplicationContext(), "Parent Node  x:"+Float.toString(prevNode.getxPos())
                         +" y:"+Float.toString(prevNode.getyPos())+" Child Node x:"+Float.toString(newNode.getxPos())
                 +" y:"+Float.toString(newNode.getxPos())+" Edge direction:"+Float.toString(currEdge.getDirection())
                 +" weight:"+Float.toString(currEdge.getWeight()),Toast.LENGTH_LONG).show();
                 */
 
-        prevNode=newNode;
+        prevNode = newNode;
         //clear data and start recording for next edge
         //mService.clearData();
     }

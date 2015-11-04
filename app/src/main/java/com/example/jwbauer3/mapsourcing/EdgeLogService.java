@@ -23,6 +23,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
     private float[] acc, rot;
     private final IBinder mBinder = new LocalBinder();
     private ArrayList<LogData> currData = new ArrayList<>();
+    boolean lock = false;
 
     public void onCreate() {
         Thread thread = new Thread()
@@ -89,20 +90,45 @@ public class EdgeLogService extends Service implements SensorEventListener{
         }
     }
 
+    //code from minilab 4 part 2.  It is a step detector based on the readings
+    //from the accelerometer
+    private void checkShake(SensorEvent event) {
+
+        // Movement
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        float accelationSquareRoot = (x * x + y * y + z * z)
+                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+        if (accelationSquareRoot >= 1.3) //
+        {
+            if(!lock){
+                currSteps++;
+                lock = true;
+            }
+        }
+        else{
+            lock = false;
+        }
+
+    }
+
     public void send(LogData loggedData){
         //TODO ADD CODE to send object to SERVER
     }
 
     @Override
     public void onSensorChanged (SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            currSteps++;
+        //if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+          //  currSteps++;
         //    logData();
-        }
-        else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
+        //}
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             System.arraycopy(event.values, 0, acc, 0, event.values.length);
+            checkShake(event);
         }
         else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             System.arraycopy(event.values, 0, rot, 0, event.values.length);
