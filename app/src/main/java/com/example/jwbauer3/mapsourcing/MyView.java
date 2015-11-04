@@ -1,10 +1,12 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -40,6 +42,8 @@ public class MyView extends View {
     private float transY = 0f;
     private float prevTransX = 0f;
     private float prevTransY = 0f;
+
+    private final int MAXZOOMSCALE = 4;
 
 
     private float scaleFactor = 1.f;
@@ -88,11 +92,10 @@ public class MyView extends View {
     }
 
     /*
-    Sets the OnTouchListener for this view.
+     Sets both onTouch listener and ScaleGestureDetector
      */
     private void setListener() {
         //TODO: is it better to have this be public, and call only when nodes/edges are set?
-        //ie: put this line inside of setNodesEdges() method?
         this.setOnTouchListener(new MyOnTouchListener());
         myDetector = new ScaleGestureDetector(getContext(), new MyScaleListener());
     }
@@ -154,8 +157,8 @@ public class MyView extends View {
         //problem arises from priority queue puts the lowest elements first, but we click highest
         //that are at the end of the list.
         CanvasDrawable selectedElement = null;
-        int translatedXOffset = xOffset + (int)(transX/scaleFactor);
-        int translatedYOffset = yOffset + (int)(transY/scaleFactor);
+        int translatedXOffset = xOffset + (int) (transX / scaleFactor);
+        int translatedYOffset = yOffset + (int) (transY / scaleFactor);
         for (CanvasDrawable element : drawables) {
 
             if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, scaleFactor)) {
@@ -231,6 +234,7 @@ public class MyView extends View {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    //push one finger to screen
                     mode = DRAG;
                     startX = event.getX() - prevTransX;
                     startY = event.getY() - prevTransY;
@@ -239,73 +243,69 @@ public class MyView extends View {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
+                    //still panning/dragging
                     transX = event.getX() - startX;
                     transY = event.getY() - startY;
                     break;
 
                 case MotionEvent.ACTION_POINTER_DOWN:
+                    //push a second finger to screen
                     mode = ZOOM;
                     break;
 
                 case MotionEvent.ACTION_UP:
-                    // touch up code
+                    //take both fingers off screen
                     mode = NONE;
                     prevTransX = transX;
                     prevTransY = transY;
                     break;
 
                 case MotionEvent.ACTION_POINTER_UP:
+                    //take one finger off screen
                     mode = DRAG;
-                    //maybe don't need these.
                     prevTransX = transX;
                     prevTransY = transY;
                     break;
-
             }
-
-
-            //zooming
+            //alert the scale gesture detector to possible scaling.
             myDetector.onTouchEvent(event);
 
-            //TODO: magic number for max zoom
-            //allow 4x zoom at maximum
-            if (scaleFactor >4){
-                scaleFactor = 4;
+            //Fix the max scale factor
+            if (scaleFactor > MAXZOOMSCALE) {
+                scaleFactor = MAXZOOMSCALE;
             }
 
-            //todo: add a case for landscape/portrait
-            //if we zoomed out too far width wise, make the scale factor set to a minimum. PORTRAIT ONLY
-            if (scaleFactor * backgroundWidth < myViewWidth) {
-                scaleFactor = ((float) myViewWidth) / backgroundWidth;
+            //portrait scale fix
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                //If our width is smaller than myViewWidth, we have to adjust
+                if (scaleFactor * backgroundWidth < myViewWidth) {
+                    scaleFactor = ((float) myViewWidth) / backgroundWidth;
+                }
             }
-
-            //check width
-            //don't let image pan past the right edge
-            if(scaleFactor * backgroundWidth - myViewWidth + transX < 0){
-                transX = -(scaleFactor * backgroundWidth -myViewWidth);
+            //landscape scale fix
+            else {
+                //If our height is smaller than myViewHeight, we have to adjust
+                if (scaleFactor * backgroundHeight < myViewHeight) {
+                    scaleFactor = ((float) myViewHeight) / backgroundHeight;
+                }
             }
-            //dont let image pan past the left edge
-            if(transX > 0){
+            //don't let image pan past the left edge
+            if (transX > 0) {
                 transX = 0;
             }
-
-            //check height: fail when ONLY 1 of the edges passes
-
             //don't let image pan past the right edge
-            if(scaleFactor * backgroundHeight - myViewHeight + transY < 0){
-                transY = -(scaleFactor * backgroundHeight -myViewHeight);
+            else if (scaleFactor * backgroundWidth - myViewWidth + transX < 0) {
+                transX = -(scaleFactor * backgroundWidth - myViewWidth);
             }
-            //dont let image pan past the left edge
-            //will let the image be centered
-           // if(transY > myViewHeight/2 - backgroundHeight/2){
-           //     transY = myViewHeight/2 - backgroundHeight/2;
-           // }
-            //clips image to top of screen.
-            //TODO: clip image to middle of screen? Look above for initial idea
-            if(transY > 0){
+
+            //don't let image pan past the top edge
+            if (transY > 0) {
                 transY = 0;
             }
-
+            //don't let image pan past the bottom edge
+            else if (scaleFactor * backgroundHeight - myViewHeight + transY < 0) {
+                transY = -(scaleFactor * backgroundHeight - myViewHeight);
+            }
 
             //update image if we are dragging, or if we are zooming in our out.
             if (mode == DRAG || mode == ZOOM) {
@@ -316,29 +316,25 @@ public class MyView extends View {
 
     }
 
+    /*
+    Custom class to handle scaling for our canvas.
+     */
     class MyScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-
-            //.postScale(detector.getScaleFactor(), detector.getScaleFactor(), detector.getFocusX(), detector.getFocusY());
-            //Canvas canvas = new Canvas();
-
-            //canvas.scale(detector.getScaleFactor(), detector.getScaleFactor(), detector.getFocusX(), detector.getFocusY());
-            //cubed so it zooms faster
-            scaleFactor *= detector.getScaleFactor();// * detector.getScaleFactor() * detector.getScaleFactor();
+            //when we are zooming, this updates our scale factor
+            scaleFactor *= detector.getScaleFactor();
             //invalidate(); not needed because its called from the ontouchlistener
             return true;
         }
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            // return drawMatrix != null;
             return true;
         }
 
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
-
         }
     }
 

@@ -91,6 +91,22 @@ public class Edge extends CanvasDrawable {
         //side c is from clicked to end
         double c = Math.sqrt(Math.pow(clickedX - xEnd, 2) + Math.pow(clickedY - yEnd, 2));
 
+        //ensure that the point clicked is inside the line constraints, ie: not along the infinite line
+        //to do this, we check to see if our constructed triangle is acute or obtuse.
+        //the former could be inside, the latter cannot.
+        //Algorithm is based on pythag formula.
+        if(c*c > (b*b) + (a*a)){
+            //our triangle is obtuse b/c point a is outside
+            return false;
+        }
+        else if(a*a > (b*b) + (c*c)){
+            //our triangle is obtuse b/c point c is outside
+            return false;
+        }
+
+        //now our point is 'bounded by the edges of the rectangle (inside, either above or below)
+        //determine height to see if we are bounded by the other set of edges
+
         //calculate height
         double height = Math.sqrt((-a - b - c) * (a - b - c) * (a + b - c) * (a - b + c)) / (2 * b);
 
