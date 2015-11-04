@@ -10,6 +10,7 @@ import android.graphics.Paint;
 public class Edge extends CanvasDrawable {
 
     private static final int DEFAULTEDGEPRIORITY = 100;
+    private static final int DRAWNLINEWIDTH = 25;
     private Node start, end;
     private int weight, direction;
     //protected EdgeData edgeData;
@@ -54,7 +55,7 @@ public class Edge extends CanvasDrawable {
         Paint paint = new Paint();
         //Update the paintbrush to make lines (for edges)
         //paint.setStyle(Paint.Style.FILL);
-        paint.setStrokeWidth(25);
+        paint.setStrokeWidth(DRAWNLINEWIDTH);
         if (this.attributes.contains("clicked")) {
             paint.setColor(Color.parseColor("#AAAAAA"));
         } else {
@@ -69,29 +70,33 @@ public class Edge extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int xPos, int yPos, int xOffset, int yOffset) {
-        //TODO: implement algorithm that can determine if the point is on the line
-        //TODO: get access to the width of the line
-        //TODO: limit the clickable portion to not be past the line.
+    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
+        int xStart = (int) ((this.getStart().getxPos() + transXoffset) * scaleFactor);
+        int yStart = (int) ((this.getStart().getyPos() + transYoffset) * scaleFactor);
+        int xEnd = (int) ((this.getEnd().getxPos() + transXoffset) * scaleFactor);
+        int yEnd = (int) ((this.getEnd().getyPos() + transYoffset) * scaleFactor);
 
-        int xStart = this.getStart().getxPos() + xOffset;
-        int yStart = this.getStart().getyPos() + yOffset;
-        int xEnd = this.getEnd().getxPos() + xOffset;
-        int yEnd = this.getEnd().getyPos() + yOffset;
+        //we are using herons formula to determine calculate the area of the triangle created.
+        //once we have the area we can find the height with respect to our inital line (b) by doing
+        //height = 2*Area/b
+        //Formula found from http://www.mathopenref.com/heronsformula.html
 
+        //length of each side
+        //side a is from start to click
+        double a = Math.sqrt(Math.pow(clickedX - xStart, 2) + Math.pow(clickedY - yStart, 2));
 
-        int perpDistance = (int) (Math.abs(((yEnd - yStart) * xPos) - ((xEnd - xStart) * yPos) + (xEnd * yStart) - (yEnd * xStart)) /
-                (Math.sqrt(Math.pow(yEnd - yStart, 2) + Math.pow(xEnd - xStart, 2))));
+        //side b is from start to end
+        double b = Math.sqrt(Math.pow(xStart - xEnd, 2) + Math.pow(yStart - yEnd, 2));
 
-        return (perpDistance <= 25);
-    }
-    private int getPerpDistance(double xStart,double xEnd,double yStart,double yEnd,double xPos,double yPos){
+        //side c is from clicked to end
+        double c = Math.sqrt(Math.pow(clickedX - xEnd, 2) + Math.pow(clickedY - yEnd, 2));
 
-        int perpDistance = (int) (Math.abs(((yEnd - yStart) * xPos) - ((xEnd - xStart) * yPos) + (xEnd * yStart) - (yEnd * xStart)) /
-                (Math.sqrt(Math.pow(yEnd - yStart, 2) + Math.pow(xEnd - xStart, 2))));
+        //calculate height
+        double height = Math.sqrt((-a - b - c) * (a - b - c) * (a + b - c) * (a - b + c)) / (2 * b);
 
-        return perpDistance;
-
+        //check to see if the height is less than our scaled width of the line.
+        //take the half because the drawnlinewidth is the entire line, we only can allow for half of that.
+        return (height <= (DRAWNLINEWIDTH/2.0)*scaleFactor);
     }
 
     public boolean equals(Object toCompare) {
@@ -99,13 +104,10 @@ public class Edge extends CanvasDrawable {
             return false;
         }
         Edge comp = (Edge) toCompare;
-        if (comp.getStart().getxPos() == this.getStart().getxPos() &&
-                comp.getStart().getyPos() == this.getStart().getyPos() &&
-                comp.getEnd().getxPos() == this.getEnd().getxPos() &&
-                comp.getEnd().getyPos() == this.getEnd().getyPos()) {
-            return true;
-        }
-        return false;
+        return ((comp.getStart().getxPos() == this.getStart().getxPos()) &&
+                (comp.getStart().getyPos() == this.getStart().getyPos()) &&
+                (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
+                (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
 
 }

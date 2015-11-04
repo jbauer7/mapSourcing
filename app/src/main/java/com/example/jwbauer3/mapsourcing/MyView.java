@@ -42,7 +42,7 @@ public class MyView extends View {
     private float prevTransY = 0f;
 
 
-    private Float scaleFactor = 1.f;
+    private float scaleFactor = 1.f;
     private ScaleGestureDetector myDetector;
     private int backgroundWidth;
     private int backgroundHeight;
@@ -115,7 +115,6 @@ public class MyView extends View {
 
         canvas.save();
 
-
         canvas.scale(scaleFactor, scaleFactor);
         canvas.translate(transX / scaleFactor, transY / scaleFactor);
 
@@ -155,10 +154,13 @@ public class MyView extends View {
         //problem arises from priority queue puts the lowest elements first, but we click highest
         //that are at the end of the list.
         CanvasDrawable selectedElement = null;
+        int translatedXOffset = xOffset + (int)(transX/scaleFactor);
+        int translatedYOffset = yOffset + (int)(transY/scaleFactor);
         for (CanvasDrawable element : drawables) {
-            if (element.contains((int) event.getX(), (int) event.getY(), xOffset, yOffset)) {
+
+            if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, scaleFactor)) {
                 selectedElement = element;
-                //break;
+                //break; took break out to allow the last element found to be the one clicked, as priority queue displays in reverse order.
             }
         }
         if (selectedElement != null) {
@@ -264,6 +266,12 @@ public class MyView extends View {
 
             //zooming
             myDetector.onTouchEvent(event);
+
+            //TODO: magic number for max zoom
+            //allow 4x zoom at maximum
+            if (scaleFactor >4){
+                scaleFactor = 4;
+            }
 
             //todo: add a case for landscape/portrait
             //if we zoomed out too far width wise, make the scale factor set to a minimum. PORTRAIT ONLY

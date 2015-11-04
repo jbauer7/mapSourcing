@@ -29,7 +29,7 @@ public abstract class CanvasDrawable {
     public abstract void draw(Canvas canvas, int xOffset, int yOffset);
 
 
-    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset);
+    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float scale);
 
     /*
     Toggle an attribute on or off,

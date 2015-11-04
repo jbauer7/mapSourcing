@@ -7,11 +7,12 @@ import android.graphics.Paint;
 import java.util.ArrayList;
 
 /**
- * Created by Nikhil on 10/11/2015.
+ * created by Nikhil on 10/11/2015.
  */
 public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
+    private static final int RADIUS = 100;
     private int xPos, yPos;
     private ArrayList<Edge> edges;
 
@@ -53,9 +54,13 @@ public class Node extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int clickedX, int clickedY, int xOffset, int yOffset) {
-        //TODO: MAGIC NUMBER FOR RADIUS
-        return (Math.sqrt(Math.pow(clickedX - (this.getxPos() + xOffset), 2) + Math.pow(clickedY - (this.getyPos() + yOffset), 2)) <= 100);
+    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
+        //transxoffset and transyoffset include translated and scale factor already
+        //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
+        int displayedRadius = (int)(RADIUS *scaleFactor);
+        int scaledXPosition = (int)((this.getxPos() + transXoffset)*scaleFactor);
+        int scaledYPosition = (int)((this.getyPos() + transYoffset)*scaleFactor);
+        return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
     }
 
     public boolean equals(Object toCompare) {
