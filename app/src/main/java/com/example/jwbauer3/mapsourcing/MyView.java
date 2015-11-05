@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -26,6 +25,8 @@ public class MyView extends View {
     private ArrayList<Node> nodes;
     private ArrayList<Node> clickedNodes = new ArrayList<>();
     private ArrayList<Edge> edges;
+    private int originalXOffset = 0;
+    private int originalYOffset = 0;
     private int xOffset = 0;
     private int yOffset = 0;
     private int radius = 100;
@@ -44,6 +45,16 @@ public class MyView extends View {
     private float prevTransY = 0f;
 
     private final int MAXZOOMSCALE = 4;
+    private boolean meshMode = false;
+
+    private float tempStartX;
+    private float tempStartY;
+    private float tempTransX;
+    private float tempTransY;
+    private float tempPrevTransX;
+    private float tempPrevTransY;
+    private float tempScaleFactor;
+
 
 
     private float scaleFactor = 1.f;
@@ -172,6 +183,42 @@ public class MyView extends View {
         }
 
     }
+    /*
+    Turn on or off the ability to move the mesh compared to the canvas
+     */
+    public void toggleMeshMovementMode(){
+        if(meshMode){
+            //restore values
+            startX = tempStartX;
+            startY = tempStartY;
+            transX = tempTransX;
+            transY = tempTransY;
+            prevTransX = tempPrevTransX;
+            prevTransY = tempPrevTransY;
+            scaleFactor = tempScaleFactor;
+        }
+        else{
+            //save off variables when going into meshMode
+            tempStartX = startX;
+            tempStartY = startY;
+            tempTransX = transX;
+            tempTransY = transY;
+            tempPrevTransX = prevTransX;
+            tempPrevTransY = prevTransY;
+            tempScaleFactor = scaleFactor;
+            //wipe the values
+            startX = 0;
+            startY = 0;
+            transX = 0;
+            transY = 0;
+            prevTransX = 0;
+            prevTransY = 0;
+
+
+        }
+        meshMode = !meshMode;
+
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -208,6 +255,8 @@ public class MyView extends View {
             //Offsets are added, so invert the minimum values here
             xOffset = -minX;
             yOffset = -minY;
+            originalXOffset = xOffset;
+            originalYOffset = yOffset;
         }
 
 
@@ -246,6 +295,7 @@ public class MyView extends View {
                     //still panning/dragging
                     transX = event.getX() - startX;
                     transY = event.getY() - startY;
+
                     break;
 
                 case MotionEvent.ACTION_POINTER_DOWN:
@@ -270,6 +320,28 @@ public class MyView extends View {
             //alert the scale gesture detector to possible scaling.
             myDetector.onTouchEvent(event);
 
+            if(meshMode){
+
+                //update the offsets of the nodes xoffset, yoffset
+                xOffset = originalXOffset + (int)(transX);
+                yOffset = originalYOffset + (int)(transY);
+
+
+                //TODO: CHANGE ARCITECURE TO ALLOW FOR EASIER MESH MODE
+                startX = tempStartX;
+                startY = tempStartY;
+                transX = tempTransX;
+                transY = tempTransY;
+                prevTransX = tempPrevTransX;
+                prevTransY = tempPrevTransY;
+                scaleFactor = tempScaleFactor;
+
+                invalidate();
+                //break out of method, no updates should occur.
+                return true;
+
+            }
+
             //Fix the max scale factor
             if (scaleFactor > MAXZOOMSCALE) {
                 scaleFactor = MAXZOOMSCALE;
@@ -289,22 +361,28 @@ public class MyView extends View {
                     scaleFactor = ((float) myViewHeight) / backgroundHeight;
                 }
             }
+
+
+            //Two 4 consecutive if statements ensures that the drawing is mapped to the top and
+            //left corner as a default.
+
+            //left and right
+            //don't let image pan past the right edge
+            if (scaleFactor * backgroundWidth - myViewWidth + transX < 0) {
+                transX = -(scaleFactor * backgroundWidth - myViewWidth);
+            }
             //don't let image pan past the left edge
             if (transX > 0) {
                 transX = 0;
             }
-            //don't let image pan past the right edge
-            else if (scaleFactor * backgroundWidth - myViewWidth + transX < 0) {
-                transX = -(scaleFactor * backgroundWidth - myViewWidth);
+            //top and bottom
+            //don't let image pan past the bottom edge
+            if (scaleFactor * backgroundHeight - myViewHeight + transY < 0) {
+                transY = -(scaleFactor * backgroundHeight - myViewHeight);
             }
-
             //don't let image pan past the top edge
             if (transY > 0) {
                 transY = 0;
-            }
-            //don't let image pan past the bottom edge
-            else if (scaleFactor * backgroundHeight - myViewHeight + transY < 0) {
-                transY = -(scaleFactor * backgroundHeight - myViewHeight);
             }
 
             //update image if we are dragging, or if we are zooming in our out.

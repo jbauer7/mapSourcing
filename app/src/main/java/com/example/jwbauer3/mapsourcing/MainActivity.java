@@ -5,12 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Toast;
-
-import com.example.jwbauer3.mapsourcing.Edge;
-import com.example.jwbauer3.mapsourcing.MyView;
-import com.example.jwbauer3.mapsourcing.Node;
 
 import java.util.ArrayList;
 
@@ -18,6 +13,7 @@ public class MainActivity extends Activity {
 
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
+    MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +33,7 @@ public class MainActivity extends Activity {
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.LinearLayout_main_wrapper);
         int height = linearLayout.getHeight();
 
-        MyView myView = (MyView)findViewById(R.id.MyViewTest);
+        myView = (MyView)findViewById(R.id.MyViewTest);
         //myView.setMinimumHeight(height);
         //myView.touchDown();
         myView.setNodesEdges(nodes, edges);
@@ -90,5 +86,8 @@ public class MainActivity extends Activity {
     public void switchActivity(View view){
         Intent intent = new Intent(this, MapActivity.class);
         startActivity(intent);
+    }
+    public void toggleMesh(View view){
+        myView.toggleMeshMovementMode();
     }
 }
