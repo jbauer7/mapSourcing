@@ -3,7 +3,6 @@ package com.example.jwbauer3.mapsourcing;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
@@ -23,41 +22,31 @@ import java.util.PriorityQueue;
 public class MyView extends View {
 
     private ArrayList<Node> nodes;
-    private ArrayList<Node> clickedNodes = new ArrayList<>();
-    private ArrayList<Edge> edges;
+    //priority queue for drawing (stores lowest elements first)
+    private PriorityQueue<CanvasDrawable> drawables_draw;
+    //priority queue for search/touching (stores highest elements first)
+    private PriorityQueue<CanvasDrawable> drawables_search;
+
     private int originalXOffset = 0;
     private int originalYOffset = 0;
     private int xOffset = 0;
     private int yOffset = 0;
     private int radius = 100;
-    private PriorityQueue<CanvasDrawable> drawables;
 
     //TODO: use enum
     private static int NONE = 0;
     private static int DRAG = 1;
     private static int ZOOM = 2;
     private int mode = NONE;
-    private float startX = 0f;
-    private float startY = 0f;
-    private float transX = 0f;
-    private float transY = 0f;
-    private float prevTransX = 0f;
-    private float prevTransY = 0f;
 
     private final int MAXZOOMSCALE = 4;
     private boolean meshMode = false;
 
-    private float tempStartX;
-    private float tempStartY;
-    private float tempTransX;
-    private float tempTransY;
-    private float tempPrevTransX;
-    private float tempPrevTransY;
-    private float tempScaleFactor;
+    //hold information on how to draw the canvas, mesh, and what is currently active
+    private ReferenceState canvasReferenceState;
+    private ReferenceState meshReferenceState;
+    private ReferenceState activeReferenceState;
 
-
-
-    private float scaleFactor = 1.f;
     private ScaleGestureDetector myDetector;
     private int backgroundWidth;
     private int backgroundHeight;
@@ -66,83 +55,92 @@ public class MyView extends View {
 
     public MyView(Context context) {
         super(context);
-        setListener();
-        setPriorityQueue();
+        preformSetup();
     }
 
     public MyView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setListener();
-        setPriorityQueue();
+        preformSetup();
     }
 
     public MyView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setListener();
-        setPriorityQueue();
-    }
-
-    private void initWidth_Height() {
-        LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);
-
-        myViewWidth = wrapper.getWidth();
-        myViewHeight = wrapper.getHeight();
+        preformSetup();
     }
 
     /*
     Allows the nodes/edges to be set from an outside source
+    TODO: is there a more efficient way to add nodes/edges to both priority queues
      */
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
-        this.edges = edges;
-
-        drawables.addAll(nodes);
-        drawables.addAll(edges);
-
+        drawables_draw.addAll(nodes);
+        drawables_draw.addAll(edges);
+        drawables_search.addAll(nodes);
+        drawables_search.addAll(edges);
         invalidate();
+    }
+
+    private void preformSetup() {
+        setListeners();
+        setReferenceStates();
+        setDrawableQueue();
     }
 
     /*
      Sets both onTouch listener and ScaleGestureDetector
      */
-    private void setListener() {
-        //TODO: is it better to have this be public, and call only when nodes/edges are set?
+    private void setListeners() {
         this.setOnTouchListener(new MyOnTouchListener());
         myDetector = new ScaleGestureDetector(getContext(), new MyScaleListener());
     }
 
-    private void setPriorityQueue() {
+    /*
+    Instantiates the ReferenceStates to be used.
+     */
+    private void setReferenceStates() {
+        meshReferenceState = new ReferenceState();
+        canvasReferenceState = new ReferenceState();
+        //default active to be canvas (ie: not starting in mesh mode).
+        activeReferenceState = canvasReferenceState;
+    }
+
+    /*
+    Instantiates the Priority Queue to be used to store Drawables
+     */
+    private void setDrawableQueue() {
         //instantiate Set with a custom comparator that looks at priority.
         //TODO: pick a better magic number for init capacity
-        drawables = new PriorityQueue<CanvasDrawable>(10, new Comparator<CanvasDrawable>() {
+        drawables_draw = new PriorityQueue<>(10, new Comparator<CanvasDrawable>() {
             @Override
             public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
                 return lhs.getPriority() - rhs.getPriority();
+            }
+        });
+        drawables_search = new PriorityQueue<>(10, new Comparator<CanvasDrawable>() {
+            @Override
+            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
+                return rhs.getPriority() - lhs.getPriority();
             }
         });
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        //Call the base on draw
         super.onDraw(canvas);
 
         canvas.save();
+        //update the scale: we zoom equally in both x and y direction
+        canvas.scale(canvasReferenceState.scaleFactor, canvasReferenceState.scaleFactor);
+        //update the translation: offset by trans(XY)/scaleFactor (how far at what zoom factor)
+        canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
+                canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
-        canvas.scale(scaleFactor, scaleFactor);
-        canvas.translate(transX / scaleFactor, transY / scaleFactor);
+        //draw the background image (if there is one)
+        drawBackgroundImage(canvas);
 
-        setBackgroundImage(canvas);
-
-        //Create a paintbrush type object
-        Paint paint = new Paint();
-
-        //Set the background color
-        // paint.setStyle(Paint.Style.FILL);
-        //paint.setColor(Color.YELLOW);
-        //canvas.drawPaint(paint);
-
-        for (CanvasDrawable element : drawables) {
+        //draw each drawable element (nodes, edges, etc etc)
+        for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas, xOffset, yOffset);
         }
 
@@ -150,7 +148,11 @@ public class MyView extends View {
 
     }
 
-    private void setBackgroundImage(Canvas canvas) {
+    /*
+    Draws the background image upon the canvas passed in.
+    TODO: update this to call server for image
+     */
+    private void drawBackgroundImage(Canvas canvas) {
         Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null);
 
         backgroundWidth = background.getMinimumWidth();
@@ -164,17 +166,15 @@ public class MyView extends View {
     Handles the response for this
      */
     private void touchDown(MotionEvent event) {
-        //TODO: always search the entire queue, change to search through a reversed list
-        //problem arises from priority queue puts the lowest elements first, but we click highest
-        //that are at the end of the list.
         CanvasDrawable selectedElement = null;
-        int translatedXOffset = xOffset + (int) (transX / scaleFactor);
-        int translatedYOffset = yOffset + (int) (transY / scaleFactor);
-        for (CanvasDrawable element : drawables) {
+        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
+        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
-            if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, scaleFactor)) {
+        for (CanvasDrawable element : drawables_search) {
+
+            if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, canvasReferenceState.scaleFactor)) {
                 selectedElement = element;
-                //break; took break out to allow the last element found to be the one clicked, as priority queue displays in reverse order.
+                break;
             }
         }
         if (selectedElement != null) {
@@ -183,38 +183,23 @@ public class MyView extends View {
         }
 
     }
+
     /*
     Turn on or off the ability to move the mesh compared to the canvas
      */
-    public void toggleMeshMovementMode(){
-        if(meshMode){
-            //restore values
-            startX = tempStartX;
-            startY = tempStartY;
-            transX = tempTransX;
-            transY = tempTransY;
-            prevTransX = tempPrevTransX;
-            prevTransY = tempPrevTransY;
-            scaleFactor = tempScaleFactor;
-        }
-        else{
-            //save off variables when going into meshMode
-            tempStartX = startX;
-            tempStartY = startY;
-            tempTransX = transX;
-            tempTransY = transY;
-            tempPrevTransX = prevTransX;
-            tempPrevTransY = prevTransY;
-            tempScaleFactor = scaleFactor;
-            //wipe the values
-            startX = 0;
-            startY = 0;
-            transX = 0;
-            transY = 0;
-            prevTransX = 0;
-            prevTransY = 0;
-
-
+    public void toggleMeshMovementMode() {
+        if (meshMode) {
+            //leaving meshmode
+            //save off info in meshReferenceState
+            meshReferenceState = activeReferenceState;
+            //switch states
+            activeReferenceState = canvasReferenceState;
+        } else {
+            //entering meshmode
+            //save off info in canvasReferenceState
+            canvasReferenceState = activeReferenceState;
+            //switch states
+            activeReferenceState = meshReferenceState;
         }
         meshMode = !meshMode;
 
@@ -223,8 +208,6 @@ public class MyView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         //TODO: move the offset code somewhere else?
-        int height = heightMeasureSpec;
-        int width = widthMeasureSpec;
         if (nodes != null) {
             int minX = nodes.get(0).getxPos();
             int minY = nodes.get(0).getyPos();
@@ -243,13 +226,12 @@ public class MyView extends View {
                 } else if (curNode.getyPos() > maxY) {
                     maxY = curNode.getyPos();
                 }
-
             }
 
             minX -= radius;
             minY -= radius;
-            maxX += radius;
-            maxY += radius;
+            //maxX += radius;
+            //maxY += radius;
 
 
             //Offsets are added, so invert the minimum values here
@@ -260,9 +242,8 @@ public class MyView extends View {
         }
 
 
-        //TODO: maybe move to a location that is called ealier?
+        //update information every time this runs to catch phone orientation changes
         LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);
-
         myViewWidth = wrapper.getWidth();
         myViewHeight = wrapper.getHeight();
 
@@ -285,16 +266,16 @@ public class MyView extends View {
                 case MotionEvent.ACTION_DOWN:
                     //push one finger to screen
                     mode = DRAG;
-                    startX = event.getX() - prevTransX;
-                    startY = event.getY() - prevTransY;
+                    activeReferenceState.startX = event.getX() - activeReferenceState.prevTransX;
+                    activeReferenceState.startY = event.getY() - activeReferenceState.prevTransY;
                     //todo: should we click if we are dragging
                     touchDown(event);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
                     //still panning/dragging
-                    transX = event.getX() - startX;
-                    transY = event.getY() - startY;
+                    activeReferenceState.transX = event.getX() - activeReferenceState.startX;
+                    activeReferenceState.transY = event.getY() - activeReferenceState.startY;
 
                     break;
 
@@ -306,59 +287,52 @@ public class MyView extends View {
                 case MotionEvent.ACTION_UP:
                     //take both fingers off screen
                     mode = NONE;
-                    prevTransX = transX;
-                    prevTransY = transY;
+                    activeReferenceState.prevTransX = activeReferenceState.transX;
+                    activeReferenceState.prevTransY = activeReferenceState.transY;
                     break;
 
                 case MotionEvent.ACTION_POINTER_UP:
                     //take one finger off screen
                     mode = DRAG;
-                    prevTransX = transX;
-                    prevTransY = transY;
+                    activeReferenceState.prevTransX = activeReferenceState.transX;
+                    activeReferenceState.prevTransY = activeReferenceState.transY;
                     break;
             }
             //alert the scale gesture detector to possible scaling.
             myDetector.onTouchEvent(event);
 
-            if(meshMode){
+            if (meshMode) {
 
                 //update the offsets of the nodes xoffset, yoffset
-                xOffset = originalXOffset + (int)(transX);
-                yOffset = originalYOffset + (int)(transY);
-
-
-                //TODO: CHANGE ARCITECURE TO ALLOW FOR EASIER MESH MODE
-                startX = tempStartX;
-                startY = tempStartY;
-                transX = tempTransX;
-                transY = tempTransY;
-                prevTransX = tempPrevTransX;
-                prevTransY = tempPrevTransY;
-                scaleFactor = tempScaleFactor;
+                xOffset = originalXOffset + (int) (activeReferenceState.transX);
+                yOffset = originalYOffset + (int) (activeReferenceState.transY);
 
                 invalidate();
-                //break out of method, no updates should occur.
+                //break out of method, no updates should occur to canvas.
                 return true;
-
             }
 
             //Fix the max scale factor
-            if (scaleFactor > MAXZOOMSCALE) {
-                scaleFactor = MAXZOOMSCALE;
+            if (activeReferenceState.scaleFactor > MAXZOOMSCALE) {
+                activeReferenceState.scaleFactor = MAXZOOMSCALE;
             }
+
+
+            //TODO: SHOULD THE FOLLOWING BE ACTIVEREFERENCESTATE? DOES IT MATTER?
+            //TODO: HOW TO GET ZOOM TO WORK...
 
             //portrait scale fix
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 //If our width is smaller than myViewWidth, we have to adjust
-                if (scaleFactor * backgroundWidth < myViewWidth) {
-                    scaleFactor = ((float) myViewWidth) / backgroundWidth;
+                if (canvasReferenceState.scaleFactor * backgroundWidth < myViewWidth) {
+                    canvasReferenceState.scaleFactor = ((float) myViewWidth) / backgroundWidth;
                 }
             }
             //landscape scale fix
             else {
                 //If our height is smaller than myViewHeight, we have to adjust
-                if (scaleFactor * backgroundHeight < myViewHeight) {
-                    scaleFactor = ((float) myViewHeight) / backgroundHeight;
+                if (canvasReferenceState.scaleFactor * backgroundHeight < myViewHeight) {
+                    canvasReferenceState.scaleFactor = ((float) myViewHeight) / backgroundHeight;
                 }
             }
 
@@ -368,21 +342,21 @@ public class MyView extends View {
 
             //left and right
             //don't let image pan past the right edge
-            if (scaleFactor * backgroundWidth - myViewWidth + transX < 0) {
-                transX = -(scaleFactor * backgroundWidth - myViewWidth);
+            if (canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth + canvasReferenceState.transX < 0) {
+                canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth);
             }
             //don't let image pan past the left edge
-            if (transX > 0) {
-                transX = 0;
+            if (canvasReferenceState.transX > 0) {
+                canvasReferenceState.transX = 0;
             }
             //top and bottom
             //don't let image pan past the bottom edge
-            if (scaleFactor * backgroundHeight - myViewHeight + transY < 0) {
-                transY = -(scaleFactor * backgroundHeight - myViewHeight);
+            if (canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight + canvasReferenceState.transY < 0) {
+                canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight);
             }
             //don't let image pan past the top edge
-            if (transY > 0) {
-                transY = 0;
+            if (canvasReferenceState.transY > 0) {
+                canvasReferenceState.transY = 0;
             }
 
             //update image if we are dragging, or if we are zooming in our out.
@@ -401,7 +375,8 @@ public class MyView extends View {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             //when we are zooming, this updates our scale factor
-            scaleFactor *= detector.getScaleFactor();
+            //needs to be active because we are using this for both canvas and mesh
+            activeReferenceState.scaleFactor *= detector.getScaleFactor();
             //invalidate(); not needed because its called from the ontouchlistener
             return true;
         }
