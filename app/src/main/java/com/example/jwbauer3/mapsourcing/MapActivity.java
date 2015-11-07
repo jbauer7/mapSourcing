@@ -3,6 +3,7 @@ package com.example.jwbauer3.mapsourcing;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -83,10 +84,14 @@ public class MapActivity extends AppCompatActivity {
         newNode.setEdges(currEdge);
 
         TextView out = (TextView) findViewById(R.id.output);
-        out.setText("Parent Node  x:"+Float.toString(prevNode.getxPos())
-                +" y:"+Float.toString(prevNode.getyPos())+"\nChild Node     x:"+Float.toString(newNode.getxPos())
-                +" y:"+Float.toString(newNode.getyPos())+"\nEdge direction:"+Float.toString(currEdge.getDirection())
-                +"\nweight:"+Float.toString(currEdge.getWeight()));
+        out.setText("Parent Node  x:" + Float.toString(prevNode.getxPos())
+                + " y:" + Float.toString(prevNode.getyPos()) + "\nChild Node     x:" + Float.toString(newNode.getxPos())
+                + " y:" + Float.toString(newNode.getyPos()) + "\nEdge direction:" + Float.toString(currEdge.getDirection())
+                + "\nweight:" + Float.toString(currEdge.getWeight()));
+        PackageManager pm = getPackageManager();
+       if( pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER))
+           Toast.makeText(getApplicationContext(), "Has step counter",Toast.LENGTH_LONG).show();;
+
 
 
 

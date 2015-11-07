@@ -19,19 +19,23 @@ public class EdgeLogService extends Service implements SensorEventListener{
     protected SensorManager sensorManager;
     private float currSteps;
     private float currDirection;
-    private float currPressure;
-    private float[] acc, rot;
+    //private float currPressure;
+    //private float[] acc; //rot;
     private final IBinder mBinder = new LocalBinder();
     private ArrayList<LogData> currData = new ArrayList<>();
     boolean lock = false;
+    int x,y;
+    Node firstNode, prevNode;
 
     public void onCreate() {
         Thread thread = new Thread()
         {
             @Override
             public void run() {
-                    acc = new float[3];
-                    rot = new float[3];
+                    //acc = new float[3];
+                    //rot = new float[3];
+                    firstNode = new Node(0,0);
+                    prevNode=firstNode;
                     sensorThread();
                     logData();
             }
@@ -61,21 +65,15 @@ public class EdgeLogService extends Service implements SensorEventListener{
 
     public void sensorThread() {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener(this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR),
-                SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR),SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),
-                SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-                SensorManager.SENSOR_DELAY_NORMAL);
+       // sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_NORMAL);
     }
 
 
@@ -84,16 +82,14 @@ public class EdgeLogService extends Service implements SensorEventListener{
        while(true){
         try {Thread.sleep(100);}
             catch (InterruptedException e){e.printStackTrace();}
-            LogData loggedData = new LogData(currSteps, currDirection, currPressure,
-                    System.currentTimeMillis(), acc, rot);
+            LogData loggedData = new LogData(currSteps, currDirection, System.currentTimeMillis());
             currData.add(loggedData);
         }
     }
 
     //code from minilab 4 part 2.  It is a step detector based on the readings
     //from the accelerometer
-    private void checkShake(SensorEvent event) {
-
+    private void checkStep(SensorEvent event) {
         // Movement
         float x = event.values[0];
         float y = event.values[1];
@@ -111,7 +107,6 @@ public class EdgeLogService extends Service implements SensorEventListener{
         else{
             lock = false;
         }
-
     }
 
     public void send(LogData loggedData){
@@ -120,21 +115,45 @@ public class EdgeLogService extends Service implements SensorEventListener{
 
     @Override
     public void onSensorChanged (SensorEvent event) {
-        //if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-          //  currSteps++;
-        //    logData();
-        //}
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {currDirection = event.values[0];}
-        else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
+        //if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {currSteps++;}
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {directionHandler(event.values[0]);}
+        //else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {currPressure = event.values[0];}
         else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, acc, 0, event.values.length);
-            checkShake(event);
+            //System.arraycopy(event.values, 0, acc, 0, event.values.length);
+            checkStep(event);
         }
-        else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            System.arraycopy(event.values, 0, rot, 0, event.values.length);
-            }
+        //else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {System.arraycopy(event.values, 0, rot, 0, event.values.length);}
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    public void directionHandler(float degree){
+        int curr_x = 0;
+        int curr_y = 0;
+
+        //Thresholds to determine direction in hallway
+        if(degree>=45 && degree<135) curr_x=-1;
+        else if(degree>=135 && degree<225) curr_y=1;
+        else if(degree>=225 && degree<315) curr_x=1;
+        else curr_y=-1;
+
+        //if direction changes create a node
+        if(curr_x != x || curr_y != y){
+            Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
+                    prevNode.getyPos()+(int) currSteps*curr_y);
+            Edge newEdge = new Edge(prevNode,newNode);
+            newEdge.setWeight((int) currSteps);
+            newEdge.setDirection((int) degree);
+            prevNode.setEdges(newEdge);
+            newNode.setEdges(newEdge);
+            prevNode=newNode;
+        }
+
+        x=curr_x;
+        y=curr_y;
+    }
+
+    public Node getFirstNode(){return firstNode;}
+
 }
