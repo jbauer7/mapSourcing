@@ -10,9 +10,11 @@ import android.graphics.Paint;
 public class Edge extends CanvasDrawable {
 
     private static final int DEFAULTEDGEPRIORITY = 100;
-    private static final int DRAWNLINEWIDTH = 25;
+    private static final int DEFAULTDRAWNLINEWIDTH = 25;
+    private int drawnLineWidth;
     private Node start, end;
     private int weight, direction;
+    private float scaleFactor;
     //protected EdgeData edgeData;
 
     public Edge(Node start, Node end) {
@@ -21,6 +23,8 @@ public class Edge extends CanvasDrawable {
         this.end = end;
         weight = 0;
         direction = 0;
+        scaleFactor = 1f;
+        drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
     }
 
     public Node getStart() {
@@ -55,7 +59,7 @@ public class Edge extends CanvasDrawable {
         Paint paint = new Paint();
         //Update the paintbrush to make lines (for edges)
         //paint.setStyle(Paint.Style.FILL);
-        paint.setStrokeWidth(DRAWNLINEWIDTH);
+        paint.setStrokeWidth(drawnLineWidth);
         if (this.attributes.contains("clicked")) {
             paint.setColor(Color.parseColor("#AAAAAA"));
         } else {
@@ -70,11 +74,11 @@ public class Edge extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
-        int xStart = (int) ((this.getStart().getxPos() + transXoffset) * scaleFactor);
-        int yStart = (int) ((this.getStart().getyPos() + transYoffset) * scaleFactor);
-        int xEnd = (int) ((this.getEnd().getxPos() + transXoffset) * scaleFactor);
-        int yEnd = (int) ((this.getEnd().getyPos() + transYoffset) * scaleFactor);
+    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float canvasScaleFactor) {
+        int xStart = (int) ((this.getStart().getxPos() + transXoffset) * canvasScaleFactor);
+        int yStart = (int) ((this.getStart().getyPos() + transYoffset) * canvasScaleFactor);
+        int xEnd = (int) ((this.getEnd().getxPos() + transXoffset) * canvasScaleFactor);
+        int yEnd = (int) ((this.getEnd().getyPos() + transYoffset) * canvasScaleFactor);
 
         //we are using herons formula to determine calculate the area of the triangle created.
         //once we have the area we can find the height with respect to our inital line (b) by doing
@@ -112,7 +116,15 @@ public class Edge extends CanvasDrawable {
 
         //check to see if the height is less than our scaled width of the line.
         //take the half because the drawnlinewidth is the entire line, we only can allow for half of that.
-        return (height <= (DRAWNLINEWIDTH/2.0)*scaleFactor);
+        return (height <= (drawnLineWidth/2.0)*canvasScaleFactor);
+    }
+
+    /*
+    Update scale factor and drawnLineWidth
+     */
+    public void setScaleFactor(float scaleFactor){
+        this.scaleFactor = scaleFactor;
+        drawnLineWidth = (int)(DEFAULTDRAWNLINEWIDTH * scaleFactor);
     }
 
     public boolean equals(Object toCompare) {

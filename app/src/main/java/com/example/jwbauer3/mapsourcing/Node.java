@@ -12,15 +12,18 @@ import java.util.ArrayList;
 public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
-    private static final int RADIUS = 100;
+    private static final int DEFAULTRADIUS = 100;
+    private int drawnRadius;
     private int xPos, yPos;
     private ArrayList<Edge> edges;
+    private float scaleFactor;
 
     public Node(int xPos, int yPos) {
         super(DEFAULTNODEPRIORITY);
         this.xPos = xPos;
         this.yPos = yPos;
         edges = new ArrayList<Edge>();
+        drawnRadius = DEFAULTRADIUS;
     }
 
     public int getxPos() {
@@ -50,17 +53,22 @@ public class Node extends CanvasDrawable {
         else{
             paint.setColor(Color.parseColor("#CD5C5C"));
         }
-        canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, 100, paint);
+        canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
     }
 
     @Override
     public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
         //transxoffset and transyoffset include translated and scale factor already
         //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
-        int displayedRadius = (int)(RADIUS *scaleFactor);
+        int displayedRadius = (int)(drawnRadius *scaleFactor);
         int scaledXPosition = (int)((this.getxPos() + transXoffset)*scaleFactor);
         int scaledYPosition = (int)((this.getyPos() + transYoffset)*scaleFactor);
         return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
+    }
+
+    public void setScaleFactor(float scaleFactor){
+        this.scaleFactor = scaleFactor;
+        drawnRadius = (int)(DEFAULTRADIUS*scaleFactor);
     }
 
     public boolean equals(Object toCompare) {

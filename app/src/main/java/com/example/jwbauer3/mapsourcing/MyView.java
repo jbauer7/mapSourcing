@@ -301,22 +301,28 @@ public class MyView extends View {
             //alert the scale gesture detector to possible scaling.
             myDetector.onTouchEvent(event);
 
+            //Fix the max scale factor
+            if (activeReferenceState.scaleFactor > MAXZOOMSCALE) {
+                activeReferenceState.scaleFactor = MAXZOOMSCALE;
+            }
+
+            //minimum zoom factor????
+
             if (meshMode) {
 
                 //update the offsets of the nodes xoffset, yoffset
                 xOffset = originalXOffset + (int) (activeReferenceState.transX);
                 yOffset = originalYOffset + (int) (activeReferenceState.transY);
 
+                for (CanvasDrawable element : drawables_draw) {
+                    element.setScaleFactor(activeReferenceState.scaleFactor);
+                }
+
+
                 invalidate();
                 //break out of method, no updates should occur to canvas.
                 return true;
             }
-
-            //Fix the max scale factor
-            if (activeReferenceState.scaleFactor > MAXZOOMSCALE) {
-                activeReferenceState.scaleFactor = MAXZOOMSCALE;
-            }
-
 
             //TODO: SHOULD THE FOLLOWING BE ACTIVEREFERENCESTATE? DOES IT MATTER?
             //TODO: HOW TO GET ZOOM TO WORK...

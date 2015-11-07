@@ -28,8 +28,12 @@ public abstract class CanvasDrawable {
      */
     public abstract void draw(Canvas canvas, int xOffset, int yOffset);
 
+    /*
+    Does the element contain the point xPos, yPos given the current OffsetValues and
+     */
+    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float canvasScaleFactor);
 
-    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float scale);
+    public abstract void setScaleFactor(float scaleFactor);
 
     /*
     Toggle an attribute on or off,
