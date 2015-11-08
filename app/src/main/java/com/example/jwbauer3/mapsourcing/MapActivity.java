@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.lang.Object;
 
 
 public class MapActivity extends AppCompatActivity {

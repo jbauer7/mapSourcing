@@ -147,6 +147,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
         if(curr_x != x || curr_y != y){
             Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
                     prevNode.getyPos()+(int) currSteps*curr_y);
+
             Edge newEdge = new Edge(prevNode,newNode);
             newEdge.setWeight((int) currSteps);
             newEdge.setDirection((int) degree);
@@ -155,6 +156,9 @@ public class EdgeLogService extends Service implements SensorEventListener{
             nodes.add(newNode);
             edges.add(newEdge);
             prevNode=newNode;
+            currSteps = 0;
+            Log.i("New Node", newNode.getxPos() + " , " + newNode.getyPos() +  " Dir: " + degree );
+
         }
 
         x=curr_x;

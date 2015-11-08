@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
-    private static final int DEFAULTRADIUS = 100;
+    private static final int DEFAULTRADIUS = 25;
     private int drawnRadius;
     private int xPos, yPos;
     private ArrayList<Edge> edges;
