@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -88,6 +89,13 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
     public void toggleMesh(View view){
+        Button toggleButton = (Button) findViewById(R.id.Button_MeshMode);
+        if(toggleButton.getText().equals("Mesh Mode")) {
+            toggleButton.setText("Canvas Mode");
+        }
+        else{
+            toggleButton.setText("Mesh Mode");
+        }
         myView.toggleMeshMovementMode();
     }
 }

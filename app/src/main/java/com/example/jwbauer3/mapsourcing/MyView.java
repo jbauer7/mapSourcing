@@ -270,7 +270,8 @@ public class MyView extends View {
                     activeReferenceState.startX = event.getX() - activeReferenceState.prevTransX;
                     activeReferenceState.startY = event.getY() - activeReferenceState.prevTransY;
                     //todo: should we click if we are dragging
-                    touchDown(event);
+                    if(!meshMode)
+                        touchDown(event);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
