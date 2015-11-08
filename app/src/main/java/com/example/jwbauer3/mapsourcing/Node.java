@@ -16,13 +16,12 @@ public class Node extends CanvasDrawable {
     private int drawnRadius;
     private int xPos, yPos;
     private ArrayList<Edge> edges;
-    private float scaleFactor;
 
     public Node(int xPos, int yPos) {
         super(DEFAULTNODEPRIORITY);
         this.xPos = xPos;
         this.yPos = yPos;
-        edges = new ArrayList<Edge>();
+        edges = new ArrayList<>();
         drawnRadius = DEFAULTRADIUS;
     }
 
@@ -67,7 +66,6 @@ public class Node extends CanvasDrawable {
     }
 
     public void setScaleFactor(float scaleFactor){
-        this.scaleFactor = scaleFactor;
         drawnRadius = (int)(DEFAULTRADIUS*scaleFactor);
     }
 

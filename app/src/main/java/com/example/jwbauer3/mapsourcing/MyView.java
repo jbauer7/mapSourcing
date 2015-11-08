@@ -39,7 +39,8 @@ public class MyView extends View {
     private static int ZOOM = 2;
     private int mode = NONE;
 
-    private final int MAXZOOMSCALE = 4;
+    private final float MAXZOOMSCALE = 4f;
+    private final float MINSCALEFACTOR = .25f;
     private boolean meshMode = false;
 
     //hold information on how to draw the canvas, mesh, and what is currently active
@@ -306,9 +307,13 @@ public class MyView extends View {
                 activeReferenceState.scaleFactor = MAXZOOMSCALE;
             }
 
-            //minimum zoom factor????
-
             if (meshMode) {
+
+                //Fix the min scale factor for mesh mode.
+                //min scale factor for canvas is defined below
+                if(activeReferenceState.scaleFactor < MINSCALEFACTOR){
+                    activeReferenceState.scaleFactor = MINSCALEFACTOR;
+                }
 
                 //update the offsets of the nodes xoffset, yoffset
                 xOffset = originalXOffset + (int) (activeReferenceState.transX);
@@ -317,15 +322,10 @@ public class MyView extends View {
                 for (CanvasDrawable element : drawables_draw) {
                     element.setScaleFactor(activeReferenceState.scaleFactor);
                 }
-
-
                 invalidate();
                 //break out of method, no updates should occur to canvas.
                 return true;
             }
-
-            //TODO: SHOULD THE FOLLOWING BE ACTIVEREFERENCESTATE? DOES IT MATTER?
-            //TODO: HOW TO GET ZOOM TO WORK...
 
             //portrait scale fix
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
