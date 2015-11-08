@@ -26,6 +26,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
     boolean lock = false;
     int x,y;
     Node firstNode, prevNode;
+    ArrayList<Node> nodes;
+    ArrayList<Edge> edges;
 
     public void onCreate() {
         Thread thread = new Thread()
@@ -35,6 +37,9 @@ public class EdgeLogService extends Service implements SensorEventListener{
                     //acc = new float[3];
                     //rot = new float[3];
                     firstNode = new Node(0,0);
+                    nodes = new ArrayList<Node>();
+                    edges = new ArrayList<Edge>();
+                    nodes.add(firstNode);
                     prevNode=firstNode;
                     sensorThread();
                     logData();
@@ -147,6 +152,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
             newEdge.setDirection((int) degree);
             prevNode.setEdges(newEdge);
             newNode.setEdges(newEdge);
+            nodes.add(newNode);
+            edges.add(newEdge);
             prevNode=newNode;
         }
 
@@ -154,6 +161,6 @@ public class EdgeLogService extends Service implements SensorEventListener{
         y=curr_y;
     }
 
-    public Node getFirstNode(){return firstNode;}
-
+    public ArrayList<Node> getNodes(){return nodes;}
+    public ArrayList<Edge> getEdges(){ return edges;}
 }
