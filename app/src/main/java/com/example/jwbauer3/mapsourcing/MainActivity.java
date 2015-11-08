@@ -1,16 +1,38 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
+
+    private boolean pressed = false;
+    private boolean mBound = false;
+    private EdgeLogService mService;
+    private ServiceConnection mConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            EdgeLogService.LocalBinder binder = (EdgeLogService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+    };
+
 
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
@@ -20,24 +42,17 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
-        setUp();
-        //setContentView(new MyView(this, nodes, edges));
+        //setUp();
         setContentView(R.layout.activity_main);
-        //ImageView imageView = (ImageView)findViewById(R.id.ImageView);
-        //ArrayList<View> test = new ArrayList<View>();
-        //test.add(new MyView(this, nodes, edges));
-        //imageView.addTouchables(test);
-        //imageView.invalidate();
-
 
 
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.LinearLayout_main_wrapper);
-        int height = linearLayout.getHeight();
+        //int height = linearLayout.getHeight();
 
         myView = (MyView)findViewById(R.id.MyViewTest);
         //myView.setMinimumHeight(height);
         //myView.touchDown();
-        myView.setNodesEdges(nodes, edges);
+        //myView.setNodesEdges(nodes, edges);
         //myView.setListener();
         //MyView myView = new MyView(this, nodes, edges);
         //ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView_myViewScrollview);
@@ -68,20 +83,18 @@ public class MainActivity extends Activity {
         //startService(new Intent(this, EdgeLogService.class));
     }
     public void pressed(View view){
-        //MyView myView = (MyView)findViewById(R.id.MyViewTest);
-        LinearLayout myView = (LinearLayout)findViewById(R.id.LinearLayout_main_wrapper);
-        //myView.touchDown();
-        //myView.setNodesEdges(nodes, edges);
-        //myView.setListener();
-        int width = myView.getWidth();
-        int height = myView.getHeight();
+        if(!pressed) {
+            Intent intent = new Intent(this, EdgeLogService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            pressed = true;
+        }
+        else{
+            nodes = mService.getNodes();
+            edges = mService.getEdges();
+            myView.setNodesEdges(nodes,edges);
+            pressed = false;
+        }
 
-        Toast.makeText(getApplicationContext(), "Height = " + height + " : Width = " + width, Toast.LENGTH_SHORT).show();
-
-        //Edge data logging testing (sorry for using your button)
-        /*Edge con4 = edges.get(edges.size()-1);
-        EdgeData edgeData = con4.edgeData;
-*/
     }
 
     public void switchActivity(View view){

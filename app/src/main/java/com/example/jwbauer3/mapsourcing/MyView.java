@@ -75,6 +75,7 @@ public class MyView extends View {
      */
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
+        determineOffsets();
         drawables_draw.addAll(nodes);
         drawables_draw.addAll(edges);
         drawables_search.addAll(nodes);
@@ -208,7 +209,25 @@ public class MyView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        //TODO: move the offset code somewhere else?
+
+        //todo: do we need this call
+        determineOffsets();
+
+        //update information every time this runs to catch phone orientation changes
+        LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);
+        myViewWidth = wrapper.getWidth();
+        myViewHeight = wrapper.getHeight();
+
+
+        //should be height, width. 5k,5k is for displaying the background.
+        //TODO: figure out bounds for screen
+        setMeasuredDimension(myViewWidth, myViewHeight);
+
+    }
+    /*
+    Determine the offsets for our list of nodes
+     */
+    private void determineOffsets(){
         if (nodes != null) {
             int minX = nodes.get(0).getxPos();
             int minY = nodes.get(0).getyPos();
@@ -241,18 +260,6 @@ public class MyView extends View {
             originalXOffset = xOffset;
             originalYOffset = yOffset;
         }
-
-
-        //update information every time this runs to catch phone orientation changes
-        LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);
-        myViewWidth = wrapper.getWidth();
-        myViewHeight = wrapper.getHeight();
-
-
-        //should be height, width. 5k,5k is for displaying the background.
-        //TODO: figure out bounds for screen
-        setMeasuredDimension(myViewWidth, myViewHeight);
-
     }
 
     /*
