@@ -18,7 +18,10 @@ import java.util.ArrayList;
 public class EdgeLogService extends Service implements SensorEventListener{
     protected SensorManager sensorManager;
     private float currSteps;
-    private float currDirection;
+    private float currDegree;
+    private float prevDegreeTime;
+    private float prevDegreeChange;
+    private int prevDegreeRange;
     //private float currPressure;
     //private float[] acc; //rot;
     private final IBinder mBinder = new LocalBinder();
@@ -46,6 +49,23 @@ public class EdgeLogService extends Service implements SensorEventListener{
             }
         };
         thread.start();
+    }
+
+    private void getInitialDirectionRange(float newDegree)
+    {
+        if(newDegree>=45 && newDegree<135) {
+
+            prevDegreeRange = 1;
+        } else if(newDegree>=135 && newDegree<225) {
+
+            prevDegreeRange=2;
+        } else if(newDegree>=225 && newDegree<315) {
+
+            prevDegreeRange=3;
+        } else {
+
+            prevDegreeRange=4;
+        }
     }
 
     public class LocalBinder extends Binder {
@@ -87,7 +107,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
        while(true){
         try {Thread.sleep(100);}
             catch (InterruptedException e){e.printStackTrace();}
-            LogData loggedData = new LogData(currSteps, currDirection, System.currentTimeMillis());
+            LogData loggedData = new LogData(currSteps, currDegree, System.currentTimeMillis());
             currData.add(loggedData);
         }
     }
@@ -133,7 +153,76 @@ public class EdgeLogService extends Service implements SensorEventListener{
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    public void directionHandler(float degree){
+    public void directionHandler(float newDegree) {
+        //float change = prevDegreeChange;
+        int degreeRange = 0;
+        if (prevDegreeRange == 0)
+        {
+            getInitialDirectionRange(newDegree);
+            return;
+        }
+        /* if (newDegree > currDegree)
+        {
+            change = change + (newDegree - currDegree);
+        } else {
+            change = change + (currDegree - newDegree);
+        } */
+        float currDegreeTime = System.currentTimeMillis();
+        /* if ( !((currDegreeTime - prevDegreeTime) > 800) ) {
+            return;
+        } */
+        /* if ( !((change > 30) && (currDegreeTime - prevDegreeTime) > 800) )
+        {
+            prevDegreeChange = change;
+            return;
+        }
+        prevDegreeChange = 0; */
+        int curr_x = 0;
+        int curr_y = 0;
+
+        if(newDegree>=45 && newDegree<135) {
+
+            degreeRange = 1;
+            curr_x=-1;
+        } else if(newDegree>=135 && newDegree<225) {
+
+            degreeRange=2;
+            curr_y=1;
+        } else if(newDegree>=225 && newDegree<315) {
+
+            degreeRange=3;
+            curr_x=1;
+        } else {
+
+            degreeRange=4;
+            curr_y=-1;
+        }
+
+        if (prevDegreeRange == degreeRange) {
+            return;
+        }
+        prevDegreeRange = degreeRange;
+
+        Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
+                prevNode.getyPos()+(int) currSteps*curr_y);
+
+        Edge newEdge = new Edge(prevNode,newNode);
+        newEdge.setWeight((int) currSteps);
+        newEdge.setDirection((int) newDegree);
+        prevNode.setEdges(newEdge);
+        newNode.setEdges(newEdge);
+        nodes.add(newNode);
+        edges.add(newEdge);
+        prevNode=newNode;
+        currSteps = 0;
+        Log.i("New Node", newNode.getxPos() + " , " + newNode.getyPos() +  " Dir: " + newDegree );
+
+        //set values as needed
+        currDegree = newDegree;
+        prevDegreeTime = currDegreeTime;
+    }
+
+    public void directionHandler2(float degree){
         int curr_x = 0;
         int curr_y = 0;
 
