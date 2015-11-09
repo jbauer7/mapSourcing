@@ -29,9 +29,11 @@ public class MyView extends View {
 
     private int originalXOffset = 0;
     private int originalYOffset = 0;
+    private int originalMaxXOffset = 0;
+    private int originalMaxYOffset = 0;
+
     private int xOffset = 0;
     private int yOffset = 0;
-    private int radius = 100;
 
     //TODO: use enum
     private static int NONE = 0;
@@ -228,7 +230,9 @@ public class MyView extends View {
     Determine the offsets for our list of nodes
      */
     private void determineOffsets(){
+
         if (nodes != null) {
+            int radius = nodes.get(0).getDrawnRadius();
             int minX = nodes.get(0).getxPos();
             int minY = nodes.get(0).getyPos();
             int maxX = minX;
@@ -248,8 +252,8 @@ public class MyView extends View {
                 }
             }
 
-            minX -= radius;
-            minY -= radius;
+            //minX -= radius;
+            //minY -= radius;
             //maxX += radius;
             //maxY += radius;
 
@@ -259,6 +263,10 @@ public class MyView extends View {
             yOffset = -minY;
             originalXOffset = xOffset;
             originalYOffset = yOffset;
+
+            //Max Values are kept positive
+            originalMaxXOffset = maxX;
+            originalMaxYOffset = maxY;
         }
     }
 
@@ -315,73 +323,105 @@ public class MyView extends View {
                 activeReferenceState.scaleFactor = MAXZOOMSCALE;
             }
 
+
             if (meshMode) {
-
-                //Fix the min scale factor for mesh mode.
-                //min scale factor for canvas is defined below
-                if(activeReferenceState.scaleFactor < MINSCALEFACTOR){
-                    activeReferenceState.scaleFactor = MINSCALEFACTOR;
-                }
-
-                //update the offsets of the nodes xoffset, yoffset
-                xOffset = originalXOffset + (int) (activeReferenceState.transX);
-                yOffset = originalYOffset + (int) (activeReferenceState.transY);
-
+                correctMeshBoundaries();
+                //TODO: have this be a static method/variable that gets updated
                 for (CanvasDrawable element : drawables_draw) {
                     element.setScaleFactor(activeReferenceState.scaleFactor);
                 }
-                invalidate();
-                //break out of method, no updates should occur to canvas.
-                return true;
             }
-
-            //portrait scale fix
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                //If our width is smaller than myViewWidth, we have to adjust
-                if (canvasReferenceState.scaleFactor * backgroundWidth < myViewWidth) {
-                    canvasReferenceState.scaleFactor = ((float) myViewWidth) / backgroundWidth;
-                }
-            }
-            //landscape scale fix
-            else {
-                //If our height is smaller than myViewHeight, we have to adjust
-                if (canvasReferenceState.scaleFactor * backgroundHeight < myViewHeight) {
-                    canvasReferenceState.scaleFactor = ((float) myViewHeight) / backgroundHeight;
-                }
+            else{
+                correctCanvasBoundaries();
             }
 
 
-            //Two 4 consecutive if statements ensures that the drawing is mapped to the top and
-            //left corner as a default.
-
-            //left and right
-            //don't let image pan past the right edge
-            if (canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth + canvasReferenceState.transX < 0) {
-                canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth);
-            }
-            //don't let image pan past the left edge
-            if (canvasReferenceState.transX > 0) {
-                canvasReferenceState.transX = 0;
-            }
-            //top and bottom
-            //don't let image pan past the bottom edge
-            if (canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight + canvasReferenceState.transY < 0) {
-                canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight);
-            }
-            //don't let image pan past the top edge
-            if (canvasReferenceState.transY > 0) {
-                canvasReferenceState.transY = 0;
-            }
-
-            //update image if we are dragging, or if we are zooming in our out.
-            if (mode == DRAG || mode == ZOOM) {
-                invalidate();
-            }
             return true;
         }
 
     }
 
+    private void correctMeshBoundaries(){
+        //Fix the min scale factor for mesh mode.
+        //min scale factor for canvas is defined below
+        if(activeReferenceState.scaleFactor < MINSCALEFACTOR){
+            activeReferenceState.scaleFactor = MINSCALEFACTOR;
+        }
+
+        //update the offsets of the nodes xoffset, yoffset
+        xOffset = originalXOffset + (int) (activeReferenceState.transX);
+        yOffset = originalYOffset + (int) (activeReferenceState.transY);
+
+        //don't let nodes go too far to the left
+        if(xOffset < originalXOffset){
+            xOffset = originalXOffset;
+            activeReferenceState.transX = 0;
+            activeReferenceState.prevTransX = 0;
+        }
+        //too far on top
+        if(yOffset < originalYOffset){
+            yOffset = originalYOffset;
+            activeReferenceState.transY = 0;
+            activeReferenceState.prevTransY = 0;
+        }
+        //too far right
+        if(xOffset + originalMaxXOffset > backgroundWidth){
+            xOffset = (backgroundWidth - originalMaxXOffset);
+            activeReferenceState.transX = xOffset - originalXOffset;
+            activeReferenceState.prevTransX = activeReferenceState.transX;
+        }
+        //too far bottom
+        if(yOffset + originalMaxYOffset> backgroundHeight){
+            yOffset = (backgroundHeight - originalMaxYOffset);
+            activeReferenceState.transY = yOffset - originalYOffset;
+            activeReferenceState.prevTransY = activeReferenceState.transY;
+        }
+        invalidate();
+    }
+    private void correctCanvasBoundaries(){
+        //portrait scale fix
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //If our width is smaller than myViewWidth, we have to adjust
+            if (canvasReferenceState.scaleFactor * backgroundWidth < myViewWidth) {
+                canvasReferenceState.scaleFactor = ((float) myViewWidth) / backgroundWidth;
+            }
+        }
+        //landscape scale fix
+        else {
+            //If our height is smaller than myViewHeight, we have to adjust
+            if (canvasReferenceState.scaleFactor * backgroundHeight < myViewHeight) {
+                canvasReferenceState.scaleFactor = ((float) myViewHeight) / backgroundHeight;
+            }
+        }
+
+
+        //Two 4 consecutive if statements ensures that the drawing is mapped to the top and
+        //left corner as a default.
+
+        //left and right
+        //don't let image pan past the right edge
+        if (canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth + canvasReferenceState.transX < 0) {
+            canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth);
+        }
+        //don't let image pan past the left edge
+        if (canvasReferenceState.transX > 0) {
+            canvasReferenceState.transX = 0;
+        }
+        //top and bottom
+        //don't let image pan past the bottom edge
+        if (canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight + canvasReferenceState.transY < 0) {
+            canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight);
+        }
+        //don't let image pan past the top edge
+        if (canvasReferenceState.transY > 0) {
+            canvasReferenceState.transY = 0;
+        }
+
+        //update image if we are dragging, or if we are zooming in our out.
+        if (mode == DRAG || mode == ZOOM) {
+            invalidate();
+        }
+    }
     /*
     Custom class to handle scaling for our canvas.
      */

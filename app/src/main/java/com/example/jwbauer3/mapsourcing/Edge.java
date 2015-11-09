@@ -14,7 +14,6 @@ public class Edge extends CanvasDrawable {
     private int drawnLineWidth;
     private Node start, end;
     private int weight, direction;
-    private float scaleFactor;
     //protected EdgeData edgeData;
 
     public Edge(Node start, Node end) {
@@ -23,7 +22,6 @@ public class Edge extends CanvasDrawable {
         this.end = end;
         weight = 0;
         direction = 0;
-        scaleFactor = 1f;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
     }
 
@@ -123,7 +121,6 @@ public class Edge extends CanvasDrawable {
     Update scale factor and drawnLineWidth
      */
     public void setScaleFactor(float scaleFactor){
-        this.scaleFactor = scaleFactor;
         drawnLineWidth = (int)(DEFAULTDRAWNLINEWIDTH * scaleFactor);
     }
 

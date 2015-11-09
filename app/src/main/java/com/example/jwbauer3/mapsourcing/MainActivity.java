@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
-        //setUp();
+        setUp();
         setContentView(R.layout.activity_main);
 
 
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         myView = (MyView)findViewById(R.id.MyViewTest);
         //myView.setMinimumHeight(height);
         //myView.touchDown();
-        //myView.setNodesEdges(nodes, edges);
+        myView.setNodesEdges(nodes, edges);
         //myView.setListener();
         //MyView myView = new MyView(this, nodes, edges);
         //ScrollView scrollView = (ScrollView) findViewById(R.id.ScrollView_myViewScrollview);
