@@ -13,7 +13,7 @@ public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
     private static final int DEFAULTRADIUS = 25;
-    private int drawnRadius;
+    private static int drawnRadius;
     private int xPos, yPos;
     private ArrayList<Edge> edges;
 
@@ -77,5 +77,8 @@ public class Node extends CanvasDrawable {
         } else {
             return false;
         }
+    }
+    public int getDrawnRadius(){
+        return drawnRadius;
     }
 }
