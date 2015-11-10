@@ -1,4 +1,5 @@
 package com.example.jwbauer3.mapsourcing;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,7 +27,8 @@ public class Navigator {
     public void setEndNode(Node endNode) {
         this.endNode = endNode;
     }
-    public ArrayList<CanvasDrawable> getPath(){
+
+    public ArrayList<CanvasDrawable> getPath() {
         return path;
     }
 
@@ -56,22 +58,23 @@ public class Navigator {
         Node curNode = null, neighborNode;
         while (openNodes.size() != 0) {
 
-            int lowest= Integer.MAX_VALUE;
-            for(Node node: openNodes){
-                if(estimated_distance.get(node) < lowest){
+            int lowest = Integer.MAX_VALUE;
+            for (Node node : openNodes) {
+                if (estimated_distance.get(node) < lowest) {
                     lowest = estimated_distance.get(node);
                     curNode = node;
                 }
             }
 
-            if(endNode.equals(curNode)) {
+            if (endNode.equals(curNode)) {
                 path = new ArrayList<>();
                 CanvasDrawable curDrawable = endNode;
-                while(curDrawable != startNode){
+                while (curDrawable != startNode) {
                     path.add(curDrawable);
                     curDrawable = cameFrom.get(curDrawable);
                 }
                 path.add(startNode);
+                return;
             }
             openNodes.remove(curNode);
             closedNodes.add(curNode);
@@ -92,7 +95,7 @@ public class Navigator {
                 int tentativeDistance = traveled_distance.get(curNode) + edge.getWeight();
                 if (!openNodes.contains(neighborNode)) {
                     openNodes.add(neighborNode);
-                } else if (tentativeDistance >= traveled_distance.get(neighborNode)){
+                } else if (tentativeDistance >= traveled_distance.get(neighborNode)) {
                     //not a better path
                     continue;
                 }
@@ -112,8 +115,10 @@ public class Navigator {
 
 
         }
+        //todo: return failure?
 
     }
+
     private Integer getHeuristicDistance(Node node) {
         //using manhattan distance as heuristic;
         return Math.abs(endNode.getxPos() - node.getxPos()) + Math.abs(endNode.getyPos() - node.getyPos());
