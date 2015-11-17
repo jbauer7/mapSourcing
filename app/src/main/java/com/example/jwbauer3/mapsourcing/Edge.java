@@ -134,5 +134,11 @@ public class Edge extends CanvasDrawable {
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
+    public int getMenuStartX(){
+        return (start.getxPos() + end.getxPos())/2;
+    }
+    public int getMenuStartY(){
+        return (start.getyPos() + end.getyPos())/2;
+    }
 
 }

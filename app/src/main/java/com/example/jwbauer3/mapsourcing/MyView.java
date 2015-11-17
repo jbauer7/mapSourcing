@@ -56,6 +56,9 @@ public class MyView extends View {
     private int myViewWidth;
     private int myViewHeight;
 
+    private boolean menuActive;
+    private ArrayList<OptionsMenuOption> opts = new ArrayList<OptionsMenuOption>();
+
     public MyView(Context context) {
         super(context);
         preformSetup();
@@ -182,8 +185,24 @@ public class MyView extends View {
             }
         }
         if (selectedElement != null) {
-            selectedElement.toggleAttribute("clicked");
-            invalidate();
+            if(selectedElement instanceof OptionsMenuOption){
+                int x = 5;
+            }
+            else {
+                //wasn't a menu option, remove it.
+                selectedElement.toggleAttribute("clicked");
+                drawables_draw.removeAll(opts);
+                opts = selectedElement.getOptions();
+                if (opts != null) {
+                    drawables_draw.addAll(opts);
+                    drawables_search.addAll(opts);
+                }
+                invalidate();
+            }
+        }
+        else{
+            drawables_draw.removeAll(opts);
+            drawables_search.removeAll(opts);
         }
 
     }
@@ -325,11 +344,12 @@ public class MyView extends View {
 
 
             if (meshMode) {
-                correctMeshBoundaries();
                 //TODO: have this be a static method/variable that gets updated
                 for (CanvasDrawable element : drawables_draw) {
                     element.setScaleFactor(activeReferenceState.scaleFactor);
                 }
+                determineOffsets();
+                correctMeshBoundaries();
             }
             else{
                 correctCanvasBoundaries();

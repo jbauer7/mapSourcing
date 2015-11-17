@@ -1,19 +1,23 @@
 package com.example.jwbauer3.mapsourcing;
 
+import android.app.VoiceInteractor;
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
 
 /**
- * Created by Nikhil on 10/18/2015.
+ * created by Nikhil on 10/18/2015.
  */
 public abstract class CanvasDrawable {
 
     protected int priority;
+    protected ArrayList<OptionsMenuOption> options;
     protected ArrayList<String> attributes;
     public CanvasDrawable(int priority) {
+        //this.options = options;
         this.priority = priority;
         attributes = new ArrayList<>();
+        options = new ArrayList<OptionsMenuOption>();
     }
 
     /*
@@ -46,6 +50,11 @@ public abstract class CanvasDrawable {
         else{
             attributes.remove(attribute);
         }
+    }
+    public abstract int getMenuStartX();
+    public abstract int getMenuStartY();
+    public ArrayList<OptionsMenuOption> getOptions(){
+        return options;
     }
 
 
