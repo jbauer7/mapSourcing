@@ -7,7 +7,7 @@ import android.graphics.Paint;
 /**
  * created by Nikhil on 11/16/2015.
  */
-public class OptionsMenuOption extends CanvasDrawable {
+public class MenuOption extends CanvasDrawable {
 
 
     private static final int DEFAULTOPTIONPRIORITY = 300;
@@ -17,7 +17,7 @@ public class OptionsMenuOption extends CanvasDrawable {
     private CanvasDrawable menuOwner;
     String displayText;
 
-    public OptionsMenuOption(CanvasDrawable owned, int elementNum, String display) {
+    public MenuOption(CanvasDrawable owned, int elementNum, String display) {
         super(DEFAULTOPTIONPRIORITY);
         this.menuOwner = owned;
         this.elementNum = elementNum;
@@ -40,16 +40,16 @@ public class OptionsMenuOption extends CanvasDrawable {
 
     @Override
     public boolean contains(int xPos, int yPos, int xOffset, int yOffset, float canvasScaleFactor) {
-        int xstart = (int) ((menuOwner.getMenuStartX() + xOffset) * canvasScaleFactor);
-        int ystart = (int) ((menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum) * canvasScaleFactor);
-        int xend = xstart + (int)(elementWidth*canvasScaleFactor);
-        int yend = ystart + (int)(elementHeight*canvasScaleFactor);
-        return (xPos > xstart && yPos > ystart && xPos < xend && yPos < yend);
+        int xStart = (int) ((menuOwner.getMenuStartX() + xOffset) * canvasScaleFactor);
+        int yStart = (int) ((menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum) * canvasScaleFactor);
+        int xEnd = xStart + (int)(elementWidth*canvasScaleFactor);
+        int yEnd = yStart + (int)(elementHeight*canvasScaleFactor);
+        return (xPos > xStart && yPos > yStart && xPos < xEnd && yPos < yEnd);
     }
 
     @Override
     public void setScaleFactor(float scaleFactor) {
-
+        //do we care about the scale factor?
     }
 
     //TODO: what do, maybe throw non-implementor exception

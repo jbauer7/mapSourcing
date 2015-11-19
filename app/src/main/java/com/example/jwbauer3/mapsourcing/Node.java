@@ -3,7 +3,6 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 
 import java.util.ArrayList;
 
@@ -14,11 +13,12 @@ public class Node extends CanvasDrawable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
     private static final int DEFAULTRADIUS = 25;
-    private static int drawnRadius;
+    private int drawnRadius;
     private int xPos, yPos, defaultxPos, defaultYPos;
     private ArrayList<Edge> edges;
+    private int floor;
 
-    public Node(int xPos, int yPos) {
+    public Node(int xPos, int yPos, int floor) {
         super(DEFAULTNODEPRIORITY);
         this.xPos = xPos;
         this.yPos = yPos;
@@ -26,7 +26,8 @@ public class Node extends CanvasDrawable {
         defaultYPos = yPos;
         edges = new ArrayList<>();
         drawnRadius = DEFAULTRADIUS;
-        OptionsMenuOption newOpt = new OptionsMenuOption(this, 0, "Test");
+        this.floor = floor;
+        MenuOption newOpt = new MenuOption(this, 0, "Test");
         options.add(newOpt);
     }
 
@@ -76,7 +77,7 @@ public class Node extends CanvasDrawable {
         xPos = (int) (defaultxPos * scaleFactor);
         yPos = (int) (defaultYPos * scaleFactor);
     }
-    public ArrayList<OptionsMenuOption> getOptions(){
+    public ArrayList<MenuOption> getOptions(){
         return options;
     }
 

@@ -39,7 +39,8 @@ public class EdgeLogService extends Service implements SensorEventListener{
             public void run() {
                     //acc = new float[3];
                     //rot = new float[3];
-                    firstNode = new Node(0,0);
+                    //todo: get correct floor
+                    firstNode = new Node(0,0,2);
                     nodes = new ArrayList<Node>();
                     edges = new ArrayList<Edge>();
                     nodes.add(firstNode);
@@ -204,7 +205,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
         prevDegreeRange = degreeRange;
 
         Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
-                prevNode.getyPos()+(int) currSteps*curr_y);
+                prevNode.getyPos()+(int) currSteps*curr_y,2);
 
         Edge newEdge = new Edge(prevNode,newNode);
         newEdge.setWeight((int) currSteps);
@@ -235,7 +236,7 @@ public class EdgeLogService extends Service implements SensorEventListener{
         //if direction changes create a node
         if(curr_x != x || curr_y != y){
             Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
-                    prevNode.getyPos()+(int) currSteps*curr_y);
+                    prevNode.getyPos()+(int) currSteps*curr_y,2);
 
             Edge newEdge = new Edge(prevNode,newNode);
             newEdge.setWeight((int) currSteps);

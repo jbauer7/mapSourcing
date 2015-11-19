@@ -1,6 +1,5 @@
 package com.example.jwbauer3.mapsourcing;
 
-import android.app.VoiceInteractor;
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
@@ -11,13 +10,13 @@ import java.util.ArrayList;
 public abstract class CanvasDrawable {
 
     protected int priority;
-    protected ArrayList<OptionsMenuOption> options;
+    protected ArrayList<MenuOption> options;
     protected ArrayList<String> attributes;
     public CanvasDrawable(int priority) {
         //this.options = options;
         this.priority = priority;
         attributes = new ArrayList<>();
-        options = new ArrayList<OptionsMenuOption>();
+        options = new ArrayList<MenuOption>();
     }
 
     /*
@@ -53,7 +52,7 @@ public abstract class CanvasDrawable {
     }
     public abstract int getMenuStartX();
     public abstract int getMenuStartY();
-    public ArrayList<OptionsMenuOption> getOptions(){
+    public ArrayList<MenuOption> getOptions(){
         return options;
     }
 

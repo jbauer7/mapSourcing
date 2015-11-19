@@ -3,8 +3,6 @@ package com.example.jwbauer3.mapsourcing;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -20,8 +18,7 @@ import java.util.PriorityQueue;
  * created by Nikhil on 10/11/2015.
  */
 public class MyView extends View {
-
-    private ArrayList<Node> nodes;
+    private Floor curFloor;
     //priority queue for drawing (stores lowest elements first)
     private PriorityQueue<CanvasDrawable> drawables_draw;
     //priority queue for search/touching (stores highest elements first)
@@ -31,7 +28,6 @@ public class MyView extends View {
     private int originalYOffset = 0;
     private int originalMaxXOffset = 0;
     private int originalMaxYOffset = 0;
-
     private int xOffset = 0;
     private int yOffset = 0;
 
@@ -51,13 +47,11 @@ public class MyView extends View {
     private ReferenceState activeReferenceState;
 
     private ScaleGestureDetector myDetector;
-    private int backgroundWidth;
-    private int backgroundHeight;
     private int myViewWidth;
     private int myViewHeight;
 
     private boolean menuActive;
-    private ArrayList<OptionsMenuOption> opts = new ArrayList<OptionsMenuOption>();
+    private ArrayList<MenuOption> opts = new ArrayList<MenuOption>();
 
     public MyView(Context context) {
         super(context);
@@ -74,24 +68,45 @@ public class MyView extends View {
         preformSetup();
     }
 
-    /*
-    Allows the nodes/edges to be set from an outside source
-    TODO: is there a more efficient way to add nodes/edges to both priority queues
-     */
-    public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
-        this.nodes = nodes;
+    public void setFloor(Floor floor) {
+        //switch if we already have a floor
+        //todo: check that meshreferenceState is saved off.
+        if(meshMode) {
+            activeReferenceState = floor.getMeshReferenceState();
+        }
+
+        this.curFloor = floor;
+        meshReferenceState=curFloor.getMeshReferenceState();
         determineOffsets();
-        drawables_draw.addAll(nodes);
-        drawables_draw.addAll(edges);
-        drawables_search.addAll(nodes);
-        drawables_search.addAll(edges);
+        setDrawableQueues();
+
+        xOffset = originalXOffset + (int) (meshReferenceState.transX);
+        yOffset = originalYOffset + (int) (meshReferenceState.transY);
+
         invalidate();
+    }
+    private void setDrawableQueues(){
+        drawables_draw = new PriorityQueue<>((curFloor.getNodes().size() * 2), new Comparator<CanvasDrawable>() {
+            @Override
+            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
+                return lhs.getPriority() - rhs.getPriority();
+            }
+        });
+        drawables_search = new PriorityQueue<>((curFloor.getNodes().size()*2), new Comparator<CanvasDrawable>() {
+            @Override
+            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
+                return rhs.getPriority() - lhs.getPriority();
+            }
+        });
+        drawables_draw.addAll(curFloor.getNodes());
+        drawables_draw.addAll(curFloor.getEdges());
+        drawables_search.addAll(curFloor.getNodes());
+        drawables_search.addAll(curFloor.getEdges());
     }
 
     private void preformSetup() {
         setListeners();
         setReferenceStates();
-        setDrawableQueue();
     }
 
     /*
@@ -106,30 +121,9 @@ public class MyView extends View {
     Instantiates the ReferenceStates to be used.
      */
     private void setReferenceStates() {
-        meshReferenceState = new ReferenceState();
         canvasReferenceState = new ReferenceState();
         //default active to be canvas (ie: not starting in mesh mode).
         activeReferenceState = canvasReferenceState;
-    }
-
-    /*
-    Instantiates the Priority Queue to be used to store Drawables
-     */
-    private void setDrawableQueue() {
-        //instantiate Set with a custom comparator that looks at priority.
-        //TODO: pick a better magic number for init capacity
-        drawables_draw = new PriorityQueue<>(10, new Comparator<CanvasDrawable>() {
-            @Override
-            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
-                return lhs.getPriority() - rhs.getPriority();
-            }
-        });
-        drawables_search = new PriorityQueue<>(10, new Comparator<CanvasDrawable>() {
-            @Override
-            public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
-                return rhs.getPriority() - lhs.getPriority();
-            }
-        });
     }
 
     @Override
@@ -144,7 +138,7 @@ public class MyView extends View {
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
         //draw the background image (if there is one)
-        drawBackgroundImage(canvas);
+        curFloor.getBackgroundImage().draw(canvas);
 
         //draw each drawable element (nodes, edges, etc etc)
         for (CanvasDrawable element : drawables_draw) {
@@ -153,20 +147,6 @@ public class MyView extends View {
 
         canvas.restore();
 
-    }
-
-    /*
-    Draws the background image upon the canvas passed in.
-    TODO: update this to call server for image
-     */
-    private void drawBackgroundImage(Canvas canvas) {
-        Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null);
-
-        backgroundWidth = background.getMinimumWidth();
-        backgroundHeight = background.getMinimumHeight();
-
-        background.setBounds(0, 0, backgroundWidth, backgroundHeight);
-        background.draw(canvas);
     }
 
     /*
@@ -185,13 +165,13 @@ public class MyView extends View {
             }
         }
         if (selectedElement != null) {
-            if(selectedElement instanceof OptionsMenuOption){
-                int x = 5;
-            }
-            else {
+            if (selectedElement instanceof MenuOption) {
+
+            } else {
                 //wasn't a menu option, remove it.
                 selectedElement.toggleAttribute("clicked");
                 drawables_draw.removeAll(opts);
+                drawables_search.removeAll(opts);
                 opts = selectedElement.getOptions();
                 if (opts != null) {
                     drawables_draw.addAll(opts);
@@ -199,8 +179,7 @@ public class MyView extends View {
                 }
                 invalidate();
             }
-        }
-        else{
+        } else {
             drawables_draw.removeAll(opts);
             drawables_search.removeAll(opts);
         }
@@ -245,11 +224,12 @@ public class MyView extends View {
         setMeasuredDimension(myViewWidth, myViewHeight);
 
     }
+
     /*
     Determine the offsets for our list of nodes
      */
-    private void determineOffsets(){
-
+    private void determineOffsets() {
+        ArrayList<Node> nodes = curFloor.getNodes();
         if (nodes != null) {
             int radius = nodes.get(0).getDrawnRadius();
             int minX = nodes.get(0).getxPos();
@@ -270,12 +250,6 @@ public class MyView extends View {
                     maxY = curNode.getyPos();
                 }
             }
-
-            //minX -= radius;
-            //minY -= radius;
-            //maxX += radius;
-            //maxY += radius;
-
 
             //Offsets are added, so invert the minimum values here
             xOffset = -minX;
@@ -304,7 +278,7 @@ public class MyView extends View {
                     activeReferenceState.startX = event.getX() - activeReferenceState.prevTransX;
                     activeReferenceState.startY = event.getY() - activeReferenceState.prevTransY;
                     //todo: should we click if we are dragging
-                    if(!meshMode)
+                    if (!meshMode)
                         touchDown(event);
                     break;
 
@@ -350,8 +324,7 @@ public class MyView extends View {
                 }
                 determineOffsets();
                 correctMeshBoundaries();
-            }
-            else{
+            } else {
                 correctCanvasBoundaries();
             }
 
@@ -361,10 +334,10 @@ public class MyView extends View {
 
     }
 
-    private void correctMeshBoundaries(){
+    private void correctMeshBoundaries() {
         //Fix the min scale factor for mesh mode.
         //min scale factor for canvas is defined below
-        if(activeReferenceState.scaleFactor < MINSCALEFACTOR){
+        if (activeReferenceState.scaleFactor < MINSCALEFACTOR) {
             activeReferenceState.scaleFactor = MINSCALEFACTOR;
         }
 
@@ -373,44 +346,45 @@ public class MyView extends View {
         yOffset = originalYOffset + (int) (activeReferenceState.transY);
 
         //don't let nodes go too far to the left
-        if(xOffset < originalXOffset){
+        if (xOffset < originalXOffset) {
             xOffset = originalXOffset;
             activeReferenceState.transX = 0;
             activeReferenceState.prevTransX = 0;
         }
         //too far on top
-        if(yOffset < originalYOffset){
+        if (yOffset < originalYOffset) {
             yOffset = originalYOffset;
             activeReferenceState.transY = 0;
             activeReferenceState.prevTransY = 0;
         }
         //too far right
-        if(xOffset + originalMaxXOffset > backgroundWidth){
-            xOffset = (backgroundWidth - originalMaxXOffset);
+        if (xOffset + originalMaxXOffset > curFloor.getBackgroundWidth()) {
+            xOffset = (curFloor.getBackgroundWidth() - originalMaxXOffset);
             activeReferenceState.transX = xOffset - originalXOffset;
             activeReferenceState.prevTransX = activeReferenceState.transX;
         }
         //too far bottom
-        if(yOffset + originalMaxYOffset> backgroundHeight){
-            yOffset = (backgroundHeight - originalMaxYOffset);
+        if (yOffset + originalMaxYOffset > curFloor.getBackgroundHeight()) {
+            yOffset = (curFloor.getBackgroundHeight() - originalMaxYOffset);
             activeReferenceState.transY = yOffset - originalYOffset;
             activeReferenceState.prevTransY = activeReferenceState.transY;
         }
         invalidate();
     }
-    private void correctCanvasBoundaries(){
+
+    private void correctCanvasBoundaries() {
         //portrait scale fix
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             //If our width is smaller than myViewWidth, we have to adjust
-            if (canvasReferenceState.scaleFactor * backgroundWidth < myViewWidth) {
-                canvasReferenceState.scaleFactor = ((float) myViewWidth) / backgroundWidth;
+            if (canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() < myViewWidth) {
+                canvasReferenceState.scaleFactor = ((float) myViewWidth) / curFloor.getBackgroundWidth();
             }
         }
         //landscape scale fix
         else {
             //If our height is smaller than myViewHeight, we have to adjust
-            if (canvasReferenceState.scaleFactor * backgroundHeight < myViewHeight) {
-                canvasReferenceState.scaleFactor = ((float) myViewHeight) / backgroundHeight;
+            if (canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() < myViewHeight) {
+                canvasReferenceState.scaleFactor = ((float) myViewHeight) / curFloor.getBackgroundHeight();
             }
         }
 
@@ -420,8 +394,8 @@ public class MyView extends View {
 
         //left and right
         //don't let image pan past the right edge
-        if (canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth + canvasReferenceState.transX < 0) {
-            canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * backgroundWidth - myViewWidth);
+        if (canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() - myViewWidth + canvasReferenceState.transX < 0) {
+            canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() - myViewWidth);
         }
         //don't let image pan past the left edge
         if (canvasReferenceState.transX > 0) {
@@ -429,8 +403,8 @@ public class MyView extends View {
         }
         //top and bottom
         //don't let image pan past the bottom edge
-        if (canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight + canvasReferenceState.transY < 0) {
-            canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * backgroundHeight - myViewHeight);
+        if (canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() - myViewHeight + canvasReferenceState.transY < 0) {
+            canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() - myViewHeight);
         }
         //don't let image pan past the top edge
         if (canvasReferenceState.transY > 0) {
@@ -442,6 +416,7 @@ public class MyView extends View {
             invalidate();
         }
     }
+
     /*
     Custom class to handle scaling for our canvas.
      */
