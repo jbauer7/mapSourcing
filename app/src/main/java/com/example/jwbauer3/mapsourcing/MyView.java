@@ -55,7 +55,7 @@ public class MyView extends View {
     private Node startNode = null;
     private Node endNode = null;
 
-    private ArrayList<MenuOption> opts = new ArrayList<MenuOption>();
+    private ArrayList<MenuOption> opts = new ArrayList<>();
 
     public MyView(Context context) {
         super(context);
@@ -177,15 +177,24 @@ public class MyView extends View {
             if (selectedElement instanceof MenuOption) {
                 //todo: ignore how shitty this is.
                 MenuOption opt = (MenuOption) selectedElement;
-                if (opt.getMenuText().equals("Start")) {
+                if (opt.getMenuAttribute().equals(MenuSelection.START)) {
                     //Assuming that the menus we place only allow "Start" to show on Nodes, this should be fine.
+                    if(startNode!=null){
+                        //turn off terminal tag from previous startNode
+                        startNode.toggleAttribute(Attribute.TERMINAL);
+                    }
                     startNode = (Node) opt.getParent();
+                    startNode.toggleAttribute(Attribute.TERMINAL); //turn on terminal tag
                     navigator.setStartNode(startNode);
                     if (endNode != null) {
                         updatePath();
                     }
-                } else if (opt.getMenuText().equals("End")) {
+                } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
+                    if(endNode!=null){
+                        endNode.toggleAttribute(Attribute.TERMINAL);
+                    }
                     endNode = (Node) opt.getParent();
+                    endNode.toggleAttribute(Attribute.TERMINAL);
                     navigator.setEndNode(endNode);
                     if (startNode != null) {
                         updatePath();
@@ -197,7 +206,7 @@ public class MyView extends View {
 
             } else {
                 //wasn't a menu option, remove it.
-                selectedElement.toggleAttribute("clicked");
+                selectedElement.toggleAttribute(Attribute.CLICKED);
                 drawables_draw.removeAll(opts);
                 drawables_search.removeAll(opts);
                 opts = selectedElement.getOptions();
@@ -218,7 +227,7 @@ public class MyView extends View {
         //remove all canvasdrawables states that they are in the old path
         if (path != null) {
             for (CanvasDrawable drawable : path) {
-                drawable.toggleAttribute("path");
+                drawable.toggleAttribute(Attribute.PATH);
             }
         }
         navigator.calculatePath();
@@ -226,7 +235,7 @@ public class MyView extends View {
 
         if (path != null) {
             for (CanvasDrawable drawable : path) {
-                drawable.toggleAttribute("path");
+                drawable.toggleAttribute(Attribute.PATH);
             }
         }
     }

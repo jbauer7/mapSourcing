@@ -40,7 +40,9 @@ public class EdgeLogService extends Service implements SensorEventListener{
                     //acc = new float[3];
                     //rot = new float[3];
                     //todo: get correct floor
-                    firstNode = new Node(0,0,2);
+
+                //todo: hardcoded that this is a non-stair node
+                    firstNode = new Node(0,0,2,false);
                     nodes = new ArrayList<Node>();
                     edges = new ArrayList<Edge>();
                     nodes.add(firstNode);
@@ -204,8 +206,10 @@ public class EdgeLogService extends Service implements SensorEventListener{
         }
         prevDegreeRange = degreeRange;
 
+
+        //todo: hardcoded that this is a non-stair node
         Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
-                prevNode.getyPos()+(int) currSteps*curr_y,2);
+                prevNode.getyPos()+(int) currSteps*curr_y,2,false);
 
         Edge newEdge = new Edge(prevNode,newNode);
         newEdge.setWeight((int) currSteps);
@@ -233,10 +237,12 @@ public class EdgeLogService extends Service implements SensorEventListener{
         else if(degree>=225 && degree<315) curr_x=1;
         else curr_y=-1;
 
+
+        //todo: hardcoded that this is a non-stair node
         //if direction changes create a node
         if(curr_x != x || curr_y != y){
             Node newNode = new Node(prevNode.getxPos() + (int) currSteps*curr_x,
-                    prevNode.getyPos()+(int) currSteps*curr_y,2);
+                    prevNode.getyPos()+(int) currSteps*curr_y,2,false);
 
             Edge newEdge = new Edge(prevNode,newNode);
             newEdge.setWeight((int) currSteps);

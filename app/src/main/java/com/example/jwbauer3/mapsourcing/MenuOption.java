@@ -16,17 +16,17 @@ public class MenuOption extends CanvasDrawable {
     private int borderPix = 3;
     private int elementNum;
     private CanvasDrawable menuOwner;
-    String displayText;
+    private MenuSelection displaySelection;
     private float scaleFactor = 1f;
     //TODO: REPLACE FROM GLOBAL VIEW STATE
     private int backgroundWidth;
     private int backgroundHeight;
 
-    public MenuOption(CanvasDrawable owned, int elementNum, String display, int backgroundWidth, int backgroundHeight) {
+    public MenuOption(CanvasDrawable owned, int elementNum, MenuSelection display, int backgroundWidth, int backgroundHeight) {
         super(DEFAULTOPTIONPRIORITY);
         this.menuOwner = owned;
         this.elementNum = elementNum;
-        displayText = display;
+        displaySelection = display;
         this.backgroundWidth = backgroundWidth;
         this.backgroundHeight = backgroundHeight;
     }
@@ -62,7 +62,7 @@ public class MenuOption extends CanvasDrawable {
         canvas.drawRect(x + border, y + border, xEnd - border, yEnd - border, paint);
         paint.setColor(Color.BLACK);
         paint.setTextSize(48f * scaleFactor);
-        canvas.drawText(displayText, x, y + (scaleFactor * elementHeight / 2), paint);
+        canvas.drawText(displaySelection.toString(), x, y + (scaleFactor * elementHeight / 2), paint);
 
     }
 
@@ -90,8 +90,8 @@ public class MenuOption extends CanvasDrawable {
     public int getMenuStartY() {
         return 0;
     }
-    public String getMenuText(){
-        return displayText;
+    public MenuSelection getMenuAttribute(){
+        return displaySelection;
     }
     public CanvasDrawable getParent(){
         return menuOwner;

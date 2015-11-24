@@ -69,9 +69,9 @@ public class MainActivity extends Activity {
     }
     private void setUp() {
         //width, height
-        Node test1 = new Node(0, 150,2);
-        Node test2 = new Node(400, -350,2);
-        Node test3 = new Node(-300, 400,2);
+        Node test1 = new Node(0, 150,2, true);
+        Node test2 = new Node(400, -350,2,false);
+        Node test3 = new Node(-300, 400,2,false);
         //Node test4 = new Node(800, 800);
         //Node test5 = new Node(1212, 1911);
         Edge con1 = new Edge(test1, test2);
@@ -92,9 +92,9 @@ public class MainActivity extends Activity {
         edges2.add(con3);
         //edges2.add(con4);
 
-        Node test4 = new Node(150,800,3);
-        Node test5 = new Node(17,38,3);
-        Node test6= new Node(-160,200,3);
+        Node test4 = new Node(150,800,3,false);
+        Node test5 = new Node(17,38,3,false);
+        Node test6= new Node(-160,200,3,true);
         Edge con45 = new Edge(test4,test5);
         test4.setEdges(con45);
         test5.setEdges(con45);

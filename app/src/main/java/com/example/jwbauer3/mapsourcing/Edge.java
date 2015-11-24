@@ -49,7 +49,7 @@ public class Edge extends CanvasDrawable {
         this.direction = direction;
     }
 
-    //can implement getPriroity;
+    //can implement getPriority;
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
@@ -59,9 +59,9 @@ public class Edge extends CanvasDrawable {
         //paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(drawnLineWidth);
         //selects color based on priority
-        if (this.attributes.contains("clicked")) {
+        if (this.attributes.contains(Attribute.CLICKED)) {
             paint.setColor(Color.parseColor("#AAAAAA"));
-        } else if (this.attributes.contains("path")) {
+        } else if (this.attributes.contains(Attribute.PATH)) {
             paint.setColor(Color.parseColor("#FFB6C1"));
         } else {
             paint.setColor(Color.parseColor("#7070FF"));
@@ -82,7 +82,7 @@ public class Edge extends CanvasDrawable {
         int yEnd = (int) ((this.getEnd().getyPos() + transYoffset) * canvasScaleFactor);
 
         //we are using herons formula to determine calculate the area of the triangle created.
-        //once we have the area we can find the height with respect to our inital line (b) by doing
+        //once we have the area we can find the height with respect to our initial line (b) by doing
         //height = 2*Area/b
         //Formula found from http://www.mathopenref.com/heronsformula.html
 
@@ -99,7 +99,7 @@ public class Edge extends CanvasDrawable {
         //ensure that the point clicked is inside the line constraints, ie: not along the infinite line
         //to do this, we check to see if our constructed triangle is acute or obtuse.
         //the former could be inside, the latter cannot.
-        //Algorithm is based on pythag formula.
+        //Algorithm is based on pythagorean formula.
         if (c * c > (b * b) + (a * a)) {
             //our triangle is obtuse b/c point a is outside
             return false;
@@ -115,7 +115,7 @@ public class Edge extends CanvasDrawable {
         double height = Math.sqrt((-a - b - c) * (a - b - c) * (a + b - c) * (a - b + c)) / (2 * b);
 
         //check to see if the height is less than our scaled width of the line.
-        //take the half because the drawnlinewidth is the entire line, we only can allow for half of that.
+        //take the half because the drawn line width is the entire line, we only can allow for half of that.
         return (height <= (drawnLineWidth / 2.0) * canvasScaleFactor);
     }
 
@@ -138,7 +138,7 @@ public class Edge extends CanvasDrawable {
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
-
+    //have menus display in the middle of the edge, halfway through x and y.
     public int getMenuStartX() {
         return (start.getxPos() + end.getxPos()) / 2;
     }

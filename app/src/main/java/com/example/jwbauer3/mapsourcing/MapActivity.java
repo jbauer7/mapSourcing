@@ -32,7 +32,9 @@ public class MapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_map);
 
         //First node will start at the origin
-        firstNode = new Node(0,0,2);
+
+        //todo: hardcoded that this is a non-stair node
+        firstNode = new Node(0,0,2,false);
         prevNode = firstNode;
         prevSteps=0;
 
@@ -75,7 +77,9 @@ public class MapActivity extends AppCompatActivity {
         int xDir =  (prevNode.getxPos() + (int)(steps *  Math.sin((double) direction * Math.PI / 180)));
         int yDir =  (prevNode.getyPos() + (int)(steps *  Math.cos((double) direction * Math.PI / 180)));
 
-        Node newNode = new Node(xDir,yDir,2);
+
+        //todo: hardcoded that this is a non-stair node
+        Node newNode = new Node(xDir,yDir,2,false);
         Edge currEdge= new Edge(prevNode, newNode);
         currEdge.setDirection((int) direction);
         currEdge.setWeight(steps);

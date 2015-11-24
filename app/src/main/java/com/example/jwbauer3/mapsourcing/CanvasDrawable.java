@@ -11,7 +11,7 @@ public abstract class CanvasDrawable {
 
     protected int priority;
     protected ArrayList<MenuOption> options;
-    protected ArrayList<String> attributes;
+    protected ArrayList<Attribute> attributes;
     //default scaleFactor is 1f.
     protected float scaleFactor = 1f;
 
@@ -49,7 +49,7 @@ public abstract class CanvasDrawable {
     Toggle an attribute on or off,
     TODO: replace with enum?
      */
-    public void toggleAttribute(String attribute){
+    public void toggleAttribute(Attribute attribute){
         if(!attributes.contains(attribute)){
             attributes.add(attribute);
         }
