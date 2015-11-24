@@ -11,6 +11,8 @@ public class Navigator {
     private ArrayList<Node> graph;
     private ArrayList<CanvasDrawable> path;
 
+
+    //todo: make static?
     public Navigator(Node startNode, Node endNode, ArrayList<Node> graph) {
         setStartNode(startNode);
         setEndNode(endNode);
@@ -19,6 +21,9 @@ public class Navigator {
     public Navigator(ArrayList<Node> graph) {
         this.graph = graph;
     }
+
+
+    //todo: method to set graph?
 
     public void setStartNode(Node startNode) {
         this.startNode = startNode;
@@ -32,7 +37,6 @@ public class Navigator {
         return path;
     }
 
-    //TODO: should this return path?
     public void calculatePath() {
         //TreeMap<Node, Integer> guess_score = new TreeMap<Node, Integer>();
         HashMap<CanvasDrawable, CanvasDrawable> cameFrom = new HashMap<>();
@@ -115,7 +119,8 @@ public class Navigator {
 
 
         }
-        //todo: return failure?
+        //failure to find a path.
+        path = null;
 
     }
 

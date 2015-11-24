@@ -12,6 +12,9 @@ public abstract class CanvasDrawable {
     protected int priority;
     protected ArrayList<MenuOption> options;
     protected ArrayList<String> attributes;
+    //default scaleFactor is 1f.
+    protected float scaleFactor = 1f;
+
     public CanvasDrawable(int priority) {
         //this.options = options;
         this.priority = priority;
@@ -37,6 +40,10 @@ public abstract class CanvasDrawable {
     public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float canvasScaleFactor);
 
     public abstract void setScaleFactor(float scaleFactor);
+
+    public float getScaleFactor(){
+        return scaleFactor;
+    }
 
     /*
     Toggle an attribute on or off,

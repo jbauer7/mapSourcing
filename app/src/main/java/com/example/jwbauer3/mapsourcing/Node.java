@@ -3,6 +3,8 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 
 import java.util.ArrayList;
 
@@ -27,8 +29,11 @@ public class Node extends CanvasDrawable {
         edges = new ArrayList<>();
         drawnRadius = DEFAULTRADIUS;
         this.floor = floor;
-        MenuOption newOpt = new MenuOption(this, 0, "Test");
+        //todo: fix hardcoding
+        MenuOption newOpt = new MenuOption(this, 0, "Start", 4000, 2400);
+        MenuOption newOpt2 = new MenuOption(this, 1, "End", 4000, 2400);
         options.add(newOpt);
+        options.add(newOpt2);
     }
 
     public int getxPos() {
@@ -52,12 +57,20 @@ public class Node extends CanvasDrawable {
     public void draw(Canvas canvas, int xOffset, int yOffset) {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
-        if (this.attributes.contains("clicked")) {
-            //canvas.drawRect(this.getxPos() + xOffset, this.getyPos() + yOffset, this.getxPos() + xOffset + 250, this.getyPos() + yOffset + 250, paint);
-            paint.setColor(Color.parseColor("#66FF33"));
-            //canvas.drawRect(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
+        if (this.attributes.contains("path")) {
+            paint.setColor(Color.parseColor("#ff69b4"));
         } else {
             paint.setColor(Color.parseColor("#CD5C5C"));
+        }
+        //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
+        if (this.attributes.contains("clicked")) {
+            int color = paint.getColor();
+            float[] hsv = new float[3];
+            Color.colorToHSV(color, hsv);
+            //todo: magic number
+            hsv[2]=hsv[2]*0.75f;
+            color = Color.HSVToColor(hsv);
+            paint.setColor(color);
         }
         canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
     }
@@ -73,11 +86,13 @@ public class Node extends CanvasDrawable {
     }
 
     public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
         drawnRadius = (int) (DEFAULTRADIUS * scaleFactor);
         xPos = (int) (defaultxPos * scaleFactor);
         yPos = (int) (defaultYPos * scaleFactor);
     }
-    public ArrayList<MenuOption> getOptions(){
+
+    public ArrayList<MenuOption> getOptions() {
         return options;
     }
 
@@ -90,12 +105,15 @@ public class Node extends CanvasDrawable {
             return false;
         }
     }
-    public int getMenuStartX(){
+
+    public int getMenuStartX() {
         return xPos;
     }
-    public int getMenuStartY(){
+
+    public int getMenuStartY() {
         return yPos;
     }
+
     public int getDrawnRadius() {
         return drawnRadius;
     }

@@ -58,8 +58,11 @@ public class Edge extends CanvasDrawable {
         //Update the paintbrush to make lines (for edges)
         //paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(drawnLineWidth);
+        //selects color based on priority
         if (this.attributes.contains("clicked")) {
             paint.setColor(Color.parseColor("#AAAAAA"));
+        } else if (this.attributes.contains("path")) {
+            paint.setColor(Color.parseColor("#FFB6C1"));
         } else {
             paint.setColor(Color.parseColor("#7070FF"));
         }
@@ -97,11 +100,10 @@ public class Edge extends CanvasDrawable {
         //to do this, we check to see if our constructed triangle is acute or obtuse.
         //the former could be inside, the latter cannot.
         //Algorithm is based on pythag formula.
-        if(c*c > (b*b) + (a*a)){
+        if (c * c > (b * b) + (a * a)) {
             //our triangle is obtuse b/c point a is outside
             return false;
-        }
-        else if(a*a > (b*b) + (c*c)){
+        } else if (a * a > (b * b) + (c * c)) {
             //our triangle is obtuse b/c point c is outside
             return false;
         }
@@ -114,14 +116,16 @@ public class Edge extends CanvasDrawable {
 
         //check to see if the height is less than our scaled width of the line.
         //take the half because the drawnlinewidth is the entire line, we only can allow for half of that.
-        return (height <= (drawnLineWidth/2.0)*canvasScaleFactor);
+        return (height <= (drawnLineWidth / 2.0) * canvasScaleFactor);
     }
 
     /*
     Update scale factor and drawnLineWidth
      */
-    public void setScaleFactor(float scaleFactor){
-        drawnLineWidth = (int)(DEFAULTDRAWNLINEWIDTH * scaleFactor);
+    public void setScaleFactor(float scaleFactor) {
+        //todo: change way this is set, only store scale factor
+        this.scaleFactor = scaleFactor;
+        drawnLineWidth = (int) (DEFAULTDRAWNLINEWIDTH * scaleFactor);
     }
 
     public boolean equals(Object toCompare) {
@@ -134,11 +138,13 @@ public class Edge extends CanvasDrawable {
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
-    public int getMenuStartX(){
-        return (start.getxPos() + end.getxPos())/2;
+
+    public int getMenuStartX() {
+        return (start.getxPos() + end.getxPos()) / 2;
     }
-    public int getMenuStartY(){
-        return (start.getyPos() + end.getyPos())/2;
+
+    public int getMenuStartY() {
+        return (start.getyPos() + end.getyPos()) / 2;
     }
 
 }

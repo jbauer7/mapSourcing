@@ -13,43 +13,71 @@ public class MenuOption extends CanvasDrawable {
     private static final int DEFAULTOPTIONPRIORITY = 300;
     private final int elementWidth = 150;
     private final int elementHeight = 100; //100 pixels tall
+    private int borderPix = 3;
     private int elementNum;
     private CanvasDrawable menuOwner;
     String displayText;
+    private float scaleFactor = 1f;
+    //TODO: REPLACE FROM GLOBAL VIEW STATE
+    private int backgroundWidth;
+    private int backgroundHeight;
 
-    public MenuOption(CanvasDrawable owned, int elementNum, String display) {
+    public MenuOption(CanvasDrawable owned, int elementNum, String display, int backgroundWidth, int backgroundHeight) {
         super(DEFAULTOPTIONPRIORITY);
         this.menuOwner = owned;
         this.elementNum = elementNum;
         displayText = display;
+        this.backgroundWidth = backgroundWidth;
+        this.backgroundHeight = backgroundHeight;
     }
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
+        //update scale factor
+        this.scaleFactor = menuOwner.getScaleFactor();
+
         Paint paint = new Paint();
-        paint.setColor(Color.CYAN);
+
         int x = menuOwner.getMenuStartX() + xOffset;
-        int y = menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum;
-        canvas.drawRect(x, y, x + elementWidth, y + elementHeight, paint);
+        int y = menuOwner.getMenuStartY() + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        int xEnd = (int) (x + elementWidth * scaleFactor);
+        int yEnd = (int) (y + elementHeight * scaleFactor);
+        int border = (int) (borderPix * scaleFactor);
+
+        //todo: implement fix with MenuClass, and global view state
+        /*
+        if (xEnd > backgroundWidth) {
+            xEnd = x;
+            x -= elementWidth * scaleFactor;
+        }
+        if(yEnd > backgroundHeight){
+            yEnd=y;
+            y-=elementHeight*scaleFactor;
+        }
+        */
+
         paint.setColor(Color.BLACK);
-        paint.setTextSize(48f);
-        //TODO: magic nums
-        canvas.drawText(displayText, x, y + (elementHeight / 2), paint);
+        canvas.drawRect(x, y, xEnd, yEnd, paint);
+        paint.setColor(Color.CYAN);
+        canvas.drawRect(x + border, y + border, xEnd - border, yEnd - border, paint);
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(48f * scaleFactor);
+        canvas.drawText(displayText, x, y + (scaleFactor * elementHeight / 2), paint);
 
     }
 
     @Override
     public boolean contains(int xPos, int yPos, int xOffset, int yOffset, float canvasScaleFactor) {
         int xStart = (int) ((menuOwner.getMenuStartX() + xOffset) * canvasScaleFactor);
-        int yStart = (int) ((menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum) * canvasScaleFactor);
-        int xEnd = xStart + (int)(elementWidth*canvasScaleFactor);
-        int yEnd = yStart + (int)(elementHeight*canvasScaleFactor);
+        int yStart = (int) ((menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum * scaleFactor - borderPix * scaleFactor * elementNum) * canvasScaleFactor);
+        int xEnd = xStart + (int) (elementWidth * scaleFactor * canvasScaleFactor);
+        int yEnd = yStart + (int) (elementHeight * scaleFactor * canvasScaleFactor);
         return (xPos > xStart && yPos > yStart && xPos < xEnd && yPos < yEnd);
     }
 
     @Override
     public void setScaleFactor(float scaleFactor) {
-        //do we care about the scale factor?
+        this.scaleFactor = scaleFactor;
     }
 
     //TODO: what do, maybe throw non-implementor exception
@@ -61,5 +89,11 @@ public class MenuOption extends CanvasDrawable {
     @Override
     public int getMenuStartY() {
         return 0;
+    }
+    public String getMenuText(){
+        return displayText;
+    }
+    public CanvasDrawable getParent(){
+        return menuOwner;
     }
 }

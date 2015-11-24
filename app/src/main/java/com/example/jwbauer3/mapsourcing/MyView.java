@@ -50,7 +50,11 @@ public class MyView extends View {
     private int myViewWidth;
     private int myViewHeight;
 
-    private boolean menuActive;
+    private Navigator navigator = null;
+    private ArrayList<CanvasDrawable> path = null;
+    private Node startNode = null;
+    private Node endNode = null;
+
     private ArrayList<MenuOption> opts = new ArrayList<MenuOption>();
 
     public MyView(Context context) {
@@ -71,12 +75,12 @@ public class MyView extends View {
     public void setFloor(Floor floor) {
         //switch if we already have a floor
         //todo: check that meshreferenceState is saved off.
-        if(meshMode) {
+        if (meshMode) {
             activeReferenceState = floor.getMeshReferenceState();
         }
 
         this.curFloor = floor;
-        meshReferenceState=curFloor.getMeshReferenceState();
+        meshReferenceState = curFloor.getMeshReferenceState();
         determineOffsets();
         setDrawableQueues();
 
@@ -85,14 +89,19 @@ public class MyView extends View {
 
         invalidate();
     }
-    private void setDrawableQueues(){
+
+    public void setNavigator(Navigator navigator) {
+        this.navigator = navigator;
+    }
+
+    private void setDrawableQueues() {
         drawables_draw = new PriorityQueue<>((curFloor.getNodes().size() * 2), new Comparator<CanvasDrawable>() {
             @Override
             public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
                 return lhs.getPriority() - rhs.getPriority();
             }
         });
-        drawables_search = new PriorityQueue<>((curFloor.getNodes().size()*2), new Comparator<CanvasDrawable>() {
+        drawables_search = new PriorityQueue<>((curFloor.getNodes().size() * 2), new Comparator<CanvasDrawable>() {
             @Override
             public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
                 return rhs.getPriority() - lhs.getPriority();
@@ -166,6 +175,25 @@ public class MyView extends View {
         }
         if (selectedElement != null) {
             if (selectedElement instanceof MenuOption) {
+                //todo: ignore how shitty this is.
+                MenuOption opt = (MenuOption) selectedElement;
+                if (opt.getMenuText().equals("Start")) {
+                    //Assuming that the menus we place only allow "Start" to show on Nodes, this should be fine.
+                    startNode = (Node) opt.getParent();
+                    navigator.setStartNode(startNode);
+                    if (endNode != null) {
+                        updatePath();
+                    }
+                } else if (opt.getMenuText().equals("End")) {
+                    endNode = (Node) opt.getParent();
+                    navigator.setEndNode(endNode);
+                    if (startNode != null) {
+                        updatePath();
+                    }
+                }
+                //todo: animation
+                drawables_draw.removeAll(opts);
+                drawables_search.removeAll(opts);
 
             } else {
                 //wasn't a menu option, remove it.
@@ -184,6 +212,23 @@ public class MyView extends View {
             drawables_search.removeAll(opts);
         }
 
+    }
+
+    private void updatePath() {
+        //remove all canvasdrawables states that they are in the old path
+        if (path != null) {
+            for (CanvasDrawable drawable : path) {
+                drawable.toggleAttribute("path");
+            }
+        }
+        navigator.calculatePath();
+        path = navigator.getPath();
+
+        if (path != null) {
+            for (CanvasDrawable drawable : path) {
+                drawable.toggleAttribute("path");
+            }
+        }
     }
 
     /*
@@ -231,7 +276,6 @@ public class MyView extends View {
     private void determineOffsets() {
         ArrayList<Node> nodes = curFloor.getNodes();
         if (nodes != null) {
-            int radius = nodes.get(0).getDrawnRadius();
             int minX = nodes.get(0).getxPos();
             int minY = nodes.get(0).getyPos();
             int maxX = minX;
@@ -262,6 +306,7 @@ public class MyView extends View {
             originalMaxYOffset = maxY;
         }
     }
+
 
     /*
     Custom class to define the onTouch properties of the MyView View.

@@ -10,6 +10,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
 import android.widget.Button;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -18,6 +19,7 @@ public class MainActivity extends Activity {
     private boolean mBound = false;
     private int curFloorNum = 2;
     private EdgeLogService mService;
+    private Navigator navigator;
     private ServiceConnection mConnection = new ServiceConnection(){
 
         @Override
@@ -55,9 +57,14 @@ public class MainActivity extends Activity {
 
         floor2 = new Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
         floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+        ArrayList<Node> graph = new ArrayList<>();
+        graph.addAll(floor2.getNodes());
+        graph.addAll(floor3.getNodes());
+        navigator = new Navigator(graph);
 
         myView = (MyView)findViewById(R.id.MyViewTest);
         myView.setFloor(floor2);
+        myView.setNavigator(navigator);
 
     }
     private void setUp() {
@@ -68,8 +75,12 @@ public class MainActivity extends Activity {
         //Node test4 = new Node(800, 800);
         //Node test5 = new Node(1212, 1911);
         Edge con1 = new Edge(test1, test2);
+        test1.setEdges(con1);
+        test2.setEdges(con1);
         //Edge con2 = new Edge(test2, test4);
         Edge con3 = new Edge(test1, test3);
+        test1.setEdges(con3);
+        test3.setEdges(con3);
         //Edge con4 = new Edge(test3, test4);
         nodes2.add(test1);
         nodes2.add(test2);
@@ -85,22 +96,36 @@ public class MainActivity extends Activity {
         Node test5 = new Node(17,38,3);
         Node test6= new Node(-160,200,3);
         Edge con45 = new Edge(test4,test5);
+        test4.setEdges(con45);
+        test5.setEdges(con45);
         Edge con56 = new Edge(test5,test6);
+        test5.setEdges(con56);
+        test6.setEdges(con56);
         nodes3.add(test4);
         nodes3.add(test5);
         nodes3.add(test6);
         edges3.add(con45);
         edges3.add(con56);
 
+        //cross floor
+        Edge xfloor = new Edge(test1, test6);
+        test1.setEdges(xfloor);
+        test6.setEdges(xfloor);
+
+
+
     }
-    public void pressed(View view){
+    public void toggleFloor(View view){
+        Button floorToggle = (Button) findViewById(R.id.Button_SwitchFloors);
         if(curFloorNum==2){
             myView.setFloor(floor3);
             curFloorNum=3;
+            floorToggle.setText("Floor 3");
         }
         else{
             myView.setFloor(floor2);
             curFloorNum=2;
+            floorToggle.setText("Floor 2");
         }
     }
 
@@ -109,7 +134,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
     public void toggleMesh(View view){
-        Button toggleButton = (Button) findViewById(R.id.Button_MeshMode);
+        Button toggleButton = (Button) findViewById(R.id.Button_SwitchMode);
         if(toggleButton.getText().equals("Mesh Mode")) {
             toggleButton.setText("Canvas Mode");
         }

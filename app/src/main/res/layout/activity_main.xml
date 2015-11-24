@@ -40,15 +40,15 @@
         android:layout_alignParentBottom="true">
 
         <Button
-            android:id="@+id/Button_TestButton"
+            android:id="@+id/Button_SwitchFloors"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="pressed"
+            android:onClick="toggleFloor"
             android:layout_weight="1"
-            android:text="Push Me" />
+            android:text="Floor 2" />
 
         <Button
-            android:id="@+id/Button_MeshMode"
+            android:id="@+id/Button_SwitchMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
