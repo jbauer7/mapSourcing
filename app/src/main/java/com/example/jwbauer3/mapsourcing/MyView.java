@@ -74,7 +74,7 @@ public class MyView extends View {
 
     public void setFloor(Floor floor) {
         //switch if we already have a floor
-        //todo: check that meshreferenceState is saved off.
+        //todo: check that mesh reference State is saved off.
         if (meshMode) {
             activeReferenceState = floor.getMeshReferenceState();
         }
@@ -391,37 +391,37 @@ public class MyView extends View {
     private void correctMeshBoundaries() {
         //Fix the min scale factor for mesh mode.
         //min scale factor for canvas is defined below
-        if (activeReferenceState.scaleFactor < MINSCALEFACTOR) {
-            activeReferenceState.scaleFactor = MINSCALEFACTOR;
+        if (meshReferenceState.scaleFactor < MINSCALEFACTOR) {
+            meshReferenceState.scaleFactor = MINSCALEFACTOR;
         }
 
         //update the offsets of the nodes xoffset, yoffset
-        xOffset = originalXOffset + (int) (activeReferenceState.transX);
-        yOffset = originalYOffset + (int) (activeReferenceState.transY);
+        xOffset = originalXOffset + (int) (meshReferenceState.transX);
+        yOffset = originalYOffset + (int) (meshReferenceState.transY);
 
         //don't let nodes go too far to the left
         if (xOffset < originalXOffset) {
             xOffset = originalXOffset;
-            activeReferenceState.transX = 0;
-            activeReferenceState.prevTransX = 0;
+            meshReferenceState.transX = 0;
+            meshReferenceState.prevTransX = 0;
         }
         //too far on top
         if (yOffset < originalYOffset) {
             yOffset = originalYOffset;
-            activeReferenceState.transY = 0;
-            activeReferenceState.prevTransY = 0;
+            meshReferenceState.transY = 0;
+            meshReferenceState.prevTransY = 0;
         }
         //too far right
         if (xOffset + originalMaxXOffset > curFloor.getBackgroundWidth()) {
             xOffset = (curFloor.getBackgroundWidth() - originalMaxXOffset);
-            activeReferenceState.transX = xOffset - originalXOffset;
-            activeReferenceState.prevTransX = activeReferenceState.transX;
+            meshReferenceState.transX = xOffset - originalXOffset;
+            meshReferenceState.prevTransX = meshReferenceState.transX;
         }
         //too far bottom
         if (yOffset + originalMaxYOffset > curFloor.getBackgroundHeight()) {
             yOffset = (curFloor.getBackgroundHeight() - originalMaxYOffset);
-            activeReferenceState.transY = yOffset - originalYOffset;
-            activeReferenceState.prevTransY = activeReferenceState.transY;
+            meshReferenceState.transY = yOffset - originalYOffset;
+            meshReferenceState.prevTransY = meshReferenceState.transY;
         }
         invalidate();
     }
@@ -441,6 +441,10 @@ public class MyView extends View {
                 canvasReferenceState.scaleFactor = ((float) myViewHeight) / curFloor.getBackgroundHeight();
             }
         }
+
+        //update the offsets of the nodes xoffset, yoffset
+        xOffset = originalXOffset + (int) (meshReferenceState.transX);
+        yOffset = originalYOffset + (int) (meshReferenceState.transY);
 
 
         //Two 4 consecutive if statements ensures that the drawing is mapped to the top and

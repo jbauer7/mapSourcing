@@ -20,7 +20,7 @@ public class Floor {
     private int backgroundHeight; //image
     private Drawable backgroundImage;
 
-    //todo: do we need to store these? We need to recalc all the
+    //todo: do we need to store these? We need to recalculate all the
     //private int originalMinXOffset;
     //private int originalMinYOffset;
     //private int originalMaxX;
@@ -59,6 +59,7 @@ public class Floor {
     public ReferenceState getMeshReferenceState() {
         return meshReferenceState;
     }
+
     public int getBackgroundWidth(){
         return backgroundWidth;
     }

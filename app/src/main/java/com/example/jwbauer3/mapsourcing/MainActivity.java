@@ -8,16 +8,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-
-import java.lang.reflect.Array;
+import android.widget.Spinner;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
     private boolean pressed = false;
     private boolean mBound = false;
-    private int curFloorNum = 2;
+    private int curFloorNum;
     private EdgeLogService mService;
     private Navigator navigator;
     private ServiceConnection mConnection = new ServiceConnection(){
@@ -40,8 +41,10 @@ public class MainActivity extends Activity {
     private ArrayList<Edge> edges2;
     private ArrayList<Node> nodes3;
     private ArrayList<Edge> edges3;
-    Floor floor2;
-    Floor floor3;
+    private Floor floor2;
+    private Floor floor3;
+    private ArrayList<Floor> floors = new ArrayList<>();
+    private String[] floorNames = {"Floor 2", "Floor 3"};
 
     MyView myView;
     @Override
@@ -52,17 +55,22 @@ public class MainActivity extends Activity {
         nodes3 = new ArrayList<Node>();
         edges3 = new ArrayList<Edge>();
 
-        setUp();
+
         setContentView(R.layout.activity_main);
+        setUp();
+        setUpSpinner();
 
         floor2 = new Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
         floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+        floors.add(floor2);
+        floors.add(floor3);
         ArrayList<Node> graph = new ArrayList<>();
         graph.addAll(floor2.getNodes());
         graph.addAll(floor3.getNodes());
         navigator = new Navigator(graph);
 
         myView = (MyView)findViewById(R.id.MyViewTest);
+        curFloorNum = 0;
         myView.setFloor(floor2);
         myView.setNavigator(navigator);
 
@@ -108,25 +116,34 @@ public class MainActivity extends Activity {
         edges3.add(con56);
 
         //cross floor
-        Edge xfloor = new Edge(test1, test6);
-        test1.setEdges(xfloor);
-        test6.setEdges(xfloor);
+        Edge xFloor = new Edge(test1, test6);
+        test1.setEdges(xFloor);
+        test6.setEdges(xFloor);
 
 
 
     }
-    public void toggleFloor(View view){
-        Button floorToggle = (Button) findViewById(R.id.Button_SwitchFloors);
-        if(curFloorNum==2){
-            myView.setFloor(floor3);
-            curFloorNum=3;
-            floorToggle.setText("Floor 3");
-        }
-        else{
-            myView.setFloor(floor2);
-            curFloorNum=2;
-            floorToggle.setText("Floor 2");
-        }
+    private void setUpSpinner(){
+        Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
+        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, floorNames);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(curFloorNum == position){
+                    //do nothing
+                }
+                else {
+                    curFloorNum = position;
+                    myView.setFloor(floors.get(position));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     public void switchActivity(View view){

@@ -1,7 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
 /**
- * Class allows for easy stoarge/access to a reference state
+ * Class allows for easy storage/access to a reference state
  * To be used to swap between screen and mesh movement.
  */
 public class ReferenceState {
@@ -14,7 +14,7 @@ public class ReferenceState {
     public float scaleFactor;
 
     /*
-    Instantiates and sets defualt values.
+    Instantiates and sets default values.
      */
     public ReferenceState() {
         startX = 0f;

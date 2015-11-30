@@ -1,7 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
 /**
- * Created by Nikhil on 11/24/2015.
+ * created by Nikhil on 11/24/2015.
  */
 public enum MenuSelection {
     START("Start"),

@@ -78,7 +78,7 @@ public class Node extends CanvasDrawable {
         if(stairNode){
             int prevColor = paint.getColor();
             paint.setColor(Color.parseColor("#ff5500"));
-            //todo: is 30% larger enough? Also hardcoding
+            //todo: is 30% larger enough? Also hardcoding fix needed.
             canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (1.3)), paint);
             paint.setColor(prevColor);
         }
