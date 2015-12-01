@@ -1,8 +1,11 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -73,6 +76,13 @@ public class MainActivity extends Activity {
         curFloorNum = 0;
         myView.setFloor(floor2);
         myView.setNavigator(navigator);
+
+        if (activityReceiver != null) {
+            //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
+            IntentFilter intentFilter = new IntentFilter("ToActivity");
+            //Map the intent filter to the receiver
+            registerReceiver(activityReceiver, intentFilter);
+        }
 
     }
     private void setUp() {
@@ -146,10 +156,28 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void switchActivity(View view){
-        Intent intent = new Intent(this, MapActivity.class);
-        startActivity(intent);
+    public void pressed(View view){
+        if(!pressed) {
+            Intent intent = new Intent(this, EdgeLogService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            pressed = true;
+        }
     }
+
+    public void updateDisplay(){
+        nodes2 = mService.getNodes();
+        edges2 = mService.getEdges();
+        floor2.setNodesEdges(nodes2,edges2);
+        myView.setFloor(floor2);
+    }
+
+    private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateDisplay();
+        }
+    };
+
     public void toggleMesh(View view){
         Button toggleButton = (Button) findViewById(R.id.Button_SwitchMode);
         if(toggleButton.getText().equals("Mesh Mode")) {
