@@ -3,13 +3,14 @@ package com.example.jwbauer3.mapsourcing;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,36 +41,41 @@ public class MainActivity extends Activity {
     };
 
 
-    private ArrayList<Node> nodes2;
-    private ArrayList<Edge> edges2;
-    private ArrayList<Node> nodes3;
-    private ArrayList<Edge> edges3;
+    private ArrayList<Node> currNodes;
+    private ArrayList<Edge> currEdges;
     private Floor floor2;
-    private Floor floor3;
     private ArrayList<Floor> floors = new ArrayList<>();
-    private String[] floorNames = {"Floor 2", "Floor 3"};
+    //private String[] floorNames = {"Floor 2", "Floor 3"};
+    private String[] floorNames = {"Floor 2"};
+    //TODO: Additional floor implementation
+    //private ArrayList<Node> nodes3;
+    //private ArrayList<Edge> edges3;
+    //private Floor floor3;
 
     MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        nodes2 = new ArrayList<Node>();
-        edges2 = new ArrayList<Edge>();
-        nodes3 = new ArrayList<Node>();
-        edges3 = new ArrayList<Edge>();
+        currNodes = new ArrayList<Node>();
+        currEdges = new ArrayList<Edge>();
 
 
         setContentView(R.layout.activity_main);
         setUp();
         setUpSpinner();
 
-        floor2 = new Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
-        floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+        floor2 = new Floor(2, currNodes, currEdges, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
         floors.add(floor2);
-        floors.add(floor3);
+
+        //TODO: Additional floor implementation
+        //floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+        //floors.add(floor3);
+        //graph.addAll(floor3.getNodes());
+        //nodes3 = new ArrayList<Node>();
+        //edges3 = new ArrayList<Edge>();
+
         ArrayList<Node> graph = new ArrayList<>();
         graph.addAll(floor2.getNodes());
-        graph.addAll(floor3.getNodes());
         navigator = new Navigator(graph);
 
         myView = (MyView)findViewById(R.id.MyViewTest);
@@ -84,6 +90,28 @@ public class MainActivity extends Activity {
             registerReceiver(activityReceiver, intentFilter);
         }
 
+
+    }
+
+    private void firstLog() {
+        floor2 = new Floor(2, currNodes, currEdges, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
+        floors.add(floor2);
+
+        //TODO: Additional floor implementation
+        //floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+        //floors.add(floor3);
+        //graph.addAll(floor3.getNodes());
+        //nodes3 = new ArrayList<Node>();
+        //edges3 = new ArrayList<Edge>();
+
+        ArrayList<Node> graph = new ArrayList<>();
+        graph.addAll(floor2.getNodes());
+        navigator = new Navigator(graph);
+
+        myView = (MyView)findViewById(R.id.MyViewTest);
+        curFloorNum = 0;
+        myView.setFloor(floor2);
+        myView.setNavigator(navigator);
     }
     private void setUp() {
         //width, height
@@ -100,14 +128,14 @@ public class MainActivity extends Activity {
         test1.setEdges(con3);
         test3.setEdges(con3);
         //Edge con4 = new Edge(test3, test4);
-        nodes2.add(test1);
-        nodes2.add(test2);
-        nodes2.add(test3);
+        currNodes.add(test1);
+        currNodes.add(test2);
+        currNodes.add(test3);
         //nodes2.add(test4);
         //nodes2.add(test5);
-        edges2.add(con1);
-        //edges2.add(con2);
-        edges2.add(con3);
+        currEdges.add(con1);
+        //currEdges.add(con2);
+        currEdges.add(con3);
         //edges2.add(con4);
 
         Node test4 = new Node(150,800,3,false);
@@ -119,11 +147,11 @@ public class MainActivity extends Activity {
         Edge con56 = new Edge(test5,test6);
         test5.setEdges(con56);
         test6.setEdges(con56);
-        nodes3.add(test4);
-        nodes3.add(test5);
-        nodes3.add(test6);
-        edges3.add(con45);
-        edges3.add(con56);
+        //nodes3.add(test4);
+        //nodes3.add(test5);
+        //nodes3.add(test6);
+        //edges3.add(con45);
+        //edges3.add(con56);
 
         //cross floor
         Edge xFloor = new Edge(test1, test6);
@@ -133,6 +161,20 @@ public class MainActivity extends Activity {
 
 
     }
+
+    public void pressed(View view){
+        if(!pressed) {
+            Intent intent = new Intent(this, EdgeLogService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            pressed = true;
+        }
+        // else{
+        //   updateDisplay();
+        // pressed = false;
+        //}
+
+    }
+
     private void setUpSpinner(){
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, floorNames);
@@ -156,27 +198,23 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void pressed(View view){
-        if(!pressed) {
-            Intent intent = new Intent(this, EdgeLogService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            pressed = true;
-        }
-    }
-
     public void updateDisplay(){
-        nodes2 = mService.getNodes();
-        edges2 = mService.getEdges();
-        floor2.setNodesEdges(nodes2,edges2);
-        myView.setFloor(floor2);
+        currNodes = mService.getNodes();
+        currEdges = mService.getEdges();
+        //firstLog();
+        if (curFloorNum == 0) {
+            floor2.setNodesEdges(currNodes, currEdges);
+            myView.setFloor(floor2);
+            Log.i("updateDisplay", "curFloorNum = 0");
+
+            //ArrayList<Node> graph = new ArrayList<>();
+            //graph.addAll(floor2.getNodes());
+            //navigator = new Navigator(graph);
+            //myView.setNavigator(navigator);
+        }
+        //myView.setNodesEdges(currNodes, currEdges);
     }
 
-    private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateDisplay();
-        }
-    };
 
     public void toggleMesh(View view){
         Button toggleButton = (Button) findViewById(R.id.Button_SwitchMode);
@@ -188,4 +226,11 @@ public class MainActivity extends Activity {
         }
         myView.toggleMeshMovementMode();
     }
+
+    private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateDisplay();
+        }
+    };
 }
