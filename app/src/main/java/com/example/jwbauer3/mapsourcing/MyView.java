@@ -37,8 +37,12 @@ public class MyView extends View {
     private static int ZOOM = 2;
     private int mode = NONE;
 
+    //end all be all zoom constraints
     private final float MAXZOOMSCALE = 4f;
     private final float MINSCALEFACTOR = .25f;
+    //zoom constaint for mesh mode will be less than or equal to MAXZOOMSCALE
+    private float meshMaxZoomScale = MAXZOOMSCALE;
+
     private boolean meshMode = false;
 
     //hold information on how to draw the canvas, mesh, and what is currently active
@@ -73,13 +77,14 @@ public class MyView extends View {
     }
 
     public void setFloor(Floor floor) {
+        this.curFloor = floor;
         //switch if we already have a floor
         //todo: check that mesh reference State is saved off.
         if (meshMode) {
-            activeReferenceState = floor.getMeshReferenceState();
+            activeReferenceState = curFloor.getMeshReferenceState();
         }
 
-        this.curFloor = floor;
+
         meshReferenceState = curFloor.getMeshReferenceState();
         determineOffsets();
         setDrawableQueues();
@@ -313,6 +318,15 @@ public class MyView extends View {
             //Max Values are kept positive
             originalMaxXOffset = maxX;
             originalMaxYOffset = maxY;
+
+            float tbScale = curFloor.getBackgroundHeight() /(float)(maxY - minY);
+            float lrScale = curFloor.getBackgroundWidth() / (float)(maxX - minX);
+            if(tbScale > lrScale){
+                meshMaxZoomScale = lrScale;
+            }
+            else{
+                meshMaxZoomScale = tbScale;
+            }
         }
     }
 
@@ -393,6 +407,9 @@ public class MyView extends View {
         //min scale factor for canvas is defined below
         if (meshReferenceState.scaleFactor < MINSCALEFACTOR) {
             meshReferenceState.scaleFactor = MINSCALEFACTOR;
+        } //already checked the absolute zoom scale cap.
+        else if(meshReferenceState.scaleFactor > meshMaxZoomScale){
+            meshReferenceState.scaleFactor = meshMaxZoomScale;
         }
 
         //update the offsets of the nodes xoffset, yoffset
@@ -405,17 +422,17 @@ public class MyView extends View {
             meshReferenceState.transX = 0;
             meshReferenceState.prevTransX = 0;
         }
-        //too far on top
-        if (yOffset < originalYOffset) {
-            yOffset = originalYOffset;
-            meshReferenceState.transY = 0;
-            meshReferenceState.prevTransY = 0;
-        }
         //too far right
         if (xOffset + originalMaxXOffset > curFloor.getBackgroundWidth()) {
             xOffset = (curFloor.getBackgroundWidth() - originalMaxXOffset);
             meshReferenceState.transX = xOffset - originalXOffset;
             meshReferenceState.prevTransX = meshReferenceState.transX;
+        }
+        //too far on top
+        if (yOffset < originalYOffset) {
+            yOffset = originalYOffset;
+            meshReferenceState.transY = 0;
+            meshReferenceState.prevTransY = 0;
         }
         //too far bottom
         if (yOffset + originalMaxYOffset > curFloor.getBackgroundHeight()) {

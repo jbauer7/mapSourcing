@@ -19,7 +19,7 @@ public abstract class CanvasDrawable {
         //this.options = options;
         this.priority = priority;
         attributes = new ArrayList<>();
-        options = new ArrayList<MenuOption>();
+        options = new ArrayList<>();
     }
 
     /*
@@ -47,7 +47,6 @@ public abstract class CanvasDrawable {
 
     /*
     Toggle an attribute on or off,
-    TODO: replace with enum?
      */
     public void toggleAttribute(Attribute attribute){
         if(!attributes.contains(attribute)){

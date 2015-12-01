@@ -59,13 +59,22 @@ public class Edge extends CanvasDrawable {
         //paint.setStyle(Paint.Style.FILL);
         paint.setStrokeWidth(drawnLineWidth);
         //selects color based on priority
-        if (this.attributes.contains(Attribute.CLICKED)) {
-            paint.setColor(Color.parseColor("#AAAAAA"));
-        } else if (this.attributes.contains(Attribute.PATH)) {
+        if (this.attributes.contains(Attribute.PATH)) { //apart of the path
             paint.setColor(Color.parseColor("#FFB6C1"));
-        } else {
+        } else { //default, nothing special about the node
             paint.setColor(Color.parseColor("#7070FF"));
         }
+        //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
+        if (this.attributes.contains(Attribute.CLICKED)) {
+            int color = paint.getColor();
+            float[] hsv = new float[3];
+            Color.colorToHSV(color, hsv);
+            //todo: magic number
+            hsv[2] = hsv[2] * 0.75f;
+            color = Color.HSVToColor(hsv);
+            paint.setColor(color);
+        }
+
 
         int xStart = this.getStart().getxPos();
         int yStart = this.getStart().getyPos();
@@ -138,6 +147,7 @@ public class Edge extends CanvasDrawable {
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
+
     //have menus display in the middle of the edge, halfway through x and y.
     public int getMenuStartX() {
         return (start.getxPos() + end.getxPos()) / 2;
