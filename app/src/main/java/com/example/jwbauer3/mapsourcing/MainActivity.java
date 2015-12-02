@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -49,10 +50,14 @@ public class MainActivity extends Activity {
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 2", "Floor 3"};
 
+
     MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+
         nodes2 = new ArrayList<Node>();
         edges2 = new ArrayList<Edge>();
         nodes3 = new ArrayList<Node>();
@@ -62,7 +67,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         setUp();
         setUpSpinner();
-
         floor2 = new Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
         floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
         floors.add(floor2);
@@ -76,15 +80,33 @@ public class MainActivity extends Activity {
         curFloorNum = 0;
         myView.setFloor(floor2);
         myView.setNavigator(navigator);
+    }
 
-        if (activityReceiver != null) {
-            //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
-            IntentFilter intentFilter = new IntentFilter("ToActivity");
-            //Map the intent filter to the receiver
-            registerReceiver(activityReceiver, intentFilter);
-        }
+    protected void onPause(){
+        super.onPause();
+        unregisterReceiver(activityReceiver);
+        if(mConnection!=null)
+        unbindService(mConnection);
+    }
+
+    protected void onResume(){
+        super.onResume();
+            if (activityReceiver != null) {
+                //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
+                IntentFilter intentFilter = new IntentFilter("ToActivity");
+               //Map the intent filter to the receiver
+               registerReceiver(activityReceiver, intentFilter);
+          }
+
+
+        Intent intent= new Intent(this, EdgeLogService.class);
+        startService(intent);
+        bindService(intent, mConnection,
+                Context.BIND_AUTO_CREATE);
+
 
     }
+
     private void setUp() {
         //width, height
         Node test1 = new Node(0, 150,2, true);
@@ -158,16 +180,18 @@ public class MainActivity extends Activity {
 
     public void pressed(View view){
         if(!pressed) {
-            Intent intent = new Intent(this, EdgeLogService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            pressed = true;
+           // Intent intent = new Intent(this, EdgeLogService.class);
+           // startService(intent);
+           // bindService(intent, mConnection,
+           //         Context.BIND_AUTO_CREATE);
+           // pressed = true;
         }
     }
 
     public void updateDisplay(){
         nodes2 = mService.getNodes();
         edges2 = mService.getEdges();
-        floor2.setNodesEdges(nodes2,edges2);
+        floor2.setNodesEdges(nodes2, edges2);
         myView.setFloor(floor2);
     }
 

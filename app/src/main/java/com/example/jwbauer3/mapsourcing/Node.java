@@ -22,10 +22,10 @@ public class Node extends BaseNode {
         //todo: fix hardcoding
         //todo: why not just store MenuSelection Enums, and have MyView create them on the fly,
         //todo: that way we can dynamically create them wherever they need to be...
-        MenuOption newOpt = new MenuOption(this, 0, MenuSelection.START);
-        MenuOption newOpt2 = new MenuOption(this, 1, MenuSelection.END);
-        options.add(newOpt);
-        options.add(newOpt2);
+        //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.START);
+        //MenuOption newOpt2 = new MenuOption(this, 1, MenuSelection.END);
+        options.add(MenuSelection.START);
+        options.add(MenuSelection.END);
         //todo: determine if this is a stairNode here, or from passed in.
         stairNode = stair;
     }
@@ -75,10 +75,6 @@ public class Node extends BaseNode {
     public void setScaleFactor(float scaleFactor) {
         drawnRadius = (int) (DEFAULTRADIUS * scaleFactor);
         super.setScaleFactor(scaleFactor);
-    }
-
-    public ArrayList<MenuOption> getOptions() {
-        return options;
     }
 
 }

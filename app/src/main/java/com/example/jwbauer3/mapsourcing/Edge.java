@@ -24,8 +24,8 @@ public class Edge extends CanvasDrawable {
         direction = 0;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
 
-        MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
-        options.add(newOpt);
+        //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
+        options.add(MenuSelection.EDGE);
     }
 
     public BaseNode getStart() {

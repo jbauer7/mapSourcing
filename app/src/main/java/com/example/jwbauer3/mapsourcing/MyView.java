@@ -184,7 +184,7 @@ public class MyView extends View {
                 MenuOption opt = (MenuOption) selectedElement;
                 if (opt.getMenuAttribute().equals(MenuSelection.START)) {
                     //Assuming that the menus we place only allow "Start" to show on Nodes, this should be fine.
-                    if(startNode!=null){
+                    if (startNode != null) {
                         //turn off terminal tag from previous startNode
                         startNode.toggleAttribute(Attribute.TERMINAL);
                     }
@@ -195,7 +195,7 @@ public class MyView extends View {
                         updatePath();
                     }
                 } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
-                    if(endNode!=null){
+                    if (endNode != null) {
                         endNode.toggleAttribute(Attribute.TERMINAL);
                     }
                     endNode = (BaseNode) opt.getParent();
@@ -214,10 +214,9 @@ public class MyView extends View {
                 selectedElement.toggleAttribute(Attribute.CLICKED);
                 drawables_draw.removeAll(opts);
                 drawables_search.removeAll(opts);
-                opts = selectedElement.getOptions();
-                if (opts != null) {
-                    drawables_draw.addAll(opts);
-                    drawables_search.addAll(opts);
+                //opts = selectedElement.getOptions();
+                if (selectedElement.getOptions() != null) {
+                    determineMenuOptions(event, selectedElement);
                 }
                 invalidate();
             }
@@ -228,8 +227,31 @@ public class MyView extends View {
 
     }
 
+    private void determineMenuOptions(MotionEvent event, CanvasDrawable selectedElement) {
+        int xpos, ypos;
+        opts.clear();
+        if (selectedElement instanceof Node) {
+            //node, make it at the center
+            xpos = ((Node) selectedElement).getxPos();
+            ypos = ((Node) selectedElement).getyPos();
+        } else {
+            //edge, make it where you click.
+            int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
+            int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+
+            xpos = (int) (event.getX() / canvasReferenceState.scaleFactor) - translatedXOffset;
+            ypos = (int) (event.getY() / canvasReferenceState.scaleFactor) - translatedYOffset;
+        }
+        for (int x = 0; x < selectedElement.getOptions().size(); x++) {
+            MenuOption menuOption = new MenuOption(selectedElement, xpos, ypos, x, selectedElement.getOptions().get(x));
+            opts.add(menuOption);
+        }
+        drawables_draw.addAll(opts);
+        drawables_search.addAll(opts);
+    }
+
     private void updatePath() {
-        //remove all canvasdrawables states that they are in the old path
+        //remove all canvas drawables states that they are in the old path
         if (path != null) {
             for (CanvasDrawable drawable : path) {
                 drawable.toggleAttribute(Attribute.PATH);
@@ -323,12 +345,11 @@ public class MyView extends View {
             originalMaxXOffset = maxX;
             originalMaxYOffset = maxY;
 
-            float tbScale = curFloor.getBackgroundHeight() /(float)(maxY - minY);
-            float lrScale = curFloor.getBackgroundWidth() / (float)(maxX - minX);
-            if(tbScale > lrScale){
+            float tbScale = curFloor.getBackgroundHeight() / (float) (maxY - minY);
+            float lrScale = curFloor.getBackgroundWidth() / (float) (maxX - minX);
+            if (tbScale > lrScale) {
                 meshMaxZoomScale = lrScale;
-            }
-            else{
+            } else {
                 meshMaxZoomScale = tbScale;
             }
         }
@@ -412,11 +433,11 @@ public class MyView extends View {
         if (meshReferenceState.scaleFactor < MINSCALEFACTOR) {
             meshReferenceState.scaleFactor = MINSCALEFACTOR;
         } //already checked the absolute zoom scale cap.
-        else if(meshReferenceState.scaleFactor > meshMaxZoomScale){
+        else if (meshReferenceState.scaleFactor > meshMaxZoomScale) {
             meshReferenceState.scaleFactor = meshMaxZoomScale;
         }
 
-        //update the offsets of the nodes xoffset, yoffset
+        //update the offsets of the nodes xOffset, yOffset
         xOffset = originalXOffset + (int) (meshReferenceState.transX);
         yOffset = originalYOffset + (int) (meshReferenceState.transY);
 
