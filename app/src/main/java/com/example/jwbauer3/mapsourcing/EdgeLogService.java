@@ -60,6 +60,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
         thread.start();
     }
 
+    //public void onDestroy(){
+     //   unregisterReceiver(receiver);
+    //}
+
     public class LocalBinder extends Binder {
         EdgeLogService getService() {
             return EdgeLogService.this;
