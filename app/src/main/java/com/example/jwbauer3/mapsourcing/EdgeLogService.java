@@ -47,7 +47,9 @@ public class EdgeLogService extends Service implements SensorEventListener {
                 while(noOffset)
                     ;   //spin
 
-                firstNode = new Node(0, 0, 0, false);
+                //TODO: Add floor logic (currently forced to floor 2 for EHall
+                //TODO: Add stair node logic (currently set to false)
+                firstNode = new Node(0, 0, 2, false);
                 nodes = new ArrayList<>();
                 edges = new ArrayList<>();
                 nodes.add(firstNode);
@@ -211,7 +213,9 @@ public class EdgeLogService extends Service implements SensorEventListener {
         //creating a new node and adding the corresponding edge between the prev node and new node
         Node newNode = nodeExists(xPos, yPos);
         if(newNode == null) {
-            newNode = new Node(xPos, yPos, 0, false);
+            //TODO: Add floor logic (currently forced to floor 2 for EHall
+            //TODO: Add stair node logic (currently set to false)
+            newNode = new Node(xPos, yPos, 2, false);
             addNewNode = true;
         }
         Edge newEdge = new Edge(prevNode, newNode);

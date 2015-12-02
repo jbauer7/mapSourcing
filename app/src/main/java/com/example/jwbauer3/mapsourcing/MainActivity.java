@@ -15,18 +15,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
-
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
     private boolean pressed = false;
     private boolean mBound = false;
-    private int curFloorNum = -1;
+    private int curFloorNum;
     private EdgeLogService mService;
     private Navigator navigator;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnection = new ServiceConnection(){
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -51,8 +49,7 @@ public class MainActivity extends Activity {
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 2", "Floor 3"};
 
-    private MyView myView;
-
+    MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +72,9 @@ public class MainActivity extends Activity {
         graph.addAll(floor3.getNodes());
         navigator = new Navigator(graph);
 
-        myView = (MyView) findViewById(R.id.MyViewTest);
+        myView = (MyView)findViewById(R.id.MyViewTest);
         curFloorNum = 0;
         myView.setFloor(floor2);
-        setTitleText();
         myView.setNavigator(navigator);
 
         if (activityReceiver != null) {
@@ -89,12 +85,11 @@ public class MainActivity extends Activity {
         }
 
     }
-
     private void setUp() {
         //width, height
-        Node test1 = new Node(0, 150, 2, true);
-        Node test2 = new Node(400, -350, 2, false);
-        Node test3 = new Node(-300, 400, 2, false);
+        Node test1 = new Node(0, 150,2, true);
+        Node test2 = new Node(400, -350,2,false);
+        Node test3 = new Node(-300, 400,2,false);
         //Node test4 = new Node(800, 800);
         //Node test5 = new Node(1212, 1911);
         Edge con1 = new Edge(test1, test2);
@@ -115,13 +110,13 @@ public class MainActivity extends Activity {
         edges2.add(con3);
         //edges2.add(con4);
 
-        Node test4 = new Node(150, 800, 3, false);
-        Node test5 = new Node(17, 38, 3, false);
-        Node test6 = new Node(-160, 200, 3, true);
-        Edge con45 = new Edge(test4, test5);
+        Node test4 = new Node(150,800,3,false);
+        Node test5 = new Node(17,38,3,false);
+        Node test6= new Node(-160,200,3,true);
+        Edge con45 = new Edge(test4,test5);
         test4.setEdges(con45);
         test5.setEdges(con45);
-        Edge con56 = new Edge(test5, test6);
+        Edge con56 = new Edge(test5,test6);
         test5.setEdges(con56);
         test6.setEdges(con56);
         nodes3.add(test4);
@@ -136,43 +131,43 @@ public class MainActivity extends Activity {
         test6.setEdges(xFloor);
 
 
-    }
 
-    private void setUpSpinner() {
+    }
+    private void setUpSpinner(){
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, floorNames);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (curFloorNum == position) {
+                if(curFloorNum == position){
                     //do nothing
-                } else {
+                }
+                else {
                     curFloorNum = position;
                     myView.setFloor(floors.get(position));
-                    setTitleText();
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                //clicked off of the spinner, do nothing.
+
             }
         });
     }
 
-    public void pressed(View view) {
-        if (!pressed) {
+    public void pressed(View view){
+        if(!pressed) {
             Intent intent = new Intent(this, EdgeLogService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             pressed = true;
         }
     }
 
-    public void updateDisplay() {
+    public void updateDisplay(){
         nodes2 = mService.getNodes();
         edges2 = mService.getEdges();
-        floor2.setNodesEdges(nodes2, edges2);
+        floor2.setNodesEdges(nodes2,edges2);
         myView.setFloor(floor2);
     }
 
@@ -183,19 +178,14 @@ public class MainActivity extends Activity {
         }
     };
 
-    public void toggleMesh(View view) {
+    public void toggleMesh(View view){
         Button toggleButton = (Button) findViewById(R.id.Button_SwitchMode);
-        if (toggleButton.getText().equals("Mesh Mode")) {
+        if(toggleButton.getText().equals("Mesh Mode")) {
             toggleButton.setText("Canvas Mode");
-        } else {
+        }
+        else{
             toggleButton.setText("Mesh Mode");
         }
         myView.toggleMeshMovementMode();
-    }
-
-    private void setTitleText() {
-        TextView textView = (TextView) findViewById(R.id.TextView_MapTitle);
-        //todo: have a way to know the building shown, replace hardcoded string.
-        textView.setText("Engineering Hall: Floor " + floors.get(curFloorNum).getFloorNum());
     }
 }
