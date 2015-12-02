@@ -15,18 +15,18 @@ public class MenuOption extends CanvasDrawable {
     private final int elementHeight = 100; //100 pixels tall
     private int borderPix = 3;
     private int elementNum;
-    private CanvasDrawable menuOwner;
     private MenuSelection displaySelection;
+    private CanvasDrawable menuOwner;
     private float scaleFactor = 1f;
-    //TODO: REPLACE FROM GLOBAL VIEW STATE
-    //private int backgroundWidth;
-    //private int backgroundHeight;
+    private int xPos, yPos;
 
-    public MenuOption(CanvasDrawable owned, int elementNum, MenuSelection display) {
+    public MenuOption(CanvasDrawable menuOwner, int xPos, int yPos, int elementNum, MenuSelection display) {
         super(DEFAULTOPTIONPRIORITY);
-        this.menuOwner = owned;
         this.elementNum = elementNum;
         displaySelection = display;
+        this.menuOwner = menuOwner;
+        this.xPos = xPos;
+        this.yPos = yPos;
         //this.backgroundWidth = backgroundWidth;
         //this.backgroundHeight = backgroundHeight;
     }
@@ -38,8 +38,8 @@ public class MenuOption extends CanvasDrawable {
 
         Paint paint = new Paint();
 
-        int x = menuOwner.getMenuStartX() + xOffset;
-        int y = menuOwner.getMenuStartY() + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        int x = xPos + xOffset;
+        int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
         int xEnd = (int) (x + elementWidth * scaleFactor);
         int yEnd = (int) (y + elementHeight * scaleFactor);
         int border = (int) (borderPix * scaleFactor);
@@ -67,12 +67,12 @@ public class MenuOption extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int xPos, int yPos, int xOffset, int yOffset, float canvasScaleFactor) {
-        int xStart = (int) ((menuOwner.getMenuStartX() + xOffset) * canvasScaleFactor);
-        int yStart = (int) ((menuOwner.getMenuStartY() + yOffset + elementHeight * elementNum * scaleFactor - borderPix * scaleFactor * elementNum) * canvasScaleFactor);
+    public boolean contains(int clickedX, int clickedY, int xOffset, int yOffset, float canvasScaleFactor) {
+        int xStart = (int) ((xPos + xOffset) * canvasScaleFactor);
+        int yStart = (int) ((yPos + yOffset + elementHeight * elementNum * scaleFactor - borderPix * scaleFactor * elementNum) * canvasScaleFactor);
         int xEnd = xStart + (int) (elementWidth * scaleFactor * canvasScaleFactor);
         int yEnd = yStart + (int) (elementHeight * scaleFactor * canvasScaleFactor);
-        return (xPos > xStart && yPos > yStart && xPos < xEnd && yPos < yEnd);
+        return (clickedX > xStart && clickedY > yStart && clickedX < xEnd && clickedY < yEnd);
     }
 
     @Override
@@ -80,20 +80,11 @@ public class MenuOption extends CanvasDrawable {
         this.scaleFactor = scaleFactor;
     }
 
-    //TODO: what do, maybe throw non-implementor exception
-    @Override
-    public int getMenuStartX() {
-        return 0;
-    }
-
-    @Override
-    public int getMenuStartY() {
-        return 0;
-    }
-    public MenuSelection getMenuAttribute(){
+    public MenuSelection getMenuAttribute() {
         return displaySelection;
     }
-    public CanvasDrawable getParent(){
+
+    public CanvasDrawable getParent() {
         return menuOwner;
     }
 }

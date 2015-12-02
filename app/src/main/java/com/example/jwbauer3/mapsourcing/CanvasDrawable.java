@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public abstract class CanvasDrawable {
 
     protected int priority;
-    protected ArrayList<MenuOption> options;
+    protected ArrayList<MenuSelection> options;
     protected ArrayList<Attribute> attributes;
     //default scaleFactor is 1f.
     protected float scaleFactor = 1f;
@@ -56,9 +56,7 @@ public abstract class CanvasDrawable {
             attributes.remove(attribute);
         }
     }
-    public abstract int getMenuStartX();
-    public abstract int getMenuStartY();
-    public ArrayList<MenuOption> getOptions(){
+    public ArrayList<MenuSelection> getOptions(){
         return options;
     }
 
