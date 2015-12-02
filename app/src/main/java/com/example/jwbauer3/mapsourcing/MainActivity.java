@@ -16,6 +16,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -50,7 +52,6 @@ public class MainActivity extends Activity {
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 2", "Floor 3"};
 
-
     MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,9 +80,9 @@ public class MainActivity extends Activity {
         myView = (MyView)findViewById(R.id.MyViewTest);
         curFloorNum = 0;
         myView.setFloor(floor2);
+        setMenuText();
         myView.setNavigator(navigator);
     }
-
     protected void onPause(){
         super.onPause();
         unregisterReceiver(activityReceiver);
@@ -168,6 +169,7 @@ public class MainActivity extends Activity {
                 else {
                     curFloorNum = position;
                     myView.setFloor(floors.get(position));
+                    setMenuText();
                 }
             }
 
@@ -211,5 +213,10 @@ public class MainActivity extends Activity {
             toggleButton.setText("Mesh Mode");
         }
         myView.toggleMeshMovementMode();
+    }
+    private void setMenuText(){
+        //todo: replace hard coded string with fetched name
+        TextView textView = (TextView) findViewById(R.id.TextView_MapTitle);
+        textView.setText("Engineering Hall: Floor " + floors.get(curFloorNum).getFloorNum());
     }
 }
