@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-
+    android:background="@android:color/darker_gray"
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/TextViewHello"
+        android:id="@+id/TextView_MapTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_world"
@@ -19,7 +19,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_above="@+id/LinearLayout_main_buttonLayout"
-        android:layout_below="@id/TextViewHello"
+        android:layout_below="@id/TextView_MapTitle"
         android:background="@android:color/darker_gray">
 
 
@@ -27,6 +27,7 @@
             android:id="@+id/MyViewTest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@android:color/black"
             android:fillViewport="true" />
 
     </LinearLayout>
@@ -37,6 +38,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@android:color/holo_red_dark"
         android:layout_alignParentBottom="true">
 
         <Spinner
@@ -55,7 +57,7 @@
             android:onClick="toggleMesh" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/Button_MapMode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

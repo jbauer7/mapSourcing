@@ -40,7 +40,7 @@ public class MyView extends View {
     //end all be all zoom constraints
     private final float MAXZOOMSCALE = 4f;
     private final float MINSCALEFACTOR = .25f;
-    //zoom constaint for mesh mode will be less than or equal to MAXZOOMSCALE
+    //zoom constraint for mesh mode will be less than or equal to MAXZOOMSCALE
     private float meshMaxZoomScale = MAXZOOMSCALE;
 
     private boolean meshMode = false;
@@ -262,6 +262,9 @@ public class MyView extends View {
             //switch states
             activeReferenceState = meshReferenceState;
         }
+        //added in temp
+        xOffset = originalXOffset + (int) (meshReferenceState.transX);
+        yOffset = originalYOffset + (int) (meshReferenceState.transY);
         meshMode = !meshMode;
 
     }
@@ -270,7 +273,8 @@ public class MyView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
         //todo: do we need this call
-        determineOffsets();
+        //TODO: DONT USE THIS CALL, CAUSES A BUG
+        //determineOffsets();
 
         //update information every time this runs to catch phone orientation changes
         LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);

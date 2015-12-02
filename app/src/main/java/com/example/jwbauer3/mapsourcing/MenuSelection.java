@@ -5,7 +5,8 @@ package com.example.jwbauer3.mapsourcing;
  */
 public enum MenuSelection {
     START("Start"),
-    END("End");
+    END("End"),
+    EDGE("Edge");
 
     private final String text;
 

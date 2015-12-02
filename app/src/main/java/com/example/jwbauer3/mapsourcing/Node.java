@@ -29,8 +29,10 @@ public class Node extends CanvasDrawable {
         drawnRadius = DEFAULTRADIUS;
         this.floor = floor;
         //todo: fix hardcoding
-        MenuOption newOpt = new MenuOption(this, 0, MenuSelection.START, 4000, 2400);
-        MenuOption newOpt2 = new MenuOption(this, 1, MenuSelection.END, 4000, 2400);
+        //todo: why not just store MenuSelection Enums, and have MyView create them on the fly,
+        //todo: that way we can dynamically create them wherever they need to be...
+        MenuOption newOpt = new MenuOption(this, 0, MenuSelection.START);
+        MenuOption newOpt2 = new MenuOption(this, 1, MenuSelection.END);
         options.add(newOpt);
         options.add(newOpt2);
         //todo: determine if this is a stairNode here, or from passed in.
@@ -126,7 +128,4 @@ public class Node extends CanvasDrawable {
         return floor;
     }
 
-    //public int getDrawnRadius() {
-    //  return drawnRadius;
-    //}
 }

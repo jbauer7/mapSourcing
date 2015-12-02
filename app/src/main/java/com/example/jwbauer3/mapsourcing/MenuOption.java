@@ -19,16 +19,16 @@ public class MenuOption extends CanvasDrawable {
     private MenuSelection displaySelection;
     private float scaleFactor = 1f;
     //TODO: REPLACE FROM GLOBAL VIEW STATE
-    private int backgroundWidth;
-    private int backgroundHeight;
+    //private int backgroundWidth;
+    //private int backgroundHeight;
 
-    public MenuOption(CanvasDrawable owned, int elementNum, MenuSelection display, int backgroundWidth, int backgroundHeight) {
+    public MenuOption(CanvasDrawable owned, int elementNum, MenuSelection display) {
         super(DEFAULTOPTIONPRIORITY);
         this.menuOwner = owned;
         this.elementNum = elementNum;
         displaySelection = display;
-        this.backgroundWidth = backgroundWidth;
-        this.backgroundHeight = backgroundHeight;
+        //this.backgroundWidth = backgroundWidth;
+        //this.backgroundHeight = backgroundHeight;
     }
 
     @Override
