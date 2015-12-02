@@ -56,8 +56,8 @@ public class MyView extends View {
 
     private Navigator navigator = null;
     private ArrayList<CanvasDrawable> path = null;
-    private Node startNode = null;
-    private Node endNode = null;
+    private BaseNode startNode = null;
+    private BaseNode endNode = null;
 
     private ArrayList<MenuOption> opts = new ArrayList<>();
 
@@ -188,7 +188,7 @@ public class MyView extends View {
                         //turn off terminal tag from previous startNode
                         startNode.toggleAttribute(Attribute.TERMINAL);
                     }
-                    startNode = (Node) opt.getParent();
+                    startNode = (BaseNode) opt.getParent();
                     startNode.toggleAttribute(Attribute.TERMINAL); //turn on terminal tag
                     navigator.setStartNode(startNode);
                     if (endNode != null) {
@@ -198,7 +198,7 @@ public class MyView extends View {
                     if(endNode!=null){
                         endNode.toggleAttribute(Attribute.TERMINAL);
                     }
-                    endNode = (Node) opt.getParent();
+                    endNode = (BaseNode) opt.getParent();
                     endNode.toggleAttribute(Attribute.TERMINAL);
                     navigator.setEndNode(endNode);
                     if (startNode != null) {

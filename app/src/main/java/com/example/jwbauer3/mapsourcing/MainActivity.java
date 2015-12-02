@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
         floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
         floors.add(floor2);
         floors.add(floor3);
-        ArrayList<Node> graph = new ArrayList<>();
+        ArrayList<BaseNode> graph = new ArrayList<>();
         graph.addAll(floor2.getNodes());
         graph.addAll(floor3.getNodes());
         navigator = new Navigator(graph);

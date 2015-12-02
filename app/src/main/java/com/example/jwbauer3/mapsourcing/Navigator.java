@@ -7,29 +7,29 @@ import java.util.HashMap;
  * Class the deals with Navigation. Is called by MyView to do work on multiple nodes.
  */
 public class Navigator {
-    private Node startNode, endNode;
-    private ArrayList<Node> graph;
+    private BaseNode startNode, endNode;
+    private ArrayList<BaseNode> graph;
     private ArrayList<CanvasDrawable> path;
 
 
     //todo: make static?
-    public Navigator(Node startNode, Node endNode, ArrayList<Node> graph) {
+    public Navigator(BaseNode startNode, BaseNode endNode, ArrayList<BaseNode> graph) {
         setStartNode(startNode);
         setEndNode(endNode);
     }
 
-    public Navigator(ArrayList<Node> graph) {
+    public Navigator(ArrayList<BaseNode> graph) {
         this.graph = graph;
     }
 
 
     //todo: method to set graph?
 
-    public void setStartNode(Node startNode) {
+    public void setStartNode(BaseNode startNode) {
         this.startNode = startNode;
     }
 
-    public void setEndNode(Node endNode) {
+    public void setEndNode(BaseNode endNode) {
         this.endNode = endNode;
     }
 
@@ -40,15 +40,15 @@ public class Navigator {
     public void calculatePath() {
         //TreeMap<Node, Integer> guess_score = new TreeMap<Node, Integer>();
         HashMap<CanvasDrawable, CanvasDrawable> cameFrom = new HashMap<>();
-        HashMap<Node, Integer> traveled_distance = new HashMap<>();
-        HashMap<Node, Integer> estimated_distance = new HashMap<>();
+        HashMap<BaseNode, Integer> traveled_distance = new HashMap<>();
+        HashMap<BaseNode, Integer> estimated_distance = new HashMap<>();
 
-        ArrayList<Node> openNodes = new ArrayList<>();
+        ArrayList<BaseNode> openNodes = new ArrayList<>();
         openNodes.add(startNode);
-        ArrayList<Node> closedNodes = new ArrayList<>();
+        ArrayList<BaseNode> closedNodes = new ArrayList<>();
 
         //add all nodes into openNodes queue, set the start to zero, everything else to MaxValue
-        for (Node node : graph) {
+        for (BaseNode node : graph) {
             if (node.equals(startNode)) {
                 traveled_distance.put(node, 0);
                 estimated_distance.put(node, getHeuristicDistance(node));
@@ -59,11 +59,11 @@ public class Navigator {
         }
         //loop though openNodes
 
-        Node curNode = null, neighborNode;
+        BaseNode curNode = null, neighborNode;
         while (openNodes.size() != 0) {
 
             int lowest = Integer.MAX_VALUE;
-            for (Node node : openNodes) {
+            for (BaseNode node : openNodes) {
                 if (estimated_distance.get(node) < lowest) {
                     lowest = estimated_distance.get(node);
                     curNode = node;
@@ -86,7 +86,7 @@ public class Navigator {
             for (Edge edge : curNode.getEdges()) {
                 //edge are bidirectional, guess that neighbor is the end node on this edge
                 neighborNode = edge.getEnd();
-                //if we guessed wrong, and neighbor was set to curNode, choose the start Node on this edge.
+                //if we guessed wrong, and neighbor was set to curNode, choose the start BaseNode on this edge.
                 if (curNode.equals(neighborNode)) {
                     neighborNode = edge.getStart();
                 }
@@ -124,7 +124,7 @@ public class Navigator {
 
     }
 
-    private Integer getHeuristicDistance(Node node) {
+    private Integer getHeuristicDistance(BaseNode node) {
         //using manhattan distance as heuristic;
         return Math.abs(endNode.getxPos() - node.getxPos()) + Math.abs(endNode.getyPos() - node.getyPos());
     }
