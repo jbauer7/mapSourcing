@@ -85,6 +85,14 @@ public class MainActivity extends Activity {
         }
 
     }
+
+    protected void onPause(){
+        super.onPause();
+        unregisterReceiver(activityReceiver);
+        //unregisterReceiver();
+        //mService.stopSelf();
+    }
+
     private void setUp() {
         //width, height
         Node test1 = new Node(0, 150,2, true);
@@ -167,8 +175,9 @@ public class MainActivity extends Activity {
     public void updateDisplay(){
         nodes2 = mService.getNodes();
         edges2 = mService.getEdges();
-        floor2.setNodesEdges(nodes2,edges2);
+        floor2.setNodesEdges(nodes2, edges2);
         myView.setFloor(floor2);
+        //myView.onMeasure();
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
