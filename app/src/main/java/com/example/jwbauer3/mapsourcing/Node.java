@@ -105,10 +105,6 @@ public class Node extends CanvasDrawable {
         yPos = (int) (defaultYPos * scaleFactor);
     }
 
-    //public ArrayList<MenuOption> getOptions() {
-      //  return options;
-    //}
-
     public boolean equals(Object toCompare) {
         if (!(toCompare instanceof Node)) {
             return false;
