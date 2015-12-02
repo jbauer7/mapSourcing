@@ -38,8 +38,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
     Node firstNode, prevNode;
     ArrayList<Node> nodes;
     ArrayList<Edge> edges;
+    boolean running;
 
     public void onCreate() {
+        running=true;
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -60,8 +62,9 @@ public class EdgeLogService extends Service implements SensorEventListener {
         thread.start();
     }
 
-    //public void onDestroy(){
-     //   unregisterReceiver(receiver);
+    //public void onDestroyed(){
+      //  super.onDestroy();
+       // running=false;
     //}
 
     public class LocalBinder extends Binder {
@@ -99,7 +102,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
 
     //Logs direction and time when a step has been detected
     public void logData() {
-        while (true) {
+        while (running) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
