@@ -44,10 +44,6 @@ public abstract class BaseNode extends CanvasDrawable {
         yPos = (int) (defaultYPos * scaleFactor);
     }
 
-    public ArrayList<MenuOption> getOptions() {
-        return options;
-    }
-
     public boolean equals(Object toCompare) {
         if (!(toCompare instanceof BaseNode)) {
             return false;

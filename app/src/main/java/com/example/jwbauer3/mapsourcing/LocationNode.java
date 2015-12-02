@@ -17,11 +17,8 @@ public class LocationNode extends BaseNode {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
         drawnRadius = DEFAULTRADIUS;
 
-        //todo: fix hardcoding
-        //todo: why not just store MenuSelection Enums, and have MyView create them on the fly,
-        //todo: that way we can dynamically create them wherever they need to be...
-        MenuOption newOpt = new MenuOption(this, 0, MenuSelection.START);
-        options.add(newOpt);
+        //TODO: Decide on options for location node
+        options.add(MenuSelection.START);
     }
 
     @Override
