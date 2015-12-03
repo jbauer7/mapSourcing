@@ -50,13 +50,14 @@ public class MainActivity extends Activity {
     private Floor floor3;
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 2", "Floor 3"};
-
+    private Intent serviceIntent;
 
     MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        serviceIntent= new Intent(this, EdgeLogService.class);
 
 
         nodes2 = new ArrayList<Node>();
@@ -85,10 +86,13 @@ public class MainActivity extends Activity {
 
     protected void onPause(){
         super.onPause();
+        mService.setOffsetNotReady();
         unregisterReceiver(activityReceiver);
         if(mConnection!=null)
-        unbindService(mConnection);
+            unbindService(mConnection);
     }
+
+
 
     protected void onResume(){
         super.onResume();
@@ -99,14 +103,8 @@ public class MainActivity extends Activity {
                //Map the intent filter to the receiver
                registerReceiver(activityReceiver, intentFilter);
           }
-
-
-        Intent intent= new Intent(this, EdgeLogService.class);
-        startService(intent);
-        bindService(intent, mConnection,
-                Context.BIND_AUTO_CREATE);
-
-
+        if(serviceIntent!=null)
+            bindService(serviceIntent, mConnection,Context.BIND_AUTO_CREATE);
     }
 
     private void setUp() {
@@ -182,8 +180,7 @@ public class MainActivity extends Activity {
 
     public void pressed(View view){
         if(!pressed) {
-           //mService.setOffsetReady();
-            mService.stopSelf();
+           mService.setOffsetReady();
         }
     }
 

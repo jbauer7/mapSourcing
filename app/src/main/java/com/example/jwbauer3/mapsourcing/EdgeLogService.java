@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 
 /*Service handles the collection of sensor data in the background*/
-public class EdgeLogService extends Service implements SensorEventListener {
+public class EdgeLogService extends Service{
     protected SensorManager sensorManager;
     private float currSteps;
     private float currDegree;
@@ -37,27 +37,41 @@ public class EdgeLogService extends Service implements SensorEventListener {
     private ArrayList<LogData> currData = new ArrayList<>();
     boolean lock = false;
     Node firstNode, prevNode;
-    ArrayList<Node> nodes;
-    ArrayList<Edge> edges;
+    ArrayList<Node> nodes = new ArrayList<>();
+    ArrayList<Edge> edges = new ArrayList<>();
     boolean running;
     boolean offsetReady;
+    SensorEventListener sensorListener;
 
     public void onCreate() {
         running=true;
         Thread thread = new Thread() {
             @Override
             public void run() {
+                sensorListener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+                            directionHandler(event.values[0]);
+                        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                            checkStep(event);
+                        }
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                    }
+
+
+                };
                 sensorThread();
-                if(Thread.currentThread() == Looper.getMainLooper().getThread())
-                    Log.i("UI", "UI");
-                else
-                    Log.i("not UI", "not UI");
 
                 //TODO: Add floor logic (currently forced to floor 2 for EHall
                 //TODO: Add stair node logic (currently set to false)
                 firstNode = new Node(0, 0, 2, false);
-                nodes = new ArrayList<>();
-                edges = new ArrayList<>();
+              //  nodes = new ArrayList<>();
+               // edges = new ArrayList<>();
                 nodes.add(firstNode);
                 prevNode = firstNode;
                 logData();
@@ -68,6 +82,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
 
     public void onDestroy(){
         super.onDestroy();
+        offsetReady=false;
         running=false;
     }
 
@@ -81,40 +96,27 @@ public class EdgeLogService extends Service implements SensorEventListener {
         return mBinder;
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            directionHandler(event.values[0]);
-        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            checkStep(event);
+    //Logs direction and time when a step has been detected
+    public void logData() {
+        while (running) {
+       //     try {
+         ////       Thread.sleep(100);
+           // } catch (InterruptedException e) {
+            //    e.printStackTrace();
+           // }
+           // LogData loggedData = new LogData(currSteps, currDegree, System.currentTimeMillis());
+           // currData.add(loggedData);
         }
     }
 
     public void sensorThread() {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener(this,
+        sensorManager.registerListener(sensorListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this,
+        sensorManager.registerListener(sensorListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    //Logs direction and time when a step has been detected
-    public void logData() {
-        while (running) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            LogData loggedData = new LogData(currSteps, currDegree, System.currentTimeMillis());
-            currData.add(loggedData);
-        }
     }
 
     //code from minilab 4 part 2.  It is a step detector based on the readings
@@ -165,10 +167,9 @@ public class EdgeLogService extends Service implements SensorEventListener {
         //setting initial degree offset
 
         if(noOffset){
-            //while(!offsetReady) {
-             //   if(Thread.currentThread() == Looper.getMainLooper().getThread())
-             //   Log.i("here", "stuck");
-            //}
+            if(!offsetReady)
+                return;
+
             degreeOffset=360-newDegree;
             noOffset=false;
             return;
@@ -267,6 +268,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
     }
 
     public void setOffsetReady(){offsetReady=true;}
+    public void setOffsetNotReady(){
+        offsetReady=false;
+        noOffset=true;
+    }
     public ArrayList<Edge> getEdges() {
         return edges;
     }
