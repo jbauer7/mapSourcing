@@ -12,11 +12,11 @@ public class Edge extends CanvasDrawable {
     private static final int DEFAULTEDGEPRIORITY = 100;
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;
-    private Node start, end;
+    private BaseNode start, end;
     private int weight, direction;
     //protected EdgeData edgeData;
 
-    public Edge(Node start, Node end) {
+    public Edge(BaseNode start, BaseNode end) {
         super(DEFAULTEDGEPRIORITY);
         this.start = start;
         this.end = end;
@@ -28,11 +28,11 @@ public class Edge extends CanvasDrawable {
         options.add(MenuSelection.EDGE);
     }
 
-    public Node getStart() {
+    public BaseNode getStart() {
         return start;
     }
 
-    public Node getEnd() {
+    public BaseNode getEnd() {
         return end;
     }
 

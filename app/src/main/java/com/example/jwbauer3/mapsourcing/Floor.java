@@ -17,6 +17,7 @@ public class Floor {
     private int backgroundWidth; //image
     private int backgroundHeight; //image
     private Drawable backgroundImage;
+    private float maxMeshScaleFactor = -1f;
 
     //todo: do we need to store these? We need to recalculate all the
     //private int originalMinXOffset;
@@ -69,6 +70,12 @@ public class Floor {
     }
     public int getFloorNum(){
         return floorNum;
+    }
+    public void setMaxMeshScaleFactor(float sf){
+        maxMeshScaleFactor = sf;
+    }
+    public float getMaxMeshScaleFactor(){
+        return maxMeshScaleFactor;
     }
 
 

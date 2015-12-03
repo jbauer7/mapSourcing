@@ -17,6 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -52,6 +54,7 @@ public class MainActivity extends Activity {
     private String[] floorNames = {"Floor 2", "Floor 3"};
     private Intent serviceIntent;
 
+
     MyView myView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,7 @@ public class MainActivity extends Activity {
         floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
         floors.add(floor2);
         floors.add(floor3);
-        ArrayList<Node> graph = new ArrayList<>();
+        ArrayList<BaseNode> graph = new ArrayList<>();
         graph.addAll(floor2.getNodes());
         graph.addAll(floor3.getNodes());
         navigator = new Navigator(graph);
@@ -81,9 +84,9 @@ public class MainActivity extends Activity {
         myView = (MyView)findViewById(R.id.MyViewTest);
         curFloorNum = 0;
         myView.setFloor(floor2);
+        setMenuText();
         myView.setNavigator(navigator);
     }
-
     protected void onPause(){
         super.onPause();
         mService.setOffsetNotReady();
@@ -96,7 +99,6 @@ public class MainActivity extends Activity {
 
     protected void onResume(){
         super.onResume();
-        Log.i("onResume", "here");
             if (activityReceiver != null) {
                 //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
                 IntentFilter intentFilter = new IntentFilter("ToActivity");
@@ -168,6 +170,7 @@ public class MainActivity extends Activity {
                 else {
                     curFloorNum = position;
                     myView.setFloor(floors.get(position));
+                    setMenuText();
                 }
             }
 
@@ -207,5 +210,10 @@ public class MainActivity extends Activity {
             toggleButton.setText("Mesh Mode");
         }
         myView.toggleMeshMovementMode();
+    }
+    private void setMenuText(){
+        //todo: replace hard coded string with fetched name
+        TextView textView = (TextView) findViewById(R.id.TextView_MapTitle);
+        textView.setText("Engineering Hall: Floor " + floors.get(curFloorNum).getFloorNum());
     }
 }
