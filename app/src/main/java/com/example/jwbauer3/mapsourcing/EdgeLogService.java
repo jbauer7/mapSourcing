@@ -216,6 +216,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
             //TODO: Add floor logic (currently forced to floor 2 for EHall
             //TODO: Add stair node logic (currently set to false)
             newNode = new Node(xPos, yPos, 2, false);
+            splitEdge(newNode);
             addNewNode = true;
         }
         Edge newEdge = new Edge(prevNode, newNode);
@@ -238,6 +239,85 @@ public class EdgeLogService extends Service implements SensorEventListener {
     //methods for main activity to grab nodes and edges
     public ArrayList<Node> getNodes() {
         return nodes;
+    }
+
+    public void splitEdge(Node newNode) {
+
+        Node curr;
+        Node temp;
+        boolean xAxis = true;
+        for(int i = 0; i<nodes.size(); i++){
+            curr = nodes.get(i);
+            //check if the current node is either on the same x or y line
+            //as the "new" node
+            if(Math.abs(curr.getxPos() - newNode.getxPos()) < 15
+                    || Math.abs(curr.getyPos() - newNode.getyPos()) < 15) {
+
+                for (int j = 0; j < nodes.size(); j++) {
+                    if (i == j) break;
+                    temp = nodes.get(j);
+                    if(Math.abs(temp.getxPos() - newNode.getxPos()) < 15
+                            || Math.abs(temp.getyPos() - newNode.getyPos()) < 15) {
+
+                        if(Math.abs(temp.getxPos() - newNode.getxPos()) < 15) xAxis = false;
+
+                        Edge currEdge;
+                        for(int k = 0; k< edges.size(); k++) {
+                            currEdge = edges.get(k);
+                            //IF THERE IS AN EDGE BETWEEN THESE 2 NODES THAT ALREADY EXIST
+                            //EDGE(CURR , TEMP)
+                            if(currEdge.getStart() == curr && currEdge.getEnd() == temp) {
+                                curr.getEdges().remove(edges.get(k));
+                                temp.getEdges().remove(edges.get(k));
+                                Edge oneEdge = new Edge(curr, newNode);
+                                oneEdge.setDirection(edges.get(k).getDirection());
+                                Edge twoEdge = new Edge(newNode, temp);
+                                twoEdge.setDirection(edges.get(k).getDirection());
+                                if(xAxis){
+                                    oneEdge.setWeight(Math.abs(curr.getxPos() - newNode.getxPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(temp.getxPos() - newNode.getxPos()) / 5);
+                                }
+                                else{
+                                    oneEdge.setWeight(Math.abs(curr.getyPos() - newNode.getyPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(temp.getyPos() - newNode.getyPos()) / 5);
+                                }
+                                edges.add(oneEdge);
+                                edges.add(twoEdge);
+                                curr.setEdges(oneEdge);
+                                temp.setEdges(twoEdge);
+                                newNode.setEdges(oneEdge);
+                                newNode.setEdges(twoEdge);
+                                edges.remove(k);
+                            }
+                            //Edge (Temp, Curr)
+                            else if(currEdge.getStart() == temp && currEdge.getEnd() == curr) {
+                                curr.getEdges().remove(edges.get(k));
+                                temp.getEdges().remove(edges.get(k));
+                                Edge oneEdge = new Edge(temp, newNode);
+                                oneEdge.setDirection(edges.get(k).getDirection());
+                                Edge twoEdge = new Edge(newNode, curr);
+                                oneEdge.setDirection(edges.get(k).getDirection());
+                                if(xAxis){
+                                    oneEdge.setWeight(Math.abs(temp.getxPos() - newNode.getxPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(curr.getxPos() - newNode.getxPos()) / 5);
+                                }
+                                else{
+                                    oneEdge.setWeight(Math.abs(temp.getyPos() - newNode.getyPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(curr.getyPos() - newNode.getyPos()) / 5);
+                                }
+                                edges.add(oneEdge);
+                                edges.add(twoEdge);
+                                curr.setEdges(twoEdge);
+                                temp.setEdges(oneEdge);
+                                newNode.setEdges(oneEdge);
+                                newNode.setEdges(twoEdge);
+                                edges.remove(k);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public Node nodeExists(int xPos, int yPos){
@@ -273,5 +353,6 @@ public class EdgeLogService extends Service implements SensorEventListener {
         new_intent.setAction("ToActivity");
         sendBroadcast(new_intent);
     }
+
 
 }
