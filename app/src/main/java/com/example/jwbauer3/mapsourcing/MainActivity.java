@@ -200,7 +200,8 @@ public class MainActivity extends Activity {
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateDisplay();
+            //updateDisplay();
+            //recomment to allow for mesh/node creation
         }
     };
 

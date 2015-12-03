@@ -40,8 +40,6 @@ public class MyView extends View {
     //end all be all zoom constraints
     private final float MAXZOOMSCALE = 4f;
     private final float MINSCALEFACTOR = .25f;
-    //zoom constraint for mesh mode will be less than or equal to MAXZOOMSCALE
-    private float meshMaxZoomScale = MAXZOOMSCALE;
 
     private boolean meshMode = false;
 
@@ -204,6 +202,8 @@ public class MyView extends View {
                     if (startNode != null) {
                         updatePath();
                     }
+                } else if (opt.getMenuAttribute().equals(MenuSelection.EDGE)) {
+
                 }
                 //todo: animation
                 drawables_draw.removeAll(opts);
@@ -345,12 +345,17 @@ public class MyView extends View {
             originalMaxXOffset = maxX;
             originalMaxYOffset = maxY;
 
-            float tbScale = curFloor.getBackgroundHeight() / (float) (maxY - minY);
-            float lrScale = curFloor.getBackgroundWidth() / (float) (maxX - minX);
-            if (tbScale > lrScale) {
-                meshMaxZoomScale = lrScale;
-            } else {
-                meshMaxZoomScale = tbScale;
+            //only run once per floor.
+            //TODO: when a new node is added, also check this.
+            if(curFloor.getMaxMeshScaleFactor() == -1f) {
+                float tbScale = curFloor.getBackgroundHeight() / (float) (maxY - minY);
+                float lrScale = curFloor.getBackgroundWidth() / (float) (maxX - minX);
+                if (tbScale > lrScale) {
+                    curFloor.setMaxMeshScaleFactor(lrScale);
+                } else {
+                    curFloor.setMaxMeshScaleFactor(tbScale);
+                }
+
             }
         }
     }
@@ -433,8 +438,8 @@ public class MyView extends View {
         if (meshReferenceState.scaleFactor < MINSCALEFACTOR) {
             meshReferenceState.scaleFactor = MINSCALEFACTOR;
         } //already checked the absolute zoom scale cap.
-        else if (meshReferenceState.scaleFactor > meshMaxZoomScale) {
-            meshReferenceState.scaleFactor = meshMaxZoomScale;
+        else if (meshReferenceState.scaleFactor > curFloor.getMaxMeshScaleFactor()) {
+            meshReferenceState.scaleFactor = curFloor.getMaxMeshScaleFactor();
         }
 
         //update the offsets of the nodes xOffset, yOffset
