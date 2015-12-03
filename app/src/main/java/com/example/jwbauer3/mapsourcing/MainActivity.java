@@ -10,6 +10,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -91,6 +92,7 @@ public class MainActivity extends Activity {
 
     protected void onResume(){
         super.onResume();
+        Log.i("onResume", "here");
             if (activityReceiver != null) {
                 //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
                 IntentFilter intentFilter = new IntentFilter("ToActivity");
@@ -180,11 +182,8 @@ public class MainActivity extends Activity {
 
     public void pressed(View view){
         if(!pressed) {
-           // Intent intent = new Intent(this, EdgeLogService.class);
-           // startService(intent);
-           // bindService(intent, mConnection,
-           //         Context.BIND_AUTO_CREATE);
-           // pressed = true;
+           //mService.setOffsetReady();
+            mService.stopSelf();
         }
     }
 

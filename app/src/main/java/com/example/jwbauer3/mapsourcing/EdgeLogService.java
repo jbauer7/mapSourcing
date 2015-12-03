@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.Binder;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.jwbauer3.mapsourcing.LogData;
@@ -39,6 +40,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
     ArrayList<Node> nodes;
     ArrayList<Edge> edges;
     boolean running;
+    boolean offsetReady;
 
     public void onCreate() {
         running=true;
@@ -46,8 +48,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
             @Override
             public void run() {
                 sensorThread();
-                while(noOffset)
-                    ;   //spin
+                if(Thread.currentThread() == Looper.getMainLooper().getThread())
+                    Log.i("UI", "UI");
+                else
+                    Log.i("not UI", "not UI");
 
                 //TODO: Add floor logic (currently forced to floor 2 for EHall
                 //TODO: Add stair node logic (currently set to false)
@@ -62,10 +66,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
         thread.start();
     }
 
-    //public void onDestroyed(){
-      //  super.onDestroy();
-       // running=false;
-    //}
+    public void onDestroy(){
+        super.onDestroy();
+        running=false;
+    }
 
     public class LocalBinder extends Binder {
         EdgeLogService getService() {
@@ -161,6 +165,10 @@ public class EdgeLogService extends Service implements SensorEventListener {
         //setting initial degree offset
 
         if(noOffset){
+            //while(!offsetReady) {
+             //   if(Thread.currentThread() == Looper.getMainLooper().getThread())
+             //   Log.i("here", "stuck");
+            //}
             degreeOffset=360-newDegree;
             noOffset=false;
             return;
@@ -170,7 +178,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
             return;
         }
         currDegreeOffset = degreeOffset;
-        Log.i("offset", Float.toString(currDegreeOffset));
+        //Log.i("offset", Float.toString(currDegreeOffset));
 
         //Thresholds are based on standard direction and an offset to match building map
         if ((newDegree + currDegreeOffset)%360 >= 45 && (newDegree + currDegreeOffset)%360 < 135) { // East
@@ -258,6 +266,7 @@ public class EdgeLogService extends Service implements SensorEventListener {
         return null;
     }
 
+    public void setOffsetReady(){offsetReady=true;}
     public ArrayList<Edge> getEdges() {
         return edges;
     }
