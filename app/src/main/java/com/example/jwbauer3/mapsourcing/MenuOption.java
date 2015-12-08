@@ -18,7 +18,7 @@ public class MenuOption extends CanvasDrawable {
     private MenuSelection displaySelection;
     private CanvasDrawable menuOwner;
     private float scaleFactor = 1f;
-    private int xPos, yPos;
+    private int xPos, yPos, defaultXpos, defaultYpos;
 
     public MenuOption(CanvasDrawable menuOwner, int xPos, int yPos, int elementNum, MenuSelection display) {
         super(DEFAULTOPTIONPRIORITY);
@@ -27,8 +27,8 @@ public class MenuOption extends CanvasDrawable {
         this.menuOwner = menuOwner;
         this.xPos = xPos;
         this.yPos = yPos;
-        //this.backgroundWidth = backgroundWidth;
-        //this.backgroundHeight = backgroundHeight;
+        defaultXpos = xPos;
+        defaultYpos = yPos;
     }
 
     @Override
@@ -43,18 +43,6 @@ public class MenuOption extends CanvasDrawable {
         int xEnd = (int) (x + elementWidth * scaleFactor);
         int yEnd = (int) (y + elementHeight * scaleFactor);
         int border = (int) (borderPix * scaleFactor);
-
-        //todo: implement fix with MenuClass, and global view state
-        /*
-        if (xEnd > backgroundWidth) {
-            xEnd = x;
-            x -= elementWidth * scaleFactor;
-        }
-        if(yEnd > backgroundHeight){
-            yEnd=y;
-            y-=elementHeight*scaleFactor;
-        }
-        */
 
         paint.setColor(Color.BLACK);
         canvas.drawRect(x, y, xEnd, yEnd, paint);
@@ -75,10 +63,14 @@ public class MenuOption extends CanvasDrawable {
         return (clickedX > xStart && clickedY > yStart && clickedX < xEnd && clickedY < yEnd);
     }
 
+
     @Override
     public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
+        xPos = (int)(defaultXpos * scaleFactor);
+        yPos = (int)(defaultYpos * scaleFactor);
     }
+
 
     public MenuSelection getMenuAttribute() {
         return displaySelection;
@@ -86,5 +78,12 @@ public class MenuOption extends CanvasDrawable {
 
     public CanvasDrawable getParent() {
         return menuOwner;
+    }
+
+    public int getXpos(){
+        return (defaultXpos);
+    }
+    public  int getYpos(){
+        return (defaultYpos);
     }
 }

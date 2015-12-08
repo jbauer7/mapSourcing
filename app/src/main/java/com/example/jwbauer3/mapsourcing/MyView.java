@@ -57,6 +57,9 @@ public class MyView extends View {
     private BaseNode startNode = null;
     private BaseNode endNode = null;
 
+    private LocationNode userLocation = null;
+    private LocationNode searchLocation = null;
+
     private ArrayList<MenuOption> opts = new ArrayList<>();
 
     public MyView(Context context) {
@@ -181,6 +184,7 @@ public class MyView extends View {
                 //todo: ignore how shitty this is.
                 MenuOption opt = (MenuOption) selectedElement;
                 if (opt.getMenuAttribute().equals(MenuSelection.START)) {
+                    /*
                     //Assuming that the menus we place only allow "Start" to show on Nodes, this should be fine.
                     if (startNode != null) {
                         //turn off terminal tag from previous startNode
@@ -192,7 +196,9 @@ public class MyView extends View {
                     if (endNode != null) {
                         updatePath();
                     }
+                    */
                 } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
+                    /*
                     if (endNode != null) {
                         endNode.toggleAttribute(Attribute.TERMINAL);
                     }
@@ -202,7 +208,23 @@ public class MyView extends View {
                     if (startNode != null) {
                         updatePath();
                     }
-                } else if (opt.getMenuAttribute().equals(MenuSelection.EDGE)) {
+                    */
+                } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
+                    //locate yourself on the mesh
+                    if (userLocation != null) {
+                        drawables_draw.remove(userLocation);
+                        drawables_search.remove(userLocation);
+                    }
+                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum());
+
+                    userLocation.setScaleFactor(meshReferenceState.scaleFactor);
+
+                    startNode = userLocation;
+                    if (endNode != null)
+                        updatePath();
+                    drawables_draw.add(userLocation);
+                    drawables_search.add(userLocation);
+                } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
 
                 }
                 //todo: animation
@@ -232,18 +254,18 @@ public class MyView extends View {
         opts.clear();
         if (selectedElement instanceof Node) {
             //node, make it at the center
-            xpos = ((Node) selectedElement).getxPos();
-            ypos = ((Node) selectedElement).getyPos();
+            //need the default position
+            xpos = (int)(((Node) selectedElement).getDefaultXPos());
+            ypos = (int)(((Node) selectedElement).getDefaultYPos());
         } else {
             //edge, make it where you click.
-            int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
-            int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
-
-            xpos = (int) (event.getX() / canvasReferenceState.scaleFactor) - translatedXOffset;
-            ypos = (int) (event.getY() / canvasReferenceState.scaleFactor) - translatedYOffset;
+            //need to divide out the
+            xpos = (int)(convertPixelToMapX((int)event.getX()) / meshReferenceState.scaleFactor);
+            ypos = (int)(convertPixelToMapY((int)event.getY()) / meshReferenceState.scaleFactor);
         }
         for (int x = 0; x < selectedElement.getOptions().size(); x++) {
             MenuOption menuOption = new MenuOption(selectedElement, xpos, ypos, x, selectedElement.getOptions().get(x));
+            menuOption.setScaleFactor(meshReferenceState.scaleFactor);
             opts.add(menuOption);
         }
         drawables_draw.addAll(opts);
@@ -347,7 +369,7 @@ public class MyView extends View {
 
             //only run once per floor.
             //TODO: when a new node is added, also check this.
-            if(curFloor.getMaxMeshScaleFactor() == -1f) {
+            if (curFloor.getMaxMeshScaleFactor() == -1f) {
                 float tbScale = curFloor.getBackgroundHeight() / (float) (maxY - minY);
                 float lrScale = curFloor.getBackgroundWidth() / (float) (maxX - minX);
                 if (tbScale > lrScale) {
@@ -543,6 +565,20 @@ public class MyView extends View {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
         }
+    }
+
+    private int convertPixelToMapX(int pixelPoint) {
+        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
+        int xpos = (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset;
+
+        return xpos;
+    }
+
+    private int convertPixelToMapY(int pixelPoint) {
+        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+        int ypos = (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
+
+        return ypos;
     }
 
 }

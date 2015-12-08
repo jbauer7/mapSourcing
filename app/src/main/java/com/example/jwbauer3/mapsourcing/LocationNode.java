@@ -44,7 +44,7 @@ public class LocationNode extends BaseNode {
         }
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
-        canvas.drawArc(middleX-drawnRadius, middleY-drawnRadius, middleX+drawnRadius, middleY+drawnRadius, 240f, 60f, true, paint);
+        canvas.drawArc(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius, 240f, 60f, true, paint);
 
     }
 
@@ -52,10 +52,16 @@ public class LocationNode extends BaseNode {
     public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
         //transxoffset and transyoffset include translated and scale factor already
         //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
+        //Todo: do only the arc, not the entire circle
         int displayedRadius = (int) (drawnRadius * scaleFactor);
         int scaledXPosition = (int) ((this.getxPos() + transXoffset) * scaleFactor);
         int scaledYPosition = (int) ((this.getyPos() + transYoffset) * scaleFactor);
         return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
+    }
+
+    public void setScaleFactor(float scaleFactor) {
+        drawnRadius = (int) (DEFAULTRADIUS * scaleFactor);
+        super.setScaleFactor(scaleFactor);
     }
 
 }

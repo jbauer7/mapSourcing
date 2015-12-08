@@ -3,6 +3,7 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.Menu;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -25,7 +26,8 @@ public class Edge extends CanvasDrawable {
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
 
         //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
-        options.add(MenuSelection.EDGE);
+        options.add(MenuSelection.LOCATE);
+        options.add(MenuSelection.SEARCH);
     }
 
     public BaseNode getStart() {
@@ -88,6 +90,7 @@ public class Edge extends CanvasDrawable {
 
     @Override
     public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float canvasScaleFactor) {
+        //transform out cords into pixel cords.
         int xStart = (int) ((this.getStart().getxPos() + transXoffset) * canvasScaleFactor);
         int yStart = (int) ((this.getStart().getyPos() + transYoffset) * canvasScaleFactor);
         int xEnd = (int) ((this.getEnd().getxPos() + transXoffset) * canvasScaleFactor);
