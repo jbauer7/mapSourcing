@@ -215,17 +215,37 @@ public class MyView extends View {
                         drawables_draw.remove(userLocation);
                         drawables_search.remove(userLocation);
                     }
-                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum());
+                    //todo: check typecast to edge
+                    //todo: in future if nodes can call, put this into an if/else block
+                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), (Edge)opt.getParent());
 
                     userLocation.setScaleFactor(meshReferenceState.scaleFactor);
 
                     startNode = userLocation;
-                    if (endNode != null)
-                        updatePath();
+                    navigator.setStartNode(startNode);
+
                     drawables_draw.add(userLocation);
                     drawables_search.add(userLocation);
+                    if (endNode != null)
+                        updatePath();
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
+                    //target destination on the mesh
+                    if (searchLocation != null) {
+                        drawables_draw.remove(searchLocation);
+                        drawables_search.remove(searchLocation);
+                    }
+                    //todo: check typecast to edge
+                    //todo: in future if nodes can call, put this into an if/else block
+                    searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), (Edge)opt.getParent());
+                    searchLocation.setScaleFactor(meshReferenceState.scaleFactor);
 
+                    endNode = searchLocation;
+                    navigator.setEndNode(endNode);
+
+                    drawables_draw.add(searchLocation);
+                    drawables_search.add(searchLocation);
+                    if (startNode != null)
+                        updatePath();
                 }
                 //todo: animation
                 drawables_draw.removeAll(opts);
@@ -255,13 +275,13 @@ public class MyView extends View {
         if (selectedElement instanceof Node) {
             //node, make it at the center
             //need the default position
-            xpos = (int)(((Node) selectedElement).getDefaultXPos());
-            ypos = (int)(((Node) selectedElement).getDefaultYPos());
+            xpos = (int) (((Node) selectedElement).getDefaultXPos());
+            ypos = (int) (((Node) selectedElement).getDefaultYPos());
         } else {
             //edge, make it where you click.
             //need to divide out the
-            xpos = (int)(convertPixelToMapX((int)event.getX()) / meshReferenceState.scaleFactor);
-            ypos = (int)(convertPixelToMapY((int)event.getY()) / meshReferenceState.scaleFactor);
+            xpos = (int) (convertPixelToMapX((int) event.getX()) / meshReferenceState.scaleFactor);
+            ypos = (int) (convertPixelToMapY((int) event.getY()) / meshReferenceState.scaleFactor);
         }
         for (int x = 0; x < selectedElement.getOptions().size(); x++) {
             MenuOption menuOption = new MenuOption(selectedElement, xpos, ypos, x, selectedElement.getOptions().get(x));

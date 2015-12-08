@@ -2,21 +2,15 @@ package com.example.jwbauer3.mapsourcing;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.Binder;
-import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.example.jwbauer3.mapsourcing.LogData;
-
 import java.util.ArrayList;
-import java.util.Set;
 
 
 /*Service handles the collection of sensor data in the background*/
@@ -246,8 +240,8 @@ public class EdgeLogService extends Service {
         Edge newEdge = new Edge(prevNode, newNode);
         newEdge.setWeight((int) currSteps);
         newEdge.setDirection((int) newDegree);
-        prevNode.setEdges(newEdge);
-        newNode.setEdges(newEdge);
+        prevNode.addEdge(newEdge);
+        newNode.addEdge(newEdge);
         if (addNewNode) nodes.add(newNode);
         edges.add(newEdge);
         prevNode = newNode;
@@ -318,10 +312,10 @@ public class EdgeLogService extends Service {
                                 }
                                 edges.add(oneEdge);
                                 edges.add(twoEdge);
-                                curr.setEdges(oneEdge);
-                                temp.setEdges(twoEdge);
-                                newNode.setEdges(oneEdge);
-                                newNode.setEdges(twoEdge);
+                                curr.addEdge(oneEdge);
+                                temp.addEdge(twoEdge);
+                                newNode.addEdge(oneEdge);
+                                newNode.addEdge(twoEdge);
                                 edges.remove(k);
                             }
                             //Edge (Temp, Curr)
@@ -342,10 +336,10 @@ public class EdgeLogService extends Service {
                                 }
                                 edges.add(oneEdge);
                                 edges.add(twoEdge);
-                                curr.setEdges(twoEdge);
-                                temp.setEdges(oneEdge);
-                                newNode.setEdges(oneEdge);
-                                newNode.setEdges(twoEdge);
+                                curr.addEdge(twoEdge);
+                                temp.addEdge(oneEdge);
+                                newNode.addEdge(oneEdge);
+                                newNode.addEdge(twoEdge);
                                 edges.remove(k);
                             }
                         }

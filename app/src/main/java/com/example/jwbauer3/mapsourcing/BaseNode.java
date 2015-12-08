@@ -34,7 +34,7 @@ public abstract class BaseNode extends CanvasDrawable {
         return edges;
     }
 
-    public void setEdges(Edge e) {
+    public void addEdge (Edge e) {
         this.edges.add(e);
     }
 

@@ -10,7 +10,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -119,12 +118,12 @@ public class MainActivity extends Activity {
         //Node test4 = new Node(800, 800);
         //Node test5 = new Node(1212, 1911);
         Edge con1 = new Edge(test1, test2);
-        test1.setEdges(con1);
-        test2.setEdges(con1);
+        test1.addEdge(con1);
+        test2.addEdge(con1);
         //Edge con2 = new Edge(test2, test4);
         Edge con3 = new Edge(test1, test3);
-        test1.setEdges(con3);
-        test3.setEdges(con3);
+        test1.addEdge(con3);
+        test3.addEdge(con3);
         //Edge con4 = new Edge(test3, test4);
         nodes2.add(test1);
         nodes2.add(test2);
@@ -140,11 +139,11 @@ public class MainActivity extends Activity {
         Node test5 = new Node(17, 38, 3, false);
         Node test6 = new Node(-160, 200, 3, true);
         Edge con45 = new Edge(test4, test5);
-        test4.setEdges(con45);
-        test5.setEdges(con45);
+        test4.addEdge(con45);
+        test5.addEdge(con45);
         Edge con56 = new Edge(test5, test6);
-        test5.setEdges(con56);
-        test6.setEdges(con56);
+        test5.addEdge(con56);
+        test6.addEdge(con56);
         nodes3.add(test4);
         nodes3.add(test5);
         nodes3.add(test6);
@@ -153,8 +152,8 @@ public class MainActivity extends Activity {
 
         //cross floor
         Edge xFloor = new Edge(test1, test6);
-        test1.setEdges(xFloor);
-        test6.setEdges(xFloor);
+        test1.addEdge(xFloor);
+        test6.addEdge(xFloor);
 
 
     }

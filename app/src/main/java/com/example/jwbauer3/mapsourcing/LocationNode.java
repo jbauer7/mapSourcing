@@ -5,21 +5,34 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 /**
- * Created by Eric on 12/2/15.
+ * created by Eric on 12/2/15.
  */
 public class LocationNode extends BaseNode {
 
     private static final int DEFAULTLOCATIONNODEPRIORITY = 250;
     private static final int DEFAULTRADIUS = 100;
     private int drawnRadius;
+    private Edge startEdge, endEdge;
 
-    public LocationNode(int xPos, int yPos, int floor) {
+    public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge ) {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
         drawnRadius = DEFAULTRADIUS;
+        startEdge = new Edge(sourceEdge.getStart(), this);
+        endEdge = new Edge(this, sourceEdge.getEnd());
 
+
+        this.addEdge(startEdge);
+        this.addEdge(endEdge);
+        //TODO: THESE WILL NEVER BE REMOVED.
+        sourceEdge.getStart().addEdge(startEdge);
+        sourceEdge.getEnd().addEdge(endEdge);
         //TODO: Decide on options for location node
         options.add(MenuSelection.START);
+
     }
+
+    //TODO: a second constructor to be called if this is being called from a node and not an edge.
+    //will need to add an edge from the location to that node (for navigator), the second edge isn't needed
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
@@ -44,6 +57,9 @@ public class LocationNode extends BaseNode {
         }
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
+        //TODO: put public getters, add these drawables draw (not searchable)
+        startEdge.draw(canvas,xOffset,yOffset);
+        endEdge.draw(canvas,xOffset,yOffset);
         canvas.drawArc(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius, 240f, 60f, true, paint);
 
     }

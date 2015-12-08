@@ -83,8 +83,8 @@ public class MapActivity extends AppCompatActivity {
         Edge currEdge= new Edge(prevNode, newNode);
         currEdge.setDirection((int) direction);
         currEdge.setWeight(steps);
-        prevNode.setEdges(currEdge);
-        newNode.setEdges(currEdge);
+        prevNode.addEdge(currEdge);
+        newNode.addEdge(currEdge);
 
         TextView out = (TextView) findViewById(R.id.output);
         out.setText("Parent Node  x:" + Float.toString(prevNode.getxPos())

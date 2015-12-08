@@ -26,10 +26,29 @@ public class Navigator {
     //todo: method to set graph?
 
     public void setStartNode(BaseNode startNode) {
+        //get rid of old start node, IFF its a location node.
+        if(this.startNode != null && this.startNode instanceof LocationNode){
+            graph.remove(this.startNode);
+        }
+        //if new start node is a location node, add it to the graph
+        if(startNode instanceof LocationNode){
+            graph.add(startNode);
+        }
+        //in either case, overwrite what start node refers to
         this.startNode = startNode;
+
     }
 
     public void setEndNode(BaseNode endNode) {
+        //get rid of old start node, IFF its a location node.
+        if(this.endNode != null && this.endNode instanceof LocationNode){
+            graph.remove(this.endNode);
+        }
+        //if new start node is a location node, add it to the graph
+        if(endNode instanceof LocationNode){
+            graph.add(endNode);
+        }
+        //in either case, overwrite what end node refers to
         this.endNode = endNode;
     }
 
