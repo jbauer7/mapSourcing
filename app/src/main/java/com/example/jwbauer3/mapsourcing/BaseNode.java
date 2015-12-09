@@ -29,6 +29,10 @@ public abstract class BaseNode extends CanvasDrawable {
         return yPos;
     }
 
+    public void clearEdges() {
+        edges.clear();
+    }
+
     //could store radius, color, pixel area coverage.
     public ArrayList<Edge> getEdges() {
         return edges;

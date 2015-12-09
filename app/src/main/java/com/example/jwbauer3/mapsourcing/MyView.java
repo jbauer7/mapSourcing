@@ -211,42 +211,90 @@ public class MyView extends View {
                     */
                 } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
                     //locate yourself on the mesh
-                    if (userLocation != null) {
-                        drawables_draw.remove(userLocation);
-                        drawables_search.remove(userLocation);
-                    }
+
                     //todo: check typecast to edge
                     //todo: in future if nodes can call, put this into an if/else block
-                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), (Edge)opt.getParent());
-
+                    Edge sourceEdge = (Edge) opt.getParent();
+                    BaseNode before = sourceEdge.getStart();
+                    BaseNode after = sourceEdge.getEnd();
+                    if (userLocation != null) {
+                        //Remove the old user location and its edges
+                        drawables_draw.remove(userLocation);
+                        drawables_search.remove(userLocation);
+                        drawables_draw.remove(userLocation.getStartEdge());
+                        drawables_draw.remove(userLocation.getEndEdge());
+                    }
+                    if ((searchLocation != null) && (searchLocation.getSourceEdge().equals(sourceEdge))) {
+                        //This search node is on this edge too, connect them directly
+                        before = searchLocation;
+                        after = searchLocation;
+                        drawables_draw.remove(searchLocation.getStartEdge());
+                        drawables_draw.remove(searchLocation.getEndEdge());
+                    }
+                    //Create the new user location and its edges
+                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), sourceEdge, before, after);
                     userLocation.setScaleFactor(meshReferenceState.scaleFactor);
+                    drawables_draw.add(userLocation);
+                    drawables_search.add(userLocation);
+                    drawables_draw.add(userLocation.getStartEdge());
+                    drawables_draw.add(userLocation.getEndEdge());
+                    if ((searchLocation != null) && (searchLocation.getSourceEdge().equals(sourceEdge))) {
+                        //This search node is on this edge too, connect them directly
+                        searchLocation.clearEdges();
+                        searchLocation.setEndEdge(userLocation.getStartEdge());
+                        searchLocation.setStartEdge(userLocation.getEndEdge());
+                    }
 
+                    //Set the start node for the navigator
                     startNode = userLocation;
                     navigator.setStartNode(startNode);
 
-                    drawables_draw.add(userLocation);
-                    drawables_search.add(userLocation);
                     if (endNode != null)
                         updatePath();
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
                     //target destination on the mesh
-                    if (searchLocation != null) {
-                        drawables_draw.remove(searchLocation);
-                        drawables_search.remove(searchLocation);
-                    }
+
                     //todo: check typecast to edge
                     //todo: in future if nodes can call, put this into an if/else block
-                    searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), (Edge)opt.getParent());
+                    Edge sourceEdge = (Edge) opt.getParent();
+                    BaseNode before = sourceEdge.getStart();
+                    BaseNode after = sourceEdge.getEnd();
+                    if (searchLocation != null) {
+                        //Remove the old search location and its edges
+                        drawables_draw.remove(searchLocation);
+                        drawables_search.remove(searchLocation);
+                        drawables_draw.remove(searchLocation.getStartEdge());
+                        drawables_draw.remove(searchLocation.getEndEdge());
+                    }
+                    if ((userLocation != null) && (userLocation.getSourceEdge().equals(sourceEdge))) {
+                        //This location node is on this edge too, connect them directly
+                        before = userLocation;
+                        after = userLocation;
+                        drawables_draw.remove(userLocation.getStartEdge());
+                        drawables_draw.remove(userLocation.getEndEdge());
+                    }
+                    //Create the new search location and its edges
+                    searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), sourceEdge, before, after);
                     searchLocation.setScaleFactor(meshReferenceState.scaleFactor);
+                    drawables_draw.add(searchLocation);
+                    drawables_search.add(searchLocation);
+                    drawables_draw.add(searchLocation.getStartEdge());
+                    drawables_draw.add(searchLocation.getEndEdge());
+                    if ((userLocation != null) && (userLocation.getSourceEdge().equals(sourceEdge))) {
+                        //This location node is on this edge too, connect them directly
+                        userLocation.clearEdges();
+                        userLocation.setEndEdge(searchLocation.getStartEdge());
+                        userLocation.setStartEdge(searchLocation.getEndEdge());
+                    }
 
+                    //Set the end node for the navigator
                     endNode = searchLocation;
                     navigator.setEndNode(endNode);
 
-                    drawables_draw.add(searchLocation);
-                    drawables_search.add(searchLocation);
                     if (startNode != null)
                         updatePath();
                 }
+                //Remove the menu since an option was clicked on
                 //todo: animation
                 drawables_draw.removeAll(opts);
                 drawables_search.removeAll(opts);
