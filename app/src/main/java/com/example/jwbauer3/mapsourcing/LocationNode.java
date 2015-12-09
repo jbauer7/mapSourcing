@@ -12,13 +12,14 @@ public class LocationNode extends BaseNode {
     private static final int DEFAULTLOCATIONNODEPRIORITY = 250;
     private static final int DEFAULTRADIUS = 100;
     private int drawnRadius;
-    private Edge startEdge, endEdge;
+    private Edge sourceEdge, startEdge, endEdge;
 
-    public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge ) {
+    public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge, BaseNode before, BaseNode after) {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
-        drawnRadius = DEFAULTRADIUS;
-        startEdge = new Edge(sourceEdge.getStart(), this);
-        endEdge = new Edge(this, sourceEdge.getEnd());
+        this.drawnRadius = DEFAULTRADIUS;
+        this.sourceEdge = sourceEdge;
+        this.startEdge = new Edge(before, this);
+        this.endEdge = new Edge(this, after);
 
 
         this.addEdge(startEdge);
@@ -27,7 +28,7 @@ public class LocationNode extends BaseNode {
         sourceEdge.getStart().addEdge(startEdge);
         sourceEdge.getEnd().addEdge(endEdge);
         //TODO: Decide on options for location node
-        options.add(MenuSelection.START);
+        this.options.add(MenuSelection.START);
 
     }
 
@@ -58,8 +59,6 @@ public class LocationNode extends BaseNode {
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
         //TODO: put public getters, add these drawables draw (not searchable)
-        startEdge.draw(canvas,xOffset,yOffset);
-        endEdge.draw(canvas,xOffset,yOffset);
         canvas.drawArc(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius, 240f, 60f, true, paint);
 
     }
@@ -73,6 +72,28 @@ public class LocationNode extends BaseNode {
         int scaledXPosition = (int) ((this.getxPos() + transXoffset) * scaleFactor);
         int scaledYPosition = (int) ((this.getyPos() + transYoffset) * scaleFactor);
         return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
+    }
+
+    public Edge getSourceEdge() {
+        return sourceEdge;
+    }
+
+    public void setStartEdge(Edge startEdge) {
+        this.startEdge = startEdge;
+        this.addEdge(startEdge);
+    }
+
+    public Edge getStartEdge() {
+        return startEdge;
+    }
+
+    public void setEndEdge(Edge endEdge) {
+        this.endEdge = endEdge;
+        this.addEdge(endEdge);
+    }
+
+    public Edge getEndEdge() {
+        return endEdge;
     }
 
     public void setScaleFactor(float scaleFactor) {
