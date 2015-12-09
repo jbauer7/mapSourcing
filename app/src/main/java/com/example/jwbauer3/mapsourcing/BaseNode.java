@@ -10,6 +10,8 @@ public abstract class BaseNode extends CanvasDrawable {
     private int xPos, yPos, defaultXPos, defaultYPos;
     private ArrayList<Edge> edges;
     private int floor;
+    private float altitude;
+
 
     public BaseNode(int xPos, int yPos, int floor, final int nodePriority) {
         super(nodePriority);
@@ -68,5 +70,13 @@ public abstract class BaseNode extends CanvasDrawable {
 
     public int getFloorNum() {
         return floor;
+    }
+
+    public void setAltitude(float altitude){
+        this.altitude=altitude;
+    }
+
+    public float getAltitude(){
+        return altitude;
     }
 }
