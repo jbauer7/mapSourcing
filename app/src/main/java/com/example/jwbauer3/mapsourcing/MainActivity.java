@@ -64,9 +64,8 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Bundle bundle = getIntent().getExtras();
-        if(bundle!=null && bundle.getString("mode").equals("navigation"))
-        {
-            navigationMode=true;
+        if (bundle != null && bundle.getString("mode").equals("navigation")) {
+            navigationMode = true;
             Toast.makeText(getApplicationContext(), "navigationModeSet",
                     Toast.LENGTH_SHORT).show();
         }
@@ -195,17 +194,16 @@ public class MainActivity extends Activity {
     }
 
     public void pressed(View view) {
-        Button mapButton = (Button)findViewById(R.id.Button_MapMode);
+        Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         if (!pressed) {
             mapButton.setText("Save Map");
             mService.setOffsetReady();
-            pressed=true;
-        }
-        else {
+            pressed = true;
+        } else {
             // DO STUFF TO SAVE FLOOR
             mService.setOffsetNotReady();
             mapButton.setText("Start Map");
-            pressed=false;
+            pressed = false;
         }
     }
 
@@ -219,9 +217,14 @@ public class MainActivity extends Activity {
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateDisplay();
-            Toast.makeText(getApplicationContext(), "New Node Created",
-                    Toast.LENGTH_SHORT).show();
+            if (navigationMode) {
+                updateDisplay();
+                Toast.makeText(getApplicationContext(), "New Node Created",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else{
+                //TODO: update current location navigation by calling mService.getLocation()
+            }
         }
     };
 
