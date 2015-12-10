@@ -11,13 +11,14 @@ public class MenuOption extends CanvasDrawable {
 
 
     private static final int DEFAULTOPTIONPRIORITY = 300;
-    private final int elementWidth = 150;
+    private final int elementWidth = 200; //200 pixels wide
     private final int elementHeight = 100; //100 pixels tall
     private int borderPix = 3;
     private int elementNum;
     private MenuSelection displaySelection;
     private CanvasDrawable menuOwner;
     private float scaleFactor = 1f;
+    private float defaultTextSize = 48f;
     private int xPos, yPos, defaultXpos, defaultYpos;
 
     public MenuOption(CanvasDrawable menuOwner, int xPos, int yPos, int elementNum, MenuSelection display) {
@@ -49,9 +50,8 @@ public class MenuOption extends CanvasDrawable {
         paint.setColor(Color.CYAN);
         canvas.drawRect(x + border, y + border, xEnd - border, yEnd - border, paint);
         paint.setColor(Color.BLACK);
-        paint.setTextSize(48f * scaleFactor);
+        paint.setTextSize(defaultTextSize * scaleFactor);
         canvas.drawText(displaySelection.toString(), x, y + (scaleFactor * elementHeight / 2), paint);
-
     }
 
     @Override
@@ -70,7 +70,6 @@ public class MenuOption extends CanvasDrawable {
         xPos = (int)(defaultXpos * scaleFactor);
         yPos = (int)(defaultYpos * scaleFactor);
     }
-
 
     public MenuSelection getMenuAttribute() {
         return displaySelection;

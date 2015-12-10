@@ -14,6 +14,7 @@ public abstract class CanvasDrawable {
     protected ArrayList<Attribute> attributes;
     //default scaleFactor is 1f.
     protected float scaleFactor = 1f;
+    protected float darkenOnClick = .85f;
 
     public CanvasDrawable(int priority) {
         //this.options = options;

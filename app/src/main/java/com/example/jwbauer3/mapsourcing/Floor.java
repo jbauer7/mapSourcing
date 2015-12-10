@@ -19,19 +19,12 @@ public class Floor {
     private Drawable backgroundImage;
     private float maxMeshScaleFactor = -1f;
 
-    //todo: do we need to store these? We need to recalculate all the
-    //private int originalMinXOffset;
-    //private int originalMinYOffset;
-    //private int originalMaxX;
-    //private int originalMaxY;
-
     public Floor(int floorNum, ArrayList<Node> nodes, ArrayList<Edge> edges, ReferenceState referenceState, Drawable image) {
         this.floorNum = floorNum;
         meshReferenceState = referenceState;
         setImageInfo(image);
         this.nodes = nodes;
         this.edges = edges;
-        //originalMinXOffset=originalMinYOffset=originalMaxX=originalMaxY=0;
     }
 
     public ArrayList<Node> getNodes() {

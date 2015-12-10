@@ -224,6 +224,7 @@ public class MyView extends View {
                     //Create the new user location and its edges
                     userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), userSourceEdge, nodeBefore, nodeAfter);
                     userLocation.setScaleFactor(meshReferenceState.scaleFactor);
+                    userLocation.toggleAttribute(Attribute.USER);
                     addLocationNodeToDrawables(userLocation);
 
                     //Update the searchLocation's edges as well
@@ -288,6 +289,7 @@ public class MyView extends View {
                     //Create the new search location and its edges
                     searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), searchSourceEdge, nodeBefore, nodeAfter);
                     searchLocation.setScaleFactor(meshReferenceState.scaleFactor);
+                    searchLocation.toggleAttribute(Attribute.DESTINATION);
                     addLocationNodeToDrawables(searchLocation);
 
                     //Update the userLocation's edges as well

@@ -1,7 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
 /**
- * Created by Eric on 12/9/15.
+ * created by Eric on 12/9/15.
  */
 public class Edge extends BaseEdge {
 

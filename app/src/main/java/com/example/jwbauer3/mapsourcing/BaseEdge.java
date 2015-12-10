@@ -23,6 +23,7 @@ public class BaseEdge extends CanvasDrawable {
         weight = 0;
         direction = 0;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
+        this.darkenOnClick = .75f;
 
         //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
         options.add(MenuSelection.LOCATE);
@@ -73,8 +74,7 @@ public class BaseEdge extends CanvasDrawable {
             int color = paint.getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
-            //todo: magic number
-            hsv[2] = hsv[2] * 0.75f;
+            hsv[2] = hsv[2] * darkenOnClick;
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }

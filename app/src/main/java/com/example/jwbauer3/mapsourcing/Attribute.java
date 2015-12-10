@@ -6,7 +6,8 @@ package com.example.jwbauer3.mapsourcing;
 public enum Attribute {
     CLICKED("Clicked"),
     PATH("Path"),
-    TERMINAL("Terminal");
+    USER("User"),
+    DESTINATION("Destination");
 
     private final String text;
 

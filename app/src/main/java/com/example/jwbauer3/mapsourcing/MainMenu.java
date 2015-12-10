@@ -38,7 +38,7 @@ public class MainMenu extends Activity {
 
     private void setUpSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_MainMenu_BuildingSelect);
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, buildingNames);
+        ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, buildingNames);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
