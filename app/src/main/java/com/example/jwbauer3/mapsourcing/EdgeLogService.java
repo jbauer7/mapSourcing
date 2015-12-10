@@ -439,9 +439,9 @@ public class EdgeLogService extends Service {
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
     private void navigationHandler(float newDegree){
         int direction;
-        Edge closestEdge=null;
+        BaseEdge closestEdge=null;
         BaseNode endNode;
-        for(Edge currEdge: currNode.getEdges()){
+        for(BaseEdge currEdge: currNode.getEdges()){
             direction=currEdge.getDirection();
             if(!currEdge.getStart().equals(currNode)) direction=(direction+180)%360;
             if(Math.abs(currEdge.getDirection()-newDegree)<45){
