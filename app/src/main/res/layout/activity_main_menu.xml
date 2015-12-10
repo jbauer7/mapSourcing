@@ -42,7 +42,7 @@
             android:id="@+id/Spinner_MainMenu_BuildingSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:spinnerMode="dialog"/>
+            android:spinnerMode="dialog" />
 
 
     </LinearLayout>

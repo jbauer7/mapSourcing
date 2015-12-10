@@ -13,6 +13,12 @@ public class LocationNode extends BaseNode {
     private static final int DEFAULTRADIUS = 100;
     private int drawnRadius;
     private Edge sourceEdge, startEdge, endEdge;
+    private static final double sliceStartAngle = 240;
+    private static final double sliceSweepAngle = 60;
+    private static final double sliceStartAngleVectorX = Math.cos(Math.toRadians(sliceStartAngle));
+    private static final double sliceStartAngleVectorY = Math.sin(Math.toRadians(sliceStartAngle));
+    private static final double sliceEndAngleVectorX = Math.cos(Math.toRadians(sliceStartAngle + sliceSweepAngle));
+    private static final double sliceEndAngleVectorY = Math.sin(Math.toRadians(sliceStartAngle + sliceSweepAngle));
 
     public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge, BaseNode before, BaseNode after) {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
@@ -59,8 +65,27 @@ public class LocationNode extends BaseNode {
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
         //TODO: put public getters, add these drawables draw (not searchable)
-        canvas.drawArc(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius, 240f, 60f, true, paint);
+        canvas.drawArc(middleX - drawnRadius,
+                middleY - drawnRadius,
+                middleX + drawnRadius,
+                middleY + drawnRadius,
+                (float) sliceStartAngle,
+                (float) sliceSweepAngle, true, paint);
 
+    }
+
+    private boolean isPointClockwise(double sectorVectorX, double sectorVectorY, float positionX, float positionY) {
+        return (((sectorVectorX * positionY) + -(sectorVectorY * positionX)) > 0);
+    }
+
+    private boolean isWithinRadius(float positionX, float positionY, float radius) {
+        return  ((positionX * positionX) + (positionY * positionY)) <= (radius * radius);
+    }
+
+    private boolean isInsideSection(float positionX, float positionY, float radius) {
+        return isPointClockwise(sliceStartAngleVectorX, sliceStartAngleVectorY, positionX, positionY) &&
+                !isPointClockwise(sliceEndAngleVectorX, sliceEndAngleVectorY, positionX, positionY) &&
+                isWithinRadius(positionX, positionY, radius);
     }
 
     @Override
@@ -68,10 +93,10 @@ public class LocationNode extends BaseNode {
         //transxoffset and transyoffset include translated and scale factor already
         //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
         //Todo: do only the arc, not the entire circle
-        int displayedRadius = (int) (drawnRadius * scaleFactor);
-        int scaledXPosition = (int) ((this.getxPos() + transXoffset) * scaleFactor);
-        int scaledYPosition = (int) ((this.getyPos() + transYoffset) * scaleFactor);
-        return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
+        float displayedRadius = (drawnRadius * scaleFactor);
+        float scaledXPosition = ((this.getxPos() + transXoffset) * scaleFactor);
+        float scaledYPosition = ((this.getyPos() + transYoffset) * scaleFactor);
+        return isInsideSection(clickedX - scaledXPosition, clickedY - scaledYPosition, displayedRadius);
     }
 
     public Edge getSourceEdge() {

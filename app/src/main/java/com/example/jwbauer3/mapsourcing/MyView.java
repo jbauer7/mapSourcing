@@ -31,7 +31,6 @@ public class MyView extends View {
     private int xOffset = 0;
     private int yOffset = 0;
 
-    //TODO: use enum
     private static int NONE = 0;
     private static int DRAG = 1;
     private static int ZOOM = 2;
@@ -80,7 +79,6 @@ public class MyView extends View {
     public void setFloor(Floor floor) {
         this.curFloor = floor;
         //switch if we already have a floor
-        //todo: check that mesh reference State is saved off.
         if (meshMode) {
             activeReferenceState = curFloor.getMeshReferenceState();
         }
@@ -89,6 +87,17 @@ public class MyView extends View {
         meshReferenceState = curFloor.getMeshReferenceState();
         determineOffsets();
         setDrawableQueues();
+
+        if(userLocation!=null){
+            if(userLocation.getFloorNum() == curFloor.getFloorNum()){
+                addLocationNodeToDrawables(userLocation);
+            }
+        }
+        if(searchLocation!=null){
+            if(searchLocation.getFloorNum() == curFloor.getFloorNum()){
+                addLocationNodeToDrawables(searchLocation);
+            }
+        }
 
         xOffset = originalXOffset + (int) (meshReferenceState.transX);
         yOffset = originalYOffset + (int) (meshReferenceState.transY);
@@ -184,31 +193,9 @@ public class MyView extends View {
                 //todo: ignore how shitty this is.
                 MenuOption opt = (MenuOption) selectedElement;
                 if (opt.getMenuAttribute().equals(MenuSelection.START)) {
-                    /*
-                    //Assuming that the menus we place only allow "Start" to show on Nodes, this should be fine.
-                    if (startNode != null) {
-                        //turn off terminal tag from previous startNode
-                        startNode.toggleAttribute(Attribute.TERMINAL);
-                    }
-                    startNode = (BaseNode) opt.getParent();
-                    startNode.toggleAttribute(Attribute.TERMINAL); //turn on terminal tag
-                    navigator.setStartNode(startNode);
-                    if (endNode != null) {
-                        updatePath();
-                    }
-                    */
+
                 } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
-                    /*
-                    if (endNode != null) {
-                        endNode.toggleAttribute(Attribute.TERMINAL);
-                    }
-                    endNode = (BaseNode) opt.getParent();
-                    endNode.toggleAttribute(Attribute.TERMINAL);
-                    navigator.setEndNode(endNode);
-                    if (startNode != null) {
-                        updatePath();
-                    }
-                    */
+
                 } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
                     //locate yourself on the mesh
 
@@ -219,10 +206,8 @@ public class MyView extends View {
                     BaseNode after = sourceEdge.getEnd();
                     if (userLocation != null) {
                         //Remove the old user location and its edges
-                        drawables_draw.remove(userLocation);
-                        drawables_search.remove(userLocation);
-                        drawables_draw.remove(userLocation.getStartEdge());
-                        drawables_draw.remove(userLocation.getEndEdge());
+                        removeLocationNodeFromDrawables(userLocation);
+
                     }
                     if ((searchLocation != null) && (searchLocation.getSourceEdge().equals(sourceEdge))) {
                         //This search node is on this edge too, connect them directly
@@ -234,10 +219,7 @@ public class MyView extends View {
                     //Create the new user location and its edges
                     userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), sourceEdge, before, after);
                     userLocation.setScaleFactor(meshReferenceState.scaleFactor);
-                    drawables_draw.add(userLocation);
-                    drawables_search.add(userLocation);
-                    drawables_draw.add(userLocation.getStartEdge());
-                    drawables_draw.add(userLocation.getEndEdge());
+                    addLocationNodeToDrawables(userLocation);
                     if ((searchLocation != null) && (searchLocation.getSourceEdge().equals(sourceEdge))) {
                         //This search node is on this edge too, connect them directly
                         searchLocation.clearEdges();
@@ -261,10 +243,7 @@ public class MyView extends View {
                     BaseNode after = sourceEdge.getEnd();
                     if (searchLocation != null) {
                         //Remove the old search location and its edges
-                        drawables_draw.remove(searchLocation);
-                        drawables_search.remove(searchLocation);
-                        drawables_draw.remove(searchLocation.getStartEdge());
-                        drawables_draw.remove(searchLocation.getEndEdge());
+                        removeLocationNodeFromDrawables(searchLocation);
                     }
                     if ((userLocation != null) && (userLocation.getSourceEdge().equals(sourceEdge))) {
                         //This location node is on this edge too, connect them directly
@@ -276,10 +255,7 @@ public class MyView extends View {
                     //Create the new search location and its edges
                     searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), sourceEdge, before, after);
                     searchLocation.setScaleFactor(meshReferenceState.scaleFactor);
-                    drawables_draw.add(searchLocation);
-                    drawables_search.add(searchLocation);
-                    drawables_draw.add(searchLocation.getStartEdge());
-                    drawables_draw.add(searchLocation.getEndEdge());
+                    addLocationNodeToDrawables(searchLocation);
                     if ((userLocation != null) && (userLocation.getSourceEdge().equals(sourceEdge))) {
                         //This location node is on this edge too, connect them directly
                         userLocation.clearEdges();
@@ -295,7 +271,6 @@ public class MyView extends View {
                         updatePath();
                 }
                 //Remove the menu since an option was clicked on
-                //todo: animation
                 drawables_draw.removeAll(opts);
                 drawables_search.removeAll(opts);
 
@@ -323,11 +298,10 @@ public class MyView extends View {
         if (selectedElement instanceof Node) {
             //node, make it at the center
             //need the default position
-            xpos = (int) (((Node) selectedElement).getDefaultXPos());
-            ypos = (int) (((Node) selectedElement).getDefaultYPos());
+            xpos = ((Node) selectedElement).getDefaultXPos();
+            ypos = ((Node) selectedElement).getDefaultYPos();
         } else {
-            //edge, make it where you click.
-            //need to divide out the
+            //edge, make it where you click. Need to divide out the scale Factor for the original point.
             xpos = (int) (convertPixelToMapX((int) event.getX()) / meshReferenceState.scaleFactor);
             ypos = (int) (convertPixelToMapY((int) event.getY()) / meshReferenceState.scaleFactor);
         }
@@ -383,21 +357,11 @@ public class MyView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-        //todo: do we need this call
-        //TODO: DONT USE THIS CALL, CAUSES A BUG
-        //determineOffsets();
-
         //update information every time this runs to catch phone orientation changes
         LinearLayout wrapper = (LinearLayout) getRootView().findViewById(R.id.LinearLayout_main_wrapper);
         myViewWidth = wrapper.getWidth();
         myViewHeight = wrapper.getHeight();
-
-
-        //should be height, width. 5k,5k is for displaying the background.
-        //TODO: figure out bounds for screen
         setMeasuredDimension(myViewWidth, myViewHeight);
-
     }
 
     /*
@@ -465,7 +429,6 @@ public class MyView extends View {
                     mode = DRAG;
                     activeReferenceState.startX = event.getX() - activeReferenceState.prevTransX;
                     activeReferenceState.startY = event.getY() - activeReferenceState.prevTransY;
-                    //todo: should we click if we are dragging
                     if (!meshMode)
                         touchDown(event);
                     break;
@@ -506,7 +469,6 @@ public class MyView extends View {
 
 
             if (meshMode) {
-                //TODO: have this be a static method/variable that gets updated
                 for (CanvasDrawable element : drawables_draw) {
                     element.setScaleFactor(activeReferenceState.scaleFactor);
                 }
@@ -515,8 +477,6 @@ public class MyView extends View {
             } else {
                 correctCanvasBoundaries();
             }
-
-
             return true;
         }
 
@@ -637,18 +597,27 @@ public class MyView extends View {
 
     private int convertPixelToMapX(int pixelPoint) {
         int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
-        int xpos = (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset;
 
-        return xpos;
+        return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset;
     }
 
     private int convertPixelToMapY(int pixelPoint) {
         int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
-        int ypos = (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
 
-        return ypos;
+        return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
     }
-
+    private void addLocationNodeToDrawables(LocationNode locationNode){
+        drawables_draw.add(locationNode);
+        drawables_search.add(locationNode);
+        drawables_draw.add(locationNode.getStartEdge());
+        drawables_draw.add(locationNode.getEndEdge());
+    }
+    private void removeLocationNodeFromDrawables(LocationNode locationNode){
+        drawables_draw.remove(locationNode);
+        drawables_search.remove(locationNode);
+        drawables_draw.remove(locationNode.getStartEdge());
+        drawables_draw.remove(locationNode.getEndEdge());
+    }
 }
 
 
