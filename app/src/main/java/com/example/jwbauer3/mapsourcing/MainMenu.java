@@ -23,11 +23,13 @@ public class MainMenu extends Activity {
     public void navigatePressed(View view){
         //start activity with mapping enabled
         Intent mapIntent = new Intent(this, MainActivity.class);
+        mapIntent.putExtra("mode", "navigation");
         startActivity(mapIntent);
     }
     public void mapPressed(View view){
         //start activity with mapping disabled.
         Intent mapIntent = new Intent(this, MainActivity.class);
+        mapIntent.putExtra("mode", "map");
         startActivity(mapIntent);
     }
     public void addBuilding(View view){

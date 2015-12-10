@@ -167,6 +167,7 @@ public class EdgeLogService extends Service {
 
 
     private void checkAltitude(SensorEvent event) {
+        if (noOffset && !offsetReady && !navigationMode) return;
         currPressure = event.values[0];
         System.out.println(currPressure);
         if (noOffset && !offsetReady) return;
@@ -438,9 +439,9 @@ public class EdgeLogService extends Service {
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
     private void navigationHandler(float newDegree){
         int direction;
-        BaseEdge closestEdge=null;
-
-        for(BaseEdge currEdge: currNode.getEdges()){
+        Edge closestEdge=null;
+        BaseNode endNode;
+        for(Edge currEdge: currNode.getEdges()){
             direction=currEdge.getDirection();
             if(!currEdge.getStart().equals(currNode)) direction=(direction+180)%360;
             if(Math.abs(currEdge.getDirection()-newDegree)<45){
@@ -450,11 +451,18 @@ public class EdgeLogService extends Service {
         }
         if(closestEdge==null) return;
 
-        if(closestEdge.getStart().equals(currNode)){
-            currNode=closestEdge.getEnd();
-        }
 
-        //currentLocation = currSteps/ (float) closestEdge.getWeight();
+
+        if(closestEdge.getStart().equals(currNode)){
+            endNode=closestEdge.getEnd();
+        }
+        else endNode=closestEdge.getStart();
+
+        float percentDistance= currSteps/closestEdge.getWeight();
+
+        //calculate where user is
+        currentLocation[0]= ((int) (((float)( endNode.getxPos()-currNode.getxPos()))*percentDistance))+currNode.getxPos();
+        currentLocation[1]= ((int) (((float)( endNode.getyPos()-currNode.getyPos()))*percentDistance))+currNode.getyPos();
         sendBroadcast();
         // send this to main
         if(closestEdge.getWeight()-currSteps <5 ){
@@ -475,7 +483,7 @@ public class EdgeLogService extends Service {
 
     public void setNavigationMode(){ navigationMode=true;}
     public void setMappingMode(){ navigationMode=false;}
-    //  public float getLocation(){return percentEdge;}
+      public int[] getLocation(){return currentLocation;}
 
 
 
