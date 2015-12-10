@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public abstract class BaseNode extends CanvasDrawable {
 
     private int xPos, yPos, defaultXPos, defaultYPos;
-    private ArrayList<Edge> edges;
+    private ArrayList<BaseEdge> edges;
     private int floor;
     private float altitude;
 
@@ -31,16 +31,20 @@ public abstract class BaseNode extends CanvasDrawable {
         return yPos;
     }
 
+    public void removeEdge(BaseEdge edge) {
+        edges.remove(edge);
+    }
+
     public void clearEdges() {
         edges.clear();
     }
 
     //could store radius, color, pixel area coverage.
-    public ArrayList<Edge> getEdges() {
+    public ArrayList<BaseEdge> getEdges() {
         return edges;
     }
 
-    public void addEdge (Edge e) {
+    public void addEdge (BaseEdge e) {
         this.edges.add(e);
     }
 

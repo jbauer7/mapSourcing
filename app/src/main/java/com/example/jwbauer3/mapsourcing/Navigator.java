@@ -102,7 +102,7 @@ public class Navigator {
             openNodes.remove(curNode);
             closedNodes.add(curNode);
 
-            for (Edge edge : curNode.getEdges()) {
+            for (BaseEdge edge : curNode.getEdges()) {
                 //edge are bidirectional, guess that neighbor is the end node on this edge
                 neighborNode = edge.getEnd();
                 //if we guessed wrong, and neighbor was set to curNode, choose the start BaseNode on this edge.

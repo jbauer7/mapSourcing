@@ -12,7 +12,8 @@ public class LocationNode extends BaseNode {
     private static final int DEFAULTLOCATIONNODEPRIORITY = 250;
     private static final int DEFAULTRADIUS = 100;
     private int drawnRadius;
-    private Edge sourceEdge, startEdge, endEdge;
+    private Edge sourceEdge;
+    private LocationEdge startEdge, endEdge;
     private static final double sliceStartAngle = 240;
     private static final double sliceSweepAngle = 60;
     private static final double sliceStartAngleVectorX = Math.cos(Math.toRadians(sliceStartAngle));
@@ -24,8 +25,8 @@ public class LocationNode extends BaseNode {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
         this.drawnRadius = DEFAULTRADIUS;
         this.sourceEdge = sourceEdge;
-        this.startEdge = new Edge(before, this);
-        this.endEdge = new Edge(this, after);
+        this.startEdge = new LocationEdge(before, this);
+        this.endEdge = new LocationEdge(this, after);
 
 
         this.addEdge(startEdge);
@@ -103,21 +104,21 @@ public class LocationNode extends BaseNode {
         return sourceEdge;
     }
 
-    public void setStartEdge(Edge startEdge) {
+    public void setStartEdge(LocationEdge startEdge) {
         this.startEdge = startEdge;
         this.addEdge(startEdge);
     }
 
-    public Edge getStartEdge() {
+    public LocationEdge getStartEdge() {
         return startEdge;
     }
 
-    public void setEndEdge(Edge endEdge) {
+    public void setEndEdge(LocationEdge endEdge) {
         this.endEdge = endEdge;
         this.addEdge(endEdge);
     }
 
-    public Edge getEndEdge() {
+    public LocationEdge getEndEdge() {
         return endEdge;
     }
 
