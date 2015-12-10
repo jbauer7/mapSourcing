@@ -11,8 +11,6 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.PriorityQueue;
-
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -20,9 +18,9 @@ import java.util.PriorityQueue;
 public class MyView extends View {
     private Floor curFloor;
     //priority queue for drawing (stores lowest elements first)
-    private PriorityQueue<CanvasDrawable> drawables_draw;
+    private SortedArrayList<CanvasDrawable> drawables_draw;
     //priority queue for search/touching (stores highest elements first)
-    private PriorityQueue<CanvasDrawable> drawables_search;
+    private SortedArrayList<CanvasDrawable> drawables_search;
 
     private int originalXOffset = 0;
     private int originalYOffset = 0;
@@ -114,22 +112,23 @@ public class MyView extends View {
     }
 
     private void setDrawableQueues() {
-        drawables_draw = new PriorityQueue<>((curFloor.getNodes().size() * 2), new Comparator<CanvasDrawable>() {
+        int approxSize = (curFloor.getNodes().size() * 2); //Typically 2 edges per node
+        drawables_draw = new SortedArrayList<>(approxSize, new Comparator<CanvasDrawable>() {
             @Override
             public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
-                return lhs.getPriority() - rhs.getPriority();
+                return (lhs.getPriority() - rhs.getPriority());
             }
         });
-        drawables_search = new PriorityQueue<>((curFloor.getNodes().size() * 2), new Comparator<CanvasDrawable>() {
+        drawables_search = new SortedArrayList<>(approxSize, new Comparator<CanvasDrawable>() {
             @Override
             public int compare(CanvasDrawable lhs, CanvasDrawable rhs) {
                 return rhs.getPriority() - lhs.getPriority();
             }
         });
-        drawables_draw.addAll(curFloor.getNodes());
-        drawables_draw.addAll(curFloor.getEdges());
-        drawables_search.addAll(curFloor.getNodes());
-        drawables_search.addAll(curFloor.getEdges());
+        drawables_draw.addAllSorted(curFloor.getNodes());
+        drawables_draw.addAllSorted(curFloor.getEdges());
+        drawables_search.addAllSorted(curFloor.getNodes());
+        drawables_search.addAllSorted(curFloor.getEdges());
     }
 
     private void preformSetup() {
@@ -252,8 +251,8 @@ public class MyView extends View {
                             searchSourceEdge.getStart().addEdge(searchStartEdge);
                             searchSourceEdge.getEnd().addEdge(searchEndEdge);
                             if (searchLocation.getFloorNum() == curFloor.getFloorNum()) {
-                                drawables_draw.add(searchStartEdge);
-                                drawables_draw.add(searchEndEdge);
+                                drawables_draw.addSorted(searchStartEdge);
+                                drawables_draw.addSorted(searchEndEdge);
                             }
                         }
                     }
@@ -316,8 +315,8 @@ public class MyView extends View {
                             userSourceEdge.getStart().addEdge(userStartEdge);
                             userSourceEdge.getEnd().addEdge(userEndEdge);
                             if (userLocation.getFloorNum() == curFloor.getFloorNum()) {
-                                drawables_draw.add(userStartEdge);
-                                drawables_draw.add(userEndEdge);
+                                drawables_draw.addSorted(userStartEdge);
+                                drawables_draw.addSorted(userEndEdge);
                             }
                         }
                     }
@@ -369,8 +368,8 @@ public class MyView extends View {
             menuOption.setScaleFactor(meshReferenceState.scaleFactor);
             opts.add(menuOption);
         }
-        drawables_draw.addAll(opts);
-        drawables_search.addAll(opts);
+        drawables_draw.addAllSorted(opts);
+        drawables_search.addAllSorted(opts);
     }
 
     private void updatePath() {
@@ -666,10 +665,10 @@ public class MyView extends View {
         return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
     }
     private void addLocationNodeToDrawables(LocationNode locationNode){
-        drawables_draw.add(locationNode);
-        drawables_search.add(locationNode);
-        drawables_draw.add(locationNode.getStartEdge());
-        drawables_draw.add(locationNode.getEndEdge());
+        drawables_draw.addSorted(locationNode);
+        drawables_search.addSorted(locationNode);
+        drawables_draw.addSorted(locationNode.getStartEdge());
+        drawables_draw.addSorted(locationNode.getEndEdge());
     }
     private void removeLocationNodeFromDrawables(LocationNode locationNode){
         drawables_draw.remove(locationNode);
