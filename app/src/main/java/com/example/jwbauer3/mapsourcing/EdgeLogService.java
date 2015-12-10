@@ -167,6 +167,7 @@ public class EdgeLogService extends Service {
 
 
     private void checkAltitude(SensorEvent event) {
+        if (noOffset && !offsetReady && !navigationMode) return;
         currPressure = event.values[0];
         System.out.println(currPressure);
         if (noOffset && !offsetReady) return;

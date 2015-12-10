@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
 
     private boolean pressed = false;
     private boolean mBound = false;
+    private boolean navigationMode;
     private int curFloorNum;
     private EdgeLogService mService;
     private Navigator navigator;
@@ -61,6 +62,16 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        Bundle bundle = getIntent().getExtras();
+        if(bundle!=null && bundle.getString("mode").equals("navigation"))
+        {
+            navigationMode=true;
+            Toast.makeText(getApplicationContext(), "navigationModeSet",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+
         serviceIntent = new Intent(this, EdgeLogService.class);
 
 
@@ -108,6 +119,8 @@ public class MainActivity extends Activity {
         }
         if (serviceIntent != null)
             bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        //if(navigationMode) mService.setNavigationMode();
+        //else mService.setMappingMode();
     }
 
     private void setUp() {
@@ -182,8 +195,17 @@ public class MainActivity extends Activity {
     }
 
     public void pressed(View view) {
+        Button mapButton = (Button)findViewById(R.id.Button_MapMode);
         if (!pressed) {
+            mapButton.setText("Save Map");
             mService.setOffsetReady();
+            pressed=true;
+        }
+        else {
+            // DO STUFF TO SAVE FLOOR
+            mService.setOffsetNotReady();
+            mapButton.setText("Start Map");
+            pressed=false;
         }
     }
 
