@@ -19,6 +19,7 @@ public class EdgeLogService extends Service {
     protected SensorManager sensorManager;
     SensorEventListener sensorListener;
     private final IBinder mBinder = new LocalBinder();
+    boolean sensorLock=true;
 
     /// Floor change Variables
     boolean newFloor=false;
@@ -63,6 +64,8 @@ public class EdgeLogService extends Service {
                 sensorListener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
+                        if(sensorLock) return;
+
                         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
                             if (navigationMode) navigationHandler(event.values[0]);
                             else directionHandler(event.values[0]);
@@ -71,15 +74,10 @@ public class EdgeLogService extends Service {
                         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
                             checkAltitude(event);
                         }
-
                     }
 
                     @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-                    }
-
-
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
                 };
 
                 // starts required sensors
@@ -135,6 +133,9 @@ public class EdgeLogService extends Service {
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    public void lockSensors(){sensorLock=true;}
+    public void unlockSensors(){sensorLock=false;}
+
 
     /////////////////////////// MAPPING METHODS//////////////////////////////////////////////////////
 
@@ -146,8 +147,6 @@ public class EdgeLogService extends Service {
     //from the accelerometer
     private void checkStep(SensorEvent event) {
         // Movement
-        if (noOffset && !offsetReady && !navigationMode) return;
-
         float x = event.values[0];
         float y = event.values[1];
         float z = event.values[2];
@@ -167,7 +166,6 @@ public class EdgeLogService extends Service {
 
 
     private void checkAltitude(SensorEvent event) {
-        if (noOffset && !offsetReady && !navigationMode) return;
         currPressure = event.values[0];
         System.out.println(currPressure);
         if (noOffset && !offsetReady) return;
@@ -441,12 +439,14 @@ public class EdgeLogService extends Service {
         int direction;
         BaseEdge closestEdge=null;
         BaseNode endNode;
+        if(currNode==null) return;
+
         for(BaseEdge currEdge: currNode.getEdges()){
             direction=currEdge.getDirection();
             if(!currEdge.getStart().equals(currNode)) direction=(direction+180)%360;
             if(Math.abs(currEdge.getDirection()-newDegree)<45){
                 closestEdge=currEdge;
-                //  return;
+                break;
             }
         }
         if(closestEdge==null) return;
@@ -483,7 +483,7 @@ public class EdgeLogService extends Service {
 
     public void setNavigationMode(){ navigationMode=true;}
     public void setMappingMode(){ navigationMode=false;}
-      public int[] getLocation(){return currentLocation;}
+    public int[] getLocation(){return currentLocation;}
 
 
 

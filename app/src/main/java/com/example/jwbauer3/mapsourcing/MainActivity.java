@@ -64,14 +64,22 @@ public class MainActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.getString("mode").equals("navigation")) {
-            navigationMode = true;
-            Toast.makeText(getApplicationContext(), "navigationModeSet",
-                    Toast.LENGTH_SHORT).show();
+        if (bundle != null) {
+            if (bundle.getString("mode").equals("navigation")) {
+                navigationMode = true;
+                Toast.makeText(getApplicationContext(), "Navigation Mode",
+                        Toast.LENGTH_SHORT).show();
+            } else if (bundle.getString("mode").equals("map")) {
+                navigationMode = false;
+                Toast.makeText(getApplicationContext(), "Map Mode",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
 
 
-        serviceIntent = new Intent(this, EdgeLogService.class);
+        serviceIntent = new
+
+                Intent(this, EdgeLogService.class);
 
 
         nodes2 = new ArrayList<Node>();
@@ -81,21 +89,47 @@ public class MainActivity extends Activity {
 
 
         setContentView(R.layout.activity_main);
+
         setUp();
+
         setUpSpinner();
-        floor2 = new Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null));
-        floor3 = new Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null));
+
+        floor2 = new
+
+                Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat
+
+                .
+
+                        getDrawable(getResources(), R
+
+                                .drawable.eh_floor2, null));
+        floor3 = new
+
+                Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat
+
+                .
+
+                        getDrawable(getResources(), R
+
+                                .drawable.eh_floor3, null));
         floors.add(floor2);
         floors.add(floor3);
         ArrayList<BaseNode> graph = new ArrayList<>();
         graph.addAll(floor2.getNodes());
         graph.addAll(floor3.getNodes());
-        navigator = new Navigator(graph);
+        navigator = new
 
-        myView = (MyView) findViewById(R.id.MyViewTest);
+                Navigator(graph);
+
+        myView = (MyView)
+
+                findViewById(R.id.MyViewTest);
+
         curFloorNum = 0;
         myView.setFloor(floor2);
+
         setMenuText();
+
         myView.setNavigator(navigator);
     }
 
@@ -118,8 +152,6 @@ public class MainActivity extends Activity {
         }
         if (serviceIntent != null)
             bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        //if(navigationMode) mService.setNavigationMode();
-        //else mService.setMappingMode();
     }
 
     private void setUp() {
@@ -197,12 +229,19 @@ public class MainActivity extends Activity {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         if (!pressed) {
             mapButton.setText("Save Map");
+            if (navigationMode) {
+                mService.setNavigationMode();
+            } else {
+                mService.setMappingMode();
+            }
             mService.setOffsetReady();
+            mService.unlockSensors();
             pressed = true;
         } else {
             // DO STUFF TO SAVE FLOOR
             mService.setOffsetNotReady();
             mapButton.setText("Start Map");
+            mService.lockSensors();
             pressed = false;
         }
     }
@@ -218,12 +257,11 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
+                //TODO: update current location navigation by calling mService.getLocation()
+            } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",
                         Toast.LENGTH_SHORT).show();
-            }
-            else{
-                //TODO: update current location navigation by calling mService.getLocation()
             }
         }
     };
