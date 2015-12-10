@@ -135,11 +135,10 @@ public class EdgeLogService extends Service {
 
     public void lockSensors(){sensorLock=true;}
     public void unlockSensors(){sensorLock=false;}
+    public void setCurrFloor(int floor){ currFloor=floor;}
 
 
     /////////////////////////// MAPPING METHODS//////////////////////////////////////////////////////
-
-
     //on the sensor change (altitude) I just want to print a value to see what some
     //numbers look like to implement the way we check what floor we're on using the phone's
     //sensors as opposed to just touching a button
@@ -419,7 +418,14 @@ public class EdgeLogService extends Service {
 
     private Node createNewNode(int xPos, int yPos, int floor, boolean stairs){
         Node newNode =new Node(xPos, yPos, floor, stairs);
+        prevNode = newNode;
         return newNode;
+    }
+
+    public ArrayList<Node> createFirstNode(){
+        firstNode=createNewNode(0,0,currFloor,false);
+        nodes.add(firstNode);
+        return nodes;
     }
 
 
@@ -430,10 +436,10 @@ public class EdgeLogService extends Service {
         offsetReady = false;
         noOffset = true;
     }
-
     public ArrayList<Edge> getEdges() {
         return edges;
     }
+
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
     private void navigationHandler(float newDegree){
         int direction;

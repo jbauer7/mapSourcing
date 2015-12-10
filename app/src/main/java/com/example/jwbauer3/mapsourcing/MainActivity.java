@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
-    private int curFloorNum;
+    private int curFloorNum=1;
     private EdgeLogService mService;
     private Navigator navigator;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             EdgeLogService.LocalBinder binder = (EdgeLogService.LocalBinder) service;
             mService = binder.getService();
+            updateDisplay();
             mBound = true;
         }
 
@@ -45,14 +46,11 @@ public class MainActivity extends Activity {
     };
 
 
-    private ArrayList<Node> nodes2;
-    private ArrayList<Edge> edges2;
-    private ArrayList<Node> nodes3;
-    private ArrayList<Edge> edges3;
-    private Floor floor2;
-    private Floor floor3;
+    private ArrayList<Node> currNodes;
+    private ArrayList<Edge> currEdges;
+    private Floor currFloor;
     private ArrayList<Floor> floors = new ArrayList<>();
-    private String[] floorNames = {"Floor 2", "Floor 3"};
+    private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3","Floor 4"};
     private Intent serviceIntent;
 
 
@@ -75,67 +73,53 @@ public class MainActivity extends Activity {
                         Toast.LENGTH_SHORT).show();
             }
         }
+        serviceIntent = new Intent(this, EdgeLogService.class);
+
+    }
+
+    private void startUp(){
+        //hard coded the intialization of floors TODO generalize this -Joey
+        floors.add(new Floor(1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+        floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+        floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+        floors.add(new Floor(4, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+
+        // I did this so it would stop crashing gets overwritten later anyway -Joey
+        floors.get(0).getNodes().add(new Node(0,0, 1, false));
+        floors.get(1).getNodes().add(new Node(0,0,2,false));
+        floors.get(2).getNodes().add(new Node(0,0,3,false));
+        floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
-        serviceIntent = new
-
-                Intent(this, EdgeLogService.class);
-
-
-        nodes2 = new ArrayList<Node>();
-        edges2 = new ArrayList<Edge>();
-        nodes3 = new ArrayList<Node>();
-        edges3 = new ArrayList<Edge>();
+        currFloor= floors.get(0);
 
 
         setContentView(R.layout.activity_main);
-
-        setUp();
-
         setUpSpinner();
 
-        floor2 = new
 
-                Floor(2, nodes2, edges2, new ReferenceState(), ResourcesCompat
-
-                .
-
-                        getDrawable(getResources(), R
-
-                                .drawable.eh_floor2, null));
-        floor3 = new
-
-                Floor(3, nodes3, edges3, new ReferenceState(), ResourcesCompat
-
-                .
-
-                        getDrawable(getResources(), R
-
-                                .drawable.eh_floor3, null));
-        floors.add(floor2);
-        floors.add(floor3);
         ArrayList<BaseNode> graph = new ArrayList<>();
-        graph.addAll(floor2.getNodes());
-        graph.addAll(floor3.getNodes());
-        navigator = new
+        graph.addAll(floors.get(0).getNodes());
+        graph.addAll(floors.get(1).getNodes());
+        graph.addAll(floors.get(2).getNodes());
+        graph.addAll(floors.get(3).getNodes());
 
-                Navigator(graph);
+        navigator = new Navigator(graph);
+        myView = (MyView) findViewById(R.id.MyViewTest);
 
-        myView = (MyView)
-
-                findViewById(R.id.MyViewTest);
-
-        curFloorNum = 0;
-        myView.setFloor(floor2);
-
+        myView.setFloor(currFloor);
         setMenuText();
-
         myView.setNavigator(navigator);
     }
 
     protected void onPause() {
         super.onPause();
         mService.setOffsetNotReady();
+        mService.lockSensors();
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
@@ -144,6 +128,7 @@ public class MainActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
+        startUp();
         if (activityReceiver != null) {
             //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
             IntentFilter intentFilter = new IntentFilter("ToActivity");
@@ -152,9 +137,14 @@ public class MainActivity extends Activity {
         }
         if (serviceIntent != null)
             bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+
+        Button mapButton = (Button) findViewById(R.id.Button_MapMode);
+        if(navigationMode) mapButton.setText("Start Nav");
+        else mapButton.setText("Start Map");
     }
 
-    private void setUp() {
+  /*  private void setUp() {
         //width, height
         Node test1 = new Node(0, 150, 2, true);
         Node test2 = new Node(400, -350, 2, false);
@@ -200,7 +190,7 @@ public class MainActivity extends Activity {
         test6.addEdge(xFloor);
 
 
-    }
+    }*/
 
     private void setUpSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
@@ -214,6 +204,8 @@ public class MainActivity extends Activity {
                 } else {
                     curFloorNum = position;
                     myView.setFloor(floors.get(position));
+                    currFloor = floors.get(position);
+                    updateDisplay();
                     setMenuText();
                 }
             }
@@ -234,11 +226,12 @@ public class MainActivity extends Activity {
             } else {
                 mService.setMappingMode();
             }
+            mService.setCurrFloor(curFloorNum);
             mService.setOffsetReady();
             mService.unlockSensors();
             pressed = true;
         } else {
-            // DO STUFF TO SAVE FLOOR
+            //TODO: STUFF TO SAVE FLOOR
             mService.setOffsetNotReady();
             mapButton.setText("Start Map");
             mService.lockSensors();
@@ -247,10 +240,13 @@ public class MainActivity extends Activity {
     }
 
     public void updateDisplay() {
-        nodes2 = mService.getNodes();
-        edges2 = mService.getEdges();
-        floor2.setNodesEdges(nodes2, edges2);
-        myView.setFloor(floor2);
+        currFloor=floors.get(curFloorNum);
+        currNodes = mService.getNodes();
+        currEdges = mService.getEdges();
+        if (currNodes == null || currNodes.isEmpty())
+            currNodes = mService.createFirstNode();
+        currFloor.setNodesEdges(currNodes, currEdges);
+        myView.setFloor(currFloor);
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
