@@ -42,8 +42,8 @@ public class EdgeLogService extends Service {
     private boolean noOffset = true;
     boolean lock = false;
     Node firstNode, prevNode;
-    ArrayList<Node> nodes = new ArrayList<>();
-    ArrayList<Edge> edges = new ArrayList<>();
+    ArrayList<Node> nodes; //= new ArrayList<>();
+    ArrayList<Edge> edges; //= //new ArrayList<>();
     boolean running;
     boolean offsetReady;
 
@@ -80,16 +80,17 @@ public class EdgeLogService extends Service {
                     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
                 };
 
+                //Grabs first Node
+                while(nodes==null)
+                    ;
+                firstNode=nodes.get(0);
+                prevNode=firstNode;
+
                 // starts required sensors
                 sensorThread();
 
                 //TODO: Add floor logic (currently forced to floor 2 for EHall
                 //TODO: Add stair node logic (currently set to false)
-                firstNode = createNewNode(0, 0, currFloor, newFloor);
-                //  nodes = new ArrayList<>();
-                // edges = new ArrayList<>();
-                nodes.add(firstNode);
-                prevNode = firstNode;
                 while (running)
                     ;
             }
@@ -136,6 +137,10 @@ public class EdgeLogService extends Service {
     public void lockSensors(){sensorLock=true;}
     public void unlockSensors(){sensorLock=false;}
     public void setCurrFloor(int floor){ currFloor=floor;}
+    public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges){
+        this.nodes=nodes;
+        this.edges=edges;
+    }
 
 
     /////////////////////////// MAPPING METHODS//////////////////////////////////////////////////////
@@ -166,7 +171,7 @@ public class EdgeLogService extends Service {
 
     private void checkAltitude(SensorEvent event) {
         currPressure = event.values[0];
-        System.out.println(currPressure);
+        //System.out.println(currPressure);
         if (noOffset && !offsetReady) return;
 
         if (getFloorReading) {
@@ -243,6 +248,8 @@ public class EdgeLogService extends Service {
             degreeOffset = 360 - newDegree;
             noOffset = false;
             prevNode.setAltitude(currPressure);
+           // prev_x=0;
+          //  prev_y=-1;
             return;
         }
         if (prevDegreeRange == 0) {
@@ -270,7 +277,7 @@ public class EdgeLogService extends Service {
             curr_x = 0;
             curr_y = -1;
         }
-        Log.i("start", Integer.toString(degreeRange));
+       // Log.i("start", Integer.toString(degreeRange));
 
 
         //checks if current direction has changed based on the set thresholds
@@ -299,6 +306,11 @@ public class EdgeLogService extends Service {
 
         //creating a new node and adding the corresponding edge between the prev node and new node
         Node newNode = nodeExists(xPos, yPos);
+        if(newNode==prevNode){
+            prev_x=curr_x;
+            prev_y=curr_y;
+            return;
+        }
         if (newNode == null) {
             //TODO: Add floor logic (currently forced to floor 2 for EHall
             //TODO: Add stair node logic (currently set to false)
@@ -314,19 +326,17 @@ public class EdgeLogService extends Service {
         newNode.addEdge(newEdge);
         if (addNewNode) nodes.add(newNode);
         edges.add(newEdge);
+
         prevNode = newNode;
         prev_x = curr_x;
         prev_y = curr_y;
         currSteps = 0;
-        Log.i("New Node", newNode.getxPos() + " , " + newNode.getyPos() + " Dir: " + newDegree);
+        Log.i("New Node", Integer.toString(edges.size())+"edgessss  "+ newNode.getxPos() + " , " + newNode.getyPos() + " Dir: " + newDegree);
         //set values as needed
         sendBroadcast();
     }
 
-    //methods for main activity to grab nodes and edges
-    public ArrayList<Node> getNodes() {
-        return nodes;
-    }
+
 
     public Node nodeExists(int xPos, int yPos) {
         Node curr;
@@ -418,14 +428,7 @@ public class EdgeLogService extends Service {
 
     private Node createNewNode(int xPos, int yPos, int floor, boolean stairs){
         Node newNode =new Node(xPos, yPos, floor, stairs);
-        prevNode = newNode;
         return newNode;
-    }
-
-    public ArrayList<Node> createFirstNode(){
-        firstNode=createNewNode(0,0,currFloor,false);
-        nodes.add(firstNode);
-        return nodes;
     }
 
 
@@ -435,6 +438,11 @@ public class EdgeLogService extends Service {
     public void setOffsetNotReady() {
         offsetReady = false;
         noOffset = true;
+    }
+
+    //methods for main activity to grab nodes and edges
+    public ArrayList<Node> getNodes() {
+        return nodes;
     }
     public ArrayList<Edge> getEdges() {
         return edges;

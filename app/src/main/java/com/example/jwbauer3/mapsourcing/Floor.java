@@ -51,7 +51,7 @@ public class Floor {
 
     //todo: see how mapping algo passes in drawables, update accordingly
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
-        this.nodes.addAll(nodes);
+        //this.nodes=nodes;
         this.edges.addAll(edges);
     }
 
