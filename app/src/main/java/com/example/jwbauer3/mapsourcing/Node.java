@@ -1,8 +1,12 @@
 package com.example.jwbauer3.mapsourcing;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -16,6 +20,10 @@ public class Node extends BaseNode {
     private int drawnRadius;
     private boolean stairNode = false;
 
+    //Persistence variables
+    private static SharedPreferences sharedPreferences;
+    private static String PREF_NAME = "FloorStorage";
+
     public Node(int xPos, int yPos, int floor, boolean stair) {
         super(xPos, yPos, floor, DEFAULTNODEPRIORITY);
         drawnRadius = DEFAULTRADIUS;
@@ -28,6 +36,24 @@ public class Node extends BaseNode {
         options.add(MenuSelection.END);
         //todo: determine if this is a stairNode here, or from passed in.
         stairNode = stair;
+    }
+
+    public static void initPersistence(Context context) {
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static void saveNode(String nodeName, Node node) {
+        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(node);
+        prefsEditor.putString(nodeName, json);
+        prefsEditor.commit();
+    }
+
+    public static Node getNode(String nodeName) {
+        Gson gson = new Gson();
+        Node node = gson.fromJson(sharedPreferences.getString(nodeName, ""), Node.class);
+        return node;
     }
 
     @Override

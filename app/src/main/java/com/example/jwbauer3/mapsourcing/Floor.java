@@ -1,6 +1,10 @@
 package com.example.jwbauer3.mapsourcing;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -8,6 +12,8 @@ import java.util.ArrayList;
  * created by Nikhil on 11/18/2015.
  */
 public class Floor {
+
+
     private int floorNum;
 
     private ArrayList<Node> nodes;
@@ -19,6 +25,10 @@ public class Floor {
     private Drawable backgroundImage;
     private float maxMeshScaleFactor = -1f;
 
+    //Persistence variables
+    private static SharedPreferences sharedPreferences;
+    private static String PREF_NAME = "FloorStorage";
+
     //todo: do we need to store these? We need to recalculate all the
     //private int originalMinXOffset;
     //private int originalMinYOffset;
@@ -26,12 +36,32 @@ public class Floor {
     //private int originalMaxY;
 
     public Floor(int floorNum, ArrayList<Node> nodes, ArrayList<Edge> edges, ReferenceState referenceState, Drawable image) {
+
+
         this.floorNum = floorNum;
         meshReferenceState = referenceState;
         setImageInfo(image);
         this.nodes = nodes;
         this.edges = edges;
         //originalMinXOffset=originalMinYOffset=originalMaxX=originalMaxY=0;
+    }
+
+    public static void initPersistence(Context context) {
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static void saveFloor(String floorName, Floor floor) {
+        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(floor);
+        prefsEditor.putString(floorName, json);
+        prefsEditor.commit();
+    }
+
+    public static Floor getFloor(String floorName) {
+        Gson gson = new Gson();
+        Floor floor = gson.fromJson(sharedPreferences.getString(floorName, ""), Floor.class);
+        return floor;
     }
 
     public ArrayList<Node> getNodes() {
@@ -51,6 +81,8 @@ public class Floor {
 
     //todo: see how mapping algo passes in drawables, update accordingly
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
+        this.nodes = new ArrayList<Node>();
+        this.edges = new ArrayList<Edge>();
         this.nodes.addAll(nodes);
         this.edges.addAll(edges);
     }
