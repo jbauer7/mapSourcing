@@ -24,19 +24,10 @@ public class LocationNode extends BaseNode {
     public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge, BaseNode before, BaseNode after) {
         super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
         this.drawnRadius = DEFAULTRADIUS;
-        this.sourceEdge = sourceEdge;
-        this.startEdge = new LocationEdge(before, this);
-        this.endEdge = new LocationEdge(this, after);
-
-        this.addEdge(startEdge);
-        this.addEdge(endEdge);
-        sourceEdge.getStart().addEdge(startEdge);
-        sourceEdge.getEnd().addEdge(endEdge);
+        setSourceEdge(sourceEdge, before, after);
         this.options.add(MenuSelection.START);
     }
 
-    //TODO: a second constructor to be called if this is being called from a node and not an edge.
-    //will need to add an edge from the location to that node (for navigator), the second edge isn't needed
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
@@ -97,6 +88,18 @@ public class LocationNode extends BaseNode {
 
     public Edge getSourceEdge() {
         return sourceEdge;
+    }
+
+    public void setSourceEdge(Edge source, BaseNode before, BaseNode after) {
+        this.sourceEdge = source;
+
+        this.startEdge = new LocationEdge(before, this);
+        this.endEdge = new LocationEdge(this, after);
+
+        this.addEdge(startEdge);
+        this.addEdge(endEdge);
+        sourceEdge.getStart().addEdge(startEdge);
+        sourceEdge.getEnd().addEdge(endEdge);
     }
 
     public void setStartEdge(LocationEdge startEdge) {

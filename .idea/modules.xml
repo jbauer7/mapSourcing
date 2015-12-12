@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/mapSourcing.iml" filepath="$PROJECT_DIR$/mapSourcing.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mapSourcing-update.iml" filepath="$PROJECT_DIR$/mapSourcing-update.iml" />
     </modules>
   </component>
 </project>

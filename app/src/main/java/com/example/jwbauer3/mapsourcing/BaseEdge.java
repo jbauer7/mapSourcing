@@ -3,7 +3,6 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.view.Menu;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -137,7 +136,6 @@ public class BaseEdge extends CanvasDrawable {
     Update scale factor and drawnLineWidth
      */
     public void setScaleFactor(float scaleFactor) {
-        //todo: change way this is set, only store scale factor
         this.scaleFactor = scaleFactor;
         drawnLineWidth = (int) (DEFAULTDRAWNLINEWIDTH * scaleFactor);
     }
