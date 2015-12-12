@@ -151,13 +151,4 @@ public class BaseEdge extends CanvasDrawable {
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
 
-    //have menus display in the middle of the edge, halfway through x and y.
-    public int getMenuStartX() {
-        return (start.getxPos() + end.getxPos()) / 2;
-    }
-
-    public int getMenuStartY() {
-        return (start.getyPos() + end.getyPos()) / 2;
-    }
-
 }

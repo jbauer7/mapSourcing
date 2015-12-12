@@ -185,9 +185,7 @@ public class MyView extends View {
         for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas, xOffset, yOffset);
         }
-
         canvas.restore();
-
     }
 
     /*
@@ -591,12 +589,12 @@ public class MyView extends View {
 
     /*
     Method to set both user and search locationNode.
+    Will delete/update all references to the LocationNode 'update'
      */
-    private void setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode nonUpdate) {
+    private void setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
         //toSet is the LocationNode that needs to be set.
         LocationNode toSet = update;
         //other is the 'other' LocationNode that isn't being currently being set.
-        LocationNode other = nonUpdate;
 
         BaseNode nodeBefore = userSourceEdge.getStart();
         BaseNode nodeAfter = userSourceEdge.getEnd();

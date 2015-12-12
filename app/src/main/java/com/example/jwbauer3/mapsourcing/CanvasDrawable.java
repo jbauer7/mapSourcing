@@ -61,8 +61,4 @@ public abstract class CanvasDrawable {
         return options;
     }
 
-
-
-
-
 }
