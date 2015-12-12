@@ -5,10 +5,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.Menu;
 
+import java.io.Serializable;
+
 /**
  * created by Nikhil on 10/11/2015.
  */
-public class BaseEdge extends CanvasDrawable {
+public class BaseEdge extends CanvasDrawable implements Serializable {
 
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;

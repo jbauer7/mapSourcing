@@ -1,11 +1,12 @@
 package com.example.jwbauer3.mapsourcing;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * created by Eric on 12/2/15.
  */
-public abstract class BaseNode extends CanvasDrawable {
+public abstract class BaseNode extends CanvasDrawable implements Serializable {
 
     private int xPos, yPos, defaultXPos, defaultYPos;
     private ArrayList<BaseEdge> edges;

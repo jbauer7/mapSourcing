@@ -7,15 +7,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,10 +36,10 @@ public class Persistence {
 
     private SharedPreferences sharedPreferences;
 
-    private int floor_numOfEdges;
-    private int floor_numOfNodes;
+    protected int floor_numOfEdges;
+    protected int floor_numOfNodes;
 
-    private Floor floor;
+    protected Floor floor;
 
     private Context context;
 
@@ -73,13 +78,18 @@ public class Persistence {
 
     }
 
-    public void getSavedFloor()
+    public Floor returnSavedFloor()
+    {
+        return floor;
+    }
+
+    public int getSavedFloor()
     {
         if (floor_numOfEdges == 0 && floor_numOfNodes == 0)
         {
             Toast.makeText(context, "getSavedFloor failed; floor never saved",
                     Toast.LENGTH_SHORT).show();
-            return;
+            return 0;
         }
         Gson gson = new Gson();
         for (int i = 0; i < floor_numOfNodes; i++)
@@ -89,6 +99,7 @@ public class Persistence {
             if (nodeString.length() > 0)
             {
                 Node node = gson.fromJson(nodeString, Node.class);
+                //Node node = (Node) objectDeserializer(nodeString);
                 floor.nodes.add(node);
             }
         }
@@ -99,6 +110,7 @@ public class Persistence {
             if (edgeString.length() > 0)
             {
                 Edge edge = gson.fromJson(edgeString, Edge.class);
+                //Edge edge = (Edge) objectDeserializer(edgeString);
                 floor.edges.add(edge);
             }
         }
@@ -109,10 +121,66 @@ public class Persistence {
         floor.backgroundHeight = Integer.parseInt(sharedPreferences.getString("backgroundHeight", ""));
         floor.maxMeshScaleFactor = Float.parseFloat(sharedPreferences.getString("maxMeshScaleFactor", ""));
         floor.meshReferenceState = gson.fromJson(sharedPreferences.getString("meshReferenceState", ""), ReferenceState.class);
-        floor.backgroundImage = this.getDrawable("backgroundImage");
+        if (floor.floorNum == 0)
+        {
+            //floor.backgroundImage = ResourcesCompat.getDrawable(context.getResources(), R.drawable.eh_floor2, null);
+        }
+        if (floor.floorNum == 1)
+        {
+            //floor.backgroundImage = ResourcesCompat.getDrawable(context.getResources(), R.drawable.eh_floor3, null);
+        }
 
         //Make Toast for success notification
         Toast.makeText(context, "getSavedFloor successfull",
+                Toast.LENGTH_SHORT).show();
+        return 1;
+    }
+
+    public void saveFloor(Floor floorToSave) {
+        floor.edges = floorToSave.getEdges();
+        floor.nodes = floorToSave.getNodes();
+
+        floor_numOfEdges = floorToSave.edges.size();
+        floor_numOfNodes = floorToSave.nodes.size();
+
+        Gson gson = new Gson();
+        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+
+        //Save floor variables
+        //TODO: Save these floor vars
+        //this.storeDrawable(floorToSave.backgroundImage, "backgroundImage");
+        //private Drawable backgroundImage;
+
+        //prefsEditor.putString("meshReferenceState", gson.toJson(floorToSave.meshReferenceState));
+        prefsEditor.putString("floorNum", "" + floorToSave.floorNum);
+        //private int backgroundWidth; //image
+        prefsEditor.putString("backgroundWidth", "" + floorToSave.backgroundWidth);
+        //private int backgroundHeight; //image
+        prefsEditor.putString("backgroundHeight", "" + floorToSave.backgroundHeight);
+        //private float maxMeshScaleFactor = -1f;
+        prefsEditor.putString("maxMeshScaleFactor", "" + floorToSave.maxMeshScaleFactor);
+        prefsEditor.putString("numOfEdges", "" + floor_numOfEdges);
+        prefsEditor.putString("numOfNodes", "" + floor_numOfNodes);
+
+        //prefsEditor.putString("nodes", gson.toJson(floor.nodes));
+        //prefsEditor.putString("edges", gson.toJson(floor.edges));
+        for (int i = 0; i < floor_numOfNodes; i++)
+        {
+            String nodePrefId = "node_" + i;
+            //String nodeGson = gson.toJson(floor.nodes.get(i));
+            //prefsEditor.putString(nodePrefId, nodeGson);
+            //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
+        }
+        for (int i = 0; i < floor_numOfEdges; i++)
+        {
+            String edgePrefId = "edge_" + i;
+            String edgeGson = gson.toJson(floor.edges.get(i));
+            prefsEditor.putString(edgePrefId, edgeGson);
+            //prefsEditor.putString(edgePrefId, objectSerializer(floor.edges.get(i)));
+        }
+
+        prefsEditor.commit();
+        Toast.makeText(context, "Floor saved | Edges = " + floor_numOfEdges + " Nodes = " + floor_numOfNodes,
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -174,52 +242,6 @@ public class Persistence {
         String mImageName = PREF_NAME + drawableName + ".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         return mediaFile;
-    }
-
-    public void saveFloor(Floor floorToSave) {
-        floor.edges = floorToSave.getEdges();
-        floor.nodes = floorToSave.getNodes();
-
-        floor_numOfEdges = floorToSave.edges.size();
-        floor_numOfNodes = floorToSave.nodes.size();
-
-        Gson gson = new Gson();
-        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-
-        //Save floor variables
-        //TODO: Save these floor vars
-        //Bitmap backgroundImage = ((BitmapDrawable) floorToSave.backgroundImage).getBitmap();
-        this.storeDrawable(floorToSave.backgroundImage, "backgroundImage");
-        //private Drawable backgroundImage;
-
-        prefsEditor.putString("meshReferenceState", gson.toJson(floorToSave.meshReferenceState));
-        prefsEditor.putString("floorNum", "" + floorToSave.floorNum);
-        //private int backgroundWidth; //image
-        prefsEditor.putString("backgroundWidth", "" + floorToSave.backgroundWidth);
-        //private int backgroundHeight; //image
-        prefsEditor.putString("backgroundHeight", "" + floorToSave.backgroundHeight);
-        //private float maxMeshScaleFactor = -1f;
-        prefsEditor.putString("maxMeshScaleFactor", "" + floorToSave.maxMeshScaleFactor);
-        prefsEditor.putString("numOfEdges", "" + floor_numOfEdges);
-        prefsEditor.putString("numOfNodes", "" + floor_numOfNodes);
-        prefsEditor.commit();
-
-        for (int i = 0; i < floor_numOfNodes; i++)
-        {
-            String nodePrefId = "node_" + i;
-            String nodeGson = gson.toJson(floor.nodes.get(i));
-            prefsEditor.putString(nodePrefId, nodeGson);
-            prefsEditor.commit();
-        }
-        for (int i = 0; i < floor_numOfEdges; i++)
-        {
-            String edgePrefId = "edge_" + i;
-            String edgeGson = gson.toJson(floor.edges.get(i));
-            prefsEditor.putString(edgePrefId, edgeGson);
-            prefsEditor.commit();
-        }
-        Toast.makeText(context, "Floor saved | Edges = " + floor_numOfEdges + " Nodes = " + floor_numOfNodes,
-                Toast.LENGTH_SHORT).show();
     }
 
     /* private static void saveEdge(String floorName, Floor floor) {

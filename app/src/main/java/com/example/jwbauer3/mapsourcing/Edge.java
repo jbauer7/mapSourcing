@@ -1,9 +1,11 @@
 package com.example.jwbauer3.mapsourcing;
 
+import java.io.Serializable;
+
 /**
  * Created by Eric on 12/9/15.
  */
-public class Edge extends BaseEdge {
+public class Edge extends BaseEdge implements Serializable {
 
     private static final int DEFAULTEDGEPRIORITY = 100;
 
