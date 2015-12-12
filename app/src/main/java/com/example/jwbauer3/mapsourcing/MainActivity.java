@@ -29,6 +29,10 @@ public class MainActivity extends Activity {
     private int curFloorNum=0;
     private EdgeLogService mService;
     private Navigator navigator;
+
+    //Persistence variables
+    Context mContext;
+
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -58,6 +62,11 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //set static context variable in Floor class (for persistence)
+        mContext = this;
+        Node.initPersistence(mContext);
+
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -128,10 +137,12 @@ public class MainActivity extends Activity {
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
+        Node.saveNode("aNode", currFloor.getNodes().get(0));
     }
 
 
     protected void onResume() {
+        Node.getNode("aNode");
         super.onResume();
         startUp();
         if (activityReceiver != null) {
