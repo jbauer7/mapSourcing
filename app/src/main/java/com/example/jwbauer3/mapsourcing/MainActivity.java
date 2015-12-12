@@ -61,12 +61,16 @@ public class MainActivity extends Activity {
 
     MyView myView;
 
+    private Persistence ehall_floor2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //set static context variable in Floor class (for persistence)
         mContext = this;
-        Node.initPersistence(mContext);
+
+        //Persistence(Context context, int type, String building, int floorNumber)
+        ehall_floor2 = new Persistence(mContext, 1, "ehall", 2);
 
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -131,20 +135,85 @@ public class MainActivity extends Activity {
         myView.setNavigator(navigator);
     }
 
+    private void newStartUp(Floor savedFloor){
+        //hard coded the intialization of floors TODO generalize this -Joey
+        //Retrieve saved floor and recreate floor object
+        floors.add(new Floor(1, savedFloor.nodes, savedFloor.edges, new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+
+        floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+        floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+        floors.add(new Floor(4, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+
+        // I did this so it would stop crashing gets overwritten later anyway -Joey
+        //floors.get(0).getNodes().add(new Node(0, 0, 0, false));
+        floors.get(1).getNodes().add(new Node(0, 0, 1, false));
+        floors.get(2).getNodes().add(new Node(0, 0, 2, false));
+        floors.get(3).getNodes().add(new Node(0, 0, 3, false));
+
+        // floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+        //   floors.get(1).getNodes().add(new Node(0,0,2,false));
+        //  floors.get(2).getNodes().add(new Node(0,0,3,false));
+        // floors.get(3).getNodes().add(new Node(0,0,4,false));
+
+
+        currFloor= floors.get(0);
+
+
+        setContentView(R.layout.activity_main);
+        setUpSpinner();
+
+
+        ArrayList<BaseNode> graph = new ArrayList<>();
+        graph.addAll(floors.get(0).getNodes());
+        graph.addAll(floors.get(1).getNodes());
+        graph.addAll(floors.get(2).getNodes());
+        graph.addAll(floors.get(3).getNodes());
+
+        navigator = new Navigator(graph);
+        myView = (MyView) findViewById(R.id.MyViewTest);
+
+        myView.setFloor(currFloor);
+        setMenuText();
+        myView.setNavigator(navigator);
+    }
+
     protected void onPause() {
+        //TODO: Persistence TESTING
+        //Persistence test
+        ehall_floor2.saveFloor(currFloor);
+        //TODO: END Persistence TESTING
+
         super.onPause();
         endFloor();
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
-        Node.saveNode("aNode", currFloor.getNodes().get(0));
+        //Node.saveNode("aNode", currFloor.getNodes().get(0));
     }
 
 
     protected void onResume() {
-        Node.getNode("aNode");
         super.onResume();
+
         startUp();
+        //TODO: Persistence TESTING
+        //Persistence test
+        if (ehall_floor2.getSavedFloor() == 1)
+        {
+            Floor savedFloor = ehall_floor2.returnSavedFloor();
+            if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0)
+            {
+                //newStartUp(savedFloor);
+            } else {
+                //startUp();
+            }
+        }
+        //TODO: END Persistence TESTING
+
         if (activityReceiver != null) {
             //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
             IntentFilter intentFilter = new IntentFilter("ToActivity");

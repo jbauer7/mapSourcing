@@ -8,12 +8,13 @@ import android.graphics.Paint;
 
 import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * created by Nikhil on 10/11/2015.
  */
-public class Node extends BaseNode {
+public class Node extends BaseNode implements Serializable {
 
     private static final int DEFAULTNODEPRIORITY = 200;
     private static final int DEFAULTRADIUS = 25;
@@ -36,24 +37,6 @@ public class Node extends BaseNode {
         options.add(MenuSelection.END);
         //todo: determine if this is a stairNode here, or from passed in.
         stairNode = stair;
-    }
-
-    public static void initPersistence(Context context) {
-        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-    }
-
-    public static void saveNode(String nodeName, Node node) {
-        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(node);
-        prefsEditor.putString(nodeName, json);
-        prefsEditor.commit();
-    }
-
-    public static Node getNode(String nodeName) {
-        Gson gson = new Gson();
-        Node node = gson.fromJson(sharedPreferences.getString(nodeName, ""), Node.class);
-        return node;
     }
 
     @Override
