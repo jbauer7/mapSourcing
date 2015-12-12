@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
+    private boolean gotNorth = false;
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
@@ -103,10 +104,10 @@ public class MainActivity extends Activity {
         floors.get(2).getNodes().add(new Node(0, 0, 2, false));
         floors.get(3).getNodes().add(new Node(0, 0, 3, false));
 
-       // floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
-     //   floors.get(1).getNodes().add(new Node(0,0,2,false));
-      //  floors.get(2).getNodes().add(new Node(0,0,3,false));
-       // floors.get(3).getNodes().add(new Node(0,0,4,false));
+        // floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+        //   floors.get(1).getNodes().add(new Node(0,0,2,false));
+        //  floors.get(2).getNodes().add(new Node(0,0,3,false));
+        // floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
         currFloor= floors.get(0);
@@ -132,8 +133,7 @@ public class MainActivity extends Activity {
 
     protected void onPause() {
         super.onPause();
-        mService.setOffsetNotReady();
-        mService.lockSensors();
+        endFloor();
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
 
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         if(navigationMode) mapButton.setText("Start Nav");
-        else mapButton.setText("Start Map");
+       // else mapButton.setText("Start Map");
     }
 
   /*  private void setUp() {
@@ -184,7 +184,6 @@ public class MainActivity extends Activity {
         //edges2.add(con2);
         edges2.add(con3);
         //edges2.add(con4);
-
         Node test4 = new Node(150, 800, 3, false);
         Node test5 = new Node(17, 38, 3, false);
         Node test6 = new Node(-160, 200, 3, true);
@@ -199,13 +198,10 @@ public class MainActivity extends Activity {
         nodes3.add(test6);
         edges3.add(con45);
         edges3.add(con56);
-
         //cross floor
         Edge xFloor = new Edge(test1, test6);
         test1.addEdge(xFloor);
         test6.addEdge(xFloor);
-
-
     }*/
 
     private void setUpSpinner() {
@@ -236,37 +232,46 @@ public class MainActivity extends Activity {
 
     public void pressed(View view) {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
-        if (!pressed) {
+
+        if(!gotNorth){
             mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-            mapButton.setText("Save Map");
-            if (navigationMode) {
-                mService.setNavigationMode();
-            } else {
-                mService.setMappingMode();
-            }
             mService.setCurrFloor(curFloorNum);
-            mService.setOffsetReady();
+            gotNorth = true;
             mService.unlockSensors();
-            pressed = true;
-        } else {
-            //TODO: STUFF TO SAVE FLOOR
-            endFloor();
-            pressed = false;
+            mapButton.setText("Start Map");
+        }
+        else {
+            if (!pressed) {
+                mapButton.setText("Save Map");
+                if (navigationMode) {
+                    mService.setNavigationMode();
+                } else {
+                    mService.setMappingMode();
+                }
+                //mService.setOffsetReady();
+                mService.unlockStart();
+                pressed = true;
+            } else {
+                //TODO: STUFF TO SAVE FLOOR
+                endFloor();
+            }
         }
     }
 
     private void endFloor(){
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         mService.setOffsetNotReady();
-        mapButton.setText("Start Map");
+        mapButton.setText("Set Offset");
         mService.lockSensors();
+        mService.lockStart();
         pressed=false;
+        gotNorth=false;
     }
 
     private void updateDisplay() {
         currFloor=floors.get(curFloorNum);
-     //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
-       //         Toast.LENGTH_SHORT).show();
+        //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
+        //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
     }
 

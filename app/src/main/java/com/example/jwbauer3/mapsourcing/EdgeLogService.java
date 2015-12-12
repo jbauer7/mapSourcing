@@ -20,7 +20,7 @@ public class EdgeLogService extends Service {
     SensorEventListener sensorListener;
     private final IBinder mBinder = new LocalBinder();
     boolean sensorLock=true;
-
+    boolean startLock = true;
     /// Floor change Variables
     boolean newFloor=false;
     float currPressure;
@@ -67,12 +67,15 @@ public class EdgeLogService extends Service {
                         if(sensorLock) return;
 
                         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-                            if (navigationMode) navigationHandler(event.values[0]);
-                            else directionHandler(event.values[0]);
+                            if(noOffset) setOffset(event.values[0]);
+                            else if(!startLock) {
+                                if (navigationMode) navigationHandler(event.values[0]);
+                                else directionHandler(event.values[0]);
+                            }
                         } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                            checkStep(event);
+                            if(!startLock) checkStep(event);
                         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-                            checkAltitude(event);
+                            if(!startLock) checkAltitude(event);
                         }
                     }
 
@@ -136,10 +139,21 @@ public class EdgeLogService extends Service {
 
     public void lockSensors(){sensorLock=true;}
     public void unlockSensors(){sensorLock=false;}
+    public void lockStart(){startLock=true;}
+    public void unlockStart(){startLock=false;}
     public void setCurrFloor(int floor){ currFloor=floor;}
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges){
         this.nodes=nodes;
         this.edges=edges;
+    }
+
+    private void setOffset (Float newDegree) {
+        setOffsetReady();
+        degreeOffset = 360 - newDegree;
+        noOffset = false;
+        // prev_x=0;
+        //  prev_y=-1;
+        return;
     }
 
 
@@ -241,17 +255,7 @@ public class EdgeLogService extends Service {
         boolean addNewNode = false;
         //setting initial degree offset
 
-        if (noOffset) {
-            if (!offsetReady)
-                return;
 
-            degreeOffset = 360 - newDegree;
-            noOffset = false;
-            prevNode.setAltitude(currPressure);
-           // prev_x=0;
-          //  prev_y=-1;
-            return;
-        }
         if (prevDegreeRange == 0) {
             getInitialDirectionRange(newDegree);
             return;
@@ -277,7 +281,7 @@ public class EdgeLogService extends Service {
             curr_x = 0;
             curr_y = -1;
         }
-       // Log.i("start", Integer.toString(degreeRange));
+        // Log.i("start", Integer.toString(degreeRange));
 
 
         //checks if current direction has changed based on the set thresholds
