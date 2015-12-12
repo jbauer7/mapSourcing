@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
-    private int curFloorNum=1;
+    private int curFloorNum=0;
     private EdgeLogService mService;
     private Navigator navigator;
 
@@ -50,8 +50,8 @@ public class MainActivity extends Activity {
     };
 
 
-    private ArrayList<Node> currNodes;
-    private ArrayList<Edge> currEdges;
+    //private ArrayList<Node> currNodes;
+    //private ArrayList<Edge> currEdges;
     private Floor currFloor;
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3","Floor 4"};
@@ -102,10 +102,15 @@ public class MainActivity extends Activity {
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
 
         // I did this so it would stop crashing gets overwritten later anyway -Joey
-        floors.get(0).getNodes().add(new Node(0,0, 1, false));
-        floors.get(1).getNodes().add(new Node(0,0,2,false));
-        floors.get(2).getNodes().add(new Node(0,0,3,false));
-        floors.get(3).getNodes().add(new Node(0,0,4,false));
+        floors.get(0).getNodes().add(new Node(0, 0, 0, false));
+        floors.get(1).getNodes().add(new Node(0, 0, 1, false));
+        floors.get(2).getNodes().add(new Node(0, 0, 2, false));
+        floors.get(3).getNodes().add(new Node(0, 0, 3, false));
+
+       // floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+     //   floors.get(1).getNodes().add(new Node(0,0,2,false));
+      //  floors.get(2).getNodes().add(new Node(0,0,3,false));
+       // floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
         currFloor= floors.get(0);
@@ -233,6 +238,7 @@ public class MainActivity extends Activity {
                     currFloor = floors.get(position);
                     updateDisplay();
                     setMenuText();
+                    endFloor();
                 }
             }
 
@@ -246,6 +252,7 @@ public class MainActivity extends Activity {
     public void pressed(View view) {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         if (!pressed) {
+            mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             mapButton.setText("Save Map");
             if (navigationMode) {
                 mService.setNavigationMode();
@@ -258,20 +265,23 @@ public class MainActivity extends Activity {
             pressed = true;
         } else {
             //TODO: STUFF TO SAVE FLOOR
-            mService.setOffsetNotReady();
-            mapButton.setText("Start Map");
-            mService.lockSensors();
+            endFloor();
             pressed = false;
         }
     }
 
-    public void updateDisplay() {
+    private void endFloor(){
+        Button mapButton = (Button) findViewById(R.id.Button_MapMode);
+        mService.setOffsetNotReady();
+        mapButton.setText("Start Map");
+        mService.lockSensors();
+        pressed=false;
+    }
+
+    private void updateDisplay() {
         currFloor=floors.get(curFloorNum);
-        currNodes = mService.getNodes();
-        currEdges = mService.getEdges();
-        if (currNodes == null || currNodes.isEmpty())
-            currNodes = mService.createFirstNode();
-        currFloor.setNodesEdges(currNodes, currEdges);
+     //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
+       //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
     }
 
