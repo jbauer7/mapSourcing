@@ -60,12 +60,16 @@ public class MainActivity extends Activity {
 
     MyView myView;
 
+    private Persistence ehall_floor2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //set static context variable in Floor class (for persistence)
         mContext = this;
-        Node.initPersistence(mContext);
+
+        //Persistence(Context context, int type, String building, int floorNumber)
+        ehall_floor2 = new Persistence(mContext, 1, "ehall", 2);
 
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -127,18 +131,29 @@ public class MainActivity extends Activity {
 
     protected void onPause() {
         super.onPause();
+
+        //TODO: Persistence TESTING
+        //Persistence test
+        ehall_floor2.saveFloor(currFloor);
+        //TODO: END Persistence TESTING
+
         mService.setOffsetNotReady();
         mService.lockSensors();
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
-        Node.saveNode("aNode", currFloor.getNodes().get(0));
+        //Node.saveNode("aNode", currFloor.getNodes().get(0));
     }
 
 
     protected void onResume() {
-        Node.getNode("aNode");
         super.onResume();
+
+        //TODO: Persistence TESTING
+        //Persistence test
+        ehall_floor2.getSavedFloor();
+        //TODO: END Persistence TESTING
+
         startUp();
         if (activityReceiver != null) {
             //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
