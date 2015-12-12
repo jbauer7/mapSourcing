@@ -42,8 +42,8 @@ public class EdgeLogService extends Service {
     private boolean noOffset = true;
     boolean lock = false;
     Node firstNode, prevNode;
-    ArrayList<Node> nodes; //= new ArrayList<>();
-    ArrayList<Edge> edges; //= //new ArrayList<>();
+    protected ArrayList<Node> nodes; //= new ArrayList<>();
+    protected ArrayList<Edge> edges; //= //new ArrayList<>();
     boolean running;
     boolean offsetReady;
 

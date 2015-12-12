@@ -41,7 +41,7 @@ public class Persistence {
 
     protected Floor floor;
 
-    private Context context;
+    protected static Context context;
 
     private String PREF_NAME;
 
@@ -58,12 +58,12 @@ public class Persistence {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         if (sharedPreferences == null)
         {
-            Toast.makeText(context, "sharedPreferences get failed",
-                    Toast.LENGTH_SHORT).show();
+            /* Toast.makeText(context, "sharedPreferences get failed",
+                    Toast.LENGTH_SHORT).show(); */
             return;
         } else {
-            Toast.makeText(context, "sharedPreferences get successful",
-                    Toast.LENGTH_SHORT).show();
+            /* Toast.makeText(context, "sharedPreferences get successful",
+                    Toast.LENGTH_SHORT).show(); */
         }
         String numOfEdges = sharedPreferences.getString("numOfEdges", "");
         String numOfNodes = sharedPreferences.getString("numOfNodes", "");
@@ -81,6 +81,29 @@ public class Persistence {
     public Floor returnSavedFloor()
     {
         return floor;
+    }
+
+    public ArrayList<Node> getFloorNodes()
+    {
+        ArrayList<Node> nodes = new ArrayList<Node>();
+        if (floor_numOfNodes == 0)
+        {
+            return null;
+        }
+
+        Gson gson = new Gson();
+        for (int i = 0; i < floor_numOfNodes; i++)
+        {
+            String nodePrefId = "node_" + i;
+            String nodeString = sharedPreferences.getString(nodePrefId, "");
+            if (nodeString.length() > 0)
+            {
+                Node node = gson.fromJson(nodeString, Node.class);
+                //Node node = (Node) objectDeserializer(nodeString);
+                nodes.add(node);
+            }
+        }
+        return nodes;
     }
 
     public int getSavedFloor()
@@ -131,8 +154,8 @@ public class Persistence {
         }
 
         //Make Toast for success notification
-        Toast.makeText(context, "getSavedFloor successfull",
-                Toast.LENGTH_SHORT).show();
+        /*Toast.makeText(context, "getSavedFloor successfull",
+                Toast.LENGTH_SHORT).show(); */
         return 1;
     }
 
@@ -151,7 +174,7 @@ public class Persistence {
         //this.storeDrawable(floorToSave.backgroundImage, "backgroundImage");
         //private Drawable backgroundImage;
 
-        //prefsEditor.putString("meshReferenceState", gson.toJson(floorToSave.meshReferenceState));
+        prefsEditor.putString("meshReferenceState", gson.toJson(floorToSave.meshReferenceState));
         prefsEditor.putString("floorNum", "" + floorToSave.floorNum);
         //private int backgroundWidth; //image
         prefsEditor.putString("backgroundWidth", "" + floorToSave.backgroundWidth);
@@ -167,8 +190,8 @@ public class Persistence {
         for (int i = 0; i < floor_numOfNodes; i++)
         {
             String nodePrefId = "node_" + i;
-            //String nodeGson = gson.toJson(floor.nodes.get(i));
-            //prefsEditor.putString(nodePrefId, nodeGson);
+            String nodeGson = gson.toJson(floor.nodes.get(i));
+            prefsEditor.putString(nodePrefId, nodeGson);
             //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
         }
         for (int i = 0; i < floor_numOfEdges; i++)
@@ -180,8 +203,8 @@ public class Persistence {
         }
 
         prefsEditor.commit();
-        Toast.makeText(context, "Floor saved | Edges = " + floor_numOfEdges + " Nodes = " + floor_numOfNodes,
-                Toast.LENGTH_SHORT).show();
+        /*Toast.makeText(context, "Floor saved | Edges = " + floor_numOfEdges + " Nodes = " + floor_numOfNodes,
+                Toast.LENGTH_SHORT).show(); */
     }
 
     private void storeDrawable(Drawable drawable, String drawableName) {

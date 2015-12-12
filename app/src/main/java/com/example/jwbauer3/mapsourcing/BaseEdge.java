@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.view.Menu;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -14,14 +16,18 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;
-    private BaseNode start, end;
+    //private BaseNode start, end;
     private int weight, direction;
     //protected EdgeData edgeData;
 
+    private String nodeStartId;
+    private String nodeEndId;
+
     public BaseEdge(int priority, BaseNode start, BaseNode end) {
         super(priority);
-        this.start = start;
-        this.end = end;
+        setNodeIDs(start, end);
+        //this.start = start;
+        //this.end = end;
         weight = 0;
         direction = 0;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
@@ -31,13 +37,45 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         options.add(MenuSelection.SEARCH);
     }
 
+    private void setNodeIDs(BaseNode start, BaseNode end)
+    {
+        nodeStartId = start.nodeRefString;
+        nodeEndId = end.nodeRefString;
+    }
+
     public BaseNode getStart() {
+        int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
+        ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
+        BaseNode node = null;
+        for (int i = 0; i < nodes.size(); i++) {
+            if (nodes.get(i).nodeRefString.equals(nodeStartId)) {
+                node = nodes.get(i);
+                break;
+            }
+        }
+        return node;
+    }
+
+    public BaseNode getEnd() {
+        int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
+        ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
+        BaseNode node = null;
+        for (int i = 0; i < nodes.size(); i++) {
+            if (nodes.get(i).nodeRefString.equals(nodeEndId)) {
+                node = nodes.get(i);
+                break;
+            }
+        }
+        return node;
+    }
+
+    /*public BaseNode getStart() {
         return start;
     }
 
     public BaseNode getEnd() {
         return end;
-    }
+    } */
 
     public int getWeight() {
         return weight;
@@ -157,11 +195,11 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
     //have menus display in the middle of the edge, halfway through x and y.
     public int getMenuStartX() {
-        return (start.getxPos() + end.getxPos()) / 2;
+        return (getStart().getxPos() + getEnd().getxPos()) / 2;
     }
 
     public int getMenuStartY() {
-        return (start.getyPos() + end.getyPos()) / 2;
+        return (getEnd().getyPos() + getEnd().getyPos()) / 2;
     }
 
 }

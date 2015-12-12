@@ -12,6 +12,7 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
     private ArrayList<BaseEdge> edges;
     private int floor;
     private float altitude;
+    protected String nodeRefString;
 
 
     public BaseNode(int xPos, int yPos, int floor, final int nodePriority) {
@@ -22,6 +23,7 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
         defaultYPos = yPos;
         edges = new ArrayList<>();
         this.floor = floor;
+        nodeRefString = floor + "_" + xPos + "_" + yPos + "_" + nodePriority;
     }
 
     public int getxPos() {
