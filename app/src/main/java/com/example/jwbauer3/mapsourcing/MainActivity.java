@@ -87,6 +87,7 @@ public class MainActivity extends Activity {
             }
         }
         serviceIntent = new Intent(this, EdgeLogService.class);
+
     }
 
     private void startUp(){
@@ -139,6 +140,7 @@ public class MainActivity extends Activity {
     }
 
     private void newStartUp(Floor savedFloor){
+        //hard coded the intialization of floors TODO generalize this -Joey
         //Retrieve saved floor and recreate floor object
         floors.add(new Floor(1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
@@ -190,9 +192,7 @@ public class MainActivity extends Activity {
         //TODO: END Persistence TESTING
 
         super.onPause();
-
-        mService.setOffsetNotReady();
-        mService.lockSensors();
+        endFloor();
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
@@ -232,7 +232,7 @@ public class MainActivity extends Activity {
 
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         if(navigationMode) mapButton.setText("Start Nav");
-        else mapButton.setText("Start Map");
+        // else mapButton.setText("Start Map");
     }
 
   /*  private void setUp() {
@@ -311,38 +311,46 @@ public class MainActivity extends Activity {
 
     public void pressed(View view) {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
-        if (!pressed) {
+
+        if(!gotNorth){
             mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-            mapButton.setText("Save Map");
-            if (navigationMode) {
-                mService.setNavigationMode();
-            } else {
-                mService.setMappingMode();
-            }
             mService.setCurrFloor(curFloorNum);
-            mService.setOffsetReady();
+            gotNorth = true;
             mService.unlockSensors();
-            pressed = true;
-        } else {
-            //TODO: STUFF TO SAVE FLOOR
-            floor.saveFloor(currFloor);
-            endFloor();
-            pressed = false;
+            mapButton.setText("Start Map");
+        }
+        else {
+            if (!pressed) {
+                mapButton.setText("Save Map");
+                if (navigationMode) {
+                    mService.setNavigationMode();
+                } else {
+                    mService.setMappingMode();
+                }
+                //mService.setOffsetReady();
+                mService.unlockStart();
+                pressed = true;
+            } else {
+                //TODO: STUFF TO SAVE FLOOR
+                endFloor();
+            }
         }
     }
 
     private void endFloor(){
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         mService.setOffsetNotReady();
-        mapButton.setText("Start Map");
+        mapButton.setText("Set Offset");
         mService.lockSensors();
+        mService.lockStart();
         pressed=false;
+        gotNorth=false;
     }
 
     private void updateDisplay() {
         currFloor=floors.get(curFloorNum);
-     //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
-       //         Toast.LENGTH_SHORT).show();
+        //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
+        //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
         floor.saveFloor(currFloor);
     }
