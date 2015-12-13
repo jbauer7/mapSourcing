@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
+    private boolean gotNorth = false;
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
