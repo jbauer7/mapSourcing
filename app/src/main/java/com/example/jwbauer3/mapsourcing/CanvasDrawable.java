@@ -14,6 +14,7 @@ public abstract class CanvasDrawable {
     protected ArrayList<Attribute> attributes;
     //default scaleFactor is 1f.
     protected float scaleFactor = 1f;
+    protected float darkenOnClick = .85f;
 
     public CanvasDrawable(int priority) {
         //this.options = options;
@@ -35,9 +36,9 @@ public abstract class CanvasDrawable {
     public abstract void draw(Canvas canvas, int xOffset, int yOffset);
 
     /*
-    Does the element contain the point xPos, yPos given the current OffsetValues and
+    Does the element contain the mapX and mapY point.
      */
-    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float canvasScaleFactor);
+    public abstract boolean contains(int mapX,int mapY, float canvasScaleFactor);
 
     public abstract void setScaleFactor(float scaleFactor);
 
@@ -59,9 +60,5 @@ public abstract class CanvasDrawable {
     public ArrayList<MenuSelection> getOptions(){
         return options;
     }
-
-
-
-
 
 }
