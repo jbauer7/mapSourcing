@@ -119,6 +119,30 @@ public class MyView extends View {
     }
 
     /*
+    To be called when userLocation has been set by the user themselves.
+    Will update the services knowledge of the users location.
+    Wants the % to endNode: IE on endNode, return 1, on startNode return 0.
+     */
+    private void alertServiceToUserLocationUpdate() {
+        //handler to some service object
+        //should never be called if userLocation is null
+        BaseNode startNode = userLocation.getSourceEdge().getStart();
+        BaseNode endNode = userLocation.getSourceEdge().getEnd();
+        int mapXpos = userLocation.getDefaultXPos();
+        int mapYpos = userLocation.getDefaultYPos();
+
+        //calculate the distance to the startNode and to the endNode. Using pythag formula.
+        //diff in x^2 + diff in y^2. Sqrt the result.
+        double distToStart = Math.sqrt(Math.pow((mapXpos - startNode.getDefaultXPos()), 2) + Math.pow((mapYpos - startNode.getDefaultYPos()), 2));
+        double distToEnd = Math.sqrt(Math.pow((mapXpos - endNode.getDefaultXPos()), 2) + Math.pow((mapYpos - endNode.getDefaultYPos()), 2));
+
+        //percent to end will be startDist/(totalDist)
+        double percentToEnd = distToStart / (distToEnd + distToStart);
+
+        //service.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
+    }
+
+    /*
     Public access to set the navigator for this instance. Set in the main activity.
      */
     public void setNavigator(Navigator navigator) {
@@ -198,8 +222,8 @@ public class MyView extends View {
     private void touchDown(MotionEvent event) {
         CanvasDrawable selectedElement = null;
 
-        int mapX = convertPixelToMapX((int)event.getX());
-        int mapY = convertPixelToMapY((int)event.getY());
+        int mapX = convertPixelToMapX((int) event.getX());
+        int mapY = convertPixelToMapY((int) event.getY());
 
         for (CanvasDrawable element : drawables_search) {
 
@@ -217,23 +241,27 @@ public class MyView extends View {
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
                     //todo: only Edge has access Locate menuOption
-                    setLocationNode((Edge)opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
+                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
                     userLocation.toggleAttribute(Attribute.USER);
                     //Set the start node for the navigator
                     startNode = userLocation;
                     navigator.setStartNode(startNode);
-                    if (endNode != null)
+                    if (endNode != null) {
                         updatePath();
+                    }
+
+                    alertServiceToUserLocationUpdate();
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
                     //todo: only Edge has access to Search menuOption
-                    setLocationNode((Edge)opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
+                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
                     searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
                     endNode = searchLocation;
                     navigator.setEndNode(endNode);
-                    if (startNode != null)
+                    if (startNode != null) {
                         updatePath();
+                    }
                 }
                 //Remove the menu since an option was clicked
                 drawables_draw.removeAll(opts);
