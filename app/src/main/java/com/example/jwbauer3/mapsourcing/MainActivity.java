@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     protected void onPause() {
         //TODO: Persistence TESTING
         //Persistence test
-        floor.saveFloor(currFloor);
+        //floor.saveFloor(currFloor);
         //TODO: END Persistence TESTING
 
         super.onPause();
@@ -340,7 +340,6 @@ public class MainActivity extends Activity {
      //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
        //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
-        floor.saveFloor(currFloor);
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
@@ -364,6 +363,7 @@ public class MainActivity extends Activity {
             toggleButton.setText("Mesh Mode");
         }
         myView.toggleMeshMovementMode();
+        floor.saveFloor(currFloor);
     }
 
     private void setMenuText() {
