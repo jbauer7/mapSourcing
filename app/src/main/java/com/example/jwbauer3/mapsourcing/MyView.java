@@ -197,21 +197,27 @@ public class MyView extends View {
 
         canvas.save();
         //update the scale: we zoom equally in both x and y direction
+
         canvas.scale(canvasReferenceState.scaleFactor, canvasReferenceState.scaleFactor);
         //update the translation: offset by trans(XY)/scaleFactor (how far at what zoom factor)
+        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
+        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
-
+        // canvas.translate(xOffset,yOffset);
         //TODO: try to incorporate the x,y offsets into the translate
         //get rid of need to pass offsets to canvasdrawables
         //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
 
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
-
         //draw each drawable element (nodes, edges, etc etc)
+
+        canvas.translate(xOffset, yOffset);
+
         for (CanvasDrawable element : drawables_draw) {
-            element.draw(canvas, xOffset, yOffset);
+            element.draw(canvas);
         }
         canvas.restore();
     }
@@ -241,7 +247,7 @@ public class MyView extends View {
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
                     //todo: only Edge has access Locate menuOption
-                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
+                    userLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
                     userLocation.toggleAttribute(Attribute.USER);
                     //Set the start node for the navigator
                     startNode = userLocation;
@@ -249,12 +255,11 @@ public class MyView extends View {
                     if (endNode != null) {
                         updatePath();
                     }
-
                     alertServiceToUserLocationUpdate();
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
                     //todo: only Edge has access to Search menuOption
-                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
+                    searchLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
                     searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
                     endNode = searchLocation;
@@ -624,7 +629,7 @@ public class MyView extends View {
     Method to set both user and search locationNode.
     Will delete/update all references to the LocationNode 'update'
      */
-    private void setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
+    private LocationNode setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
         //toSet is the LocationNode that needs to be set.
         LocationNode toSet = update;
         //other is the 'other' LocationNode that isn't being currently being set.
@@ -682,11 +687,7 @@ public class MyView extends View {
                 }
             }
         }
-        if (update == userLocation) {
-            userLocation = toSet;
-        } else {
-            searchLocation = toSet;
-        }
+      return toSet;
     }
 }
 

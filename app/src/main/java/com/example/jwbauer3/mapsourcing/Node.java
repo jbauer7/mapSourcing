@@ -23,7 +23,7 @@ public class Node extends BaseNode {
     }
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
+    public void draw(Canvas canvas) {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
@@ -43,11 +43,13 @@ public class Node extends BaseNode {
         if(stairNode){
             int prevColor = paint.getColor();
             paint.setColor(Color.parseColor("#ff5500"));
-            canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);
+            //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);
+            canvas.drawCircle(this.getxPos(), this.getyPos(), (int) (drawnRadius * (stairSizeModifier)), paint);
             paint.setColor(prevColor);
         }
-        //TODO: can you
-        canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
+        //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
+
+        canvas.drawCircle(this.getxPos(), this.getyPos(), drawnRadius, paint);
 
     }
 

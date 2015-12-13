@@ -33,14 +33,16 @@ public class MenuOption extends CanvasDrawable {
     }
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
+    public void draw(Canvas canvas) {
         //update scale factor
         this.scaleFactor = menuOwner.getScaleFactor();
 
         Paint paint = new Paint();
 
-        int x = xPos + xOffset;
-        int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        //int x = xPos + xOffset;
+        //int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        int x = xPos;
+        int y = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
         int xEnd = (int) (x + elementWidth * scaleFactor);
         int yEnd = (int) (y + elementHeight * scaleFactor);
         int border = (int) (borderPix * scaleFactor);

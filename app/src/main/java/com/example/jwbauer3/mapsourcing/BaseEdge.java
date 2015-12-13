@@ -56,7 +56,7 @@ public abstract class BaseEdge extends CanvasDrawable {
     //can implement getPriority;
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
+    public void draw(Canvas canvas) {
         //Draw all the edges
         Paint paint = new Paint();
         //Update the paintbrush to make lines (for edges)
@@ -83,7 +83,8 @@ public abstract class BaseEdge extends CanvasDrawable {
         int yStart = this.getStart().getyPos();
         int xEnd = this.getEnd().getxPos();
         int yEnd = this.getEnd().getyPos();
-        canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
+        //canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
+        canvas.drawLine(xStart, yStart, xEnd, yEnd, paint);
     }
 
     @Override

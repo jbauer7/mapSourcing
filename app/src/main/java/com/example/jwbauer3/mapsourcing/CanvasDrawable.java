@@ -33,7 +33,7 @@ public abstract class CanvasDrawable {
     /*
     Has the element draw itself upon the canvas
      */
-    public abstract void draw(Canvas canvas, int xOffset, int yOffset);
+    public abstract void draw(Canvas canvas);
 
     /*
     Does the element contain the mapX and mapY point.
