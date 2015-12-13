@@ -173,6 +173,7 @@ public class Persistence {
 
     public int getSavedFloor()
     {
+        floor = new Floor();
         if (floor_numOfEdges == 0 && floor_numOfNodes == 0)
         {
             //Toast.makeText(context, "getSavedFloor failed; floor never saved",
