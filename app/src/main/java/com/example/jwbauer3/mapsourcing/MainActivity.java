@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
@@ -140,12 +141,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void newStartUp(Floor savedFloor){
+    private void tempStartUp(Floor savedFloor){
         //hard coded the intialization of floors TODO generalize this -Joey
-        //Retrieve saved floor and recreate floor object
         floors.add(new Floor(1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
-
         floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
         floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
@@ -154,7 +153,7 @@ public class MainActivity extends Activity {
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
 
         // I did this so it would stop crashing gets overwritten later anyway -Joey
-        //floors.get(0).getNodes().add(new Node(0, 0, 0, false));
+        floors.get(0).getNodes().add(new Node(0, 0, 0, false));
         floors.get(1).getNodes().add(new Node(0, 0, 1, false));
         floors.get(2).getNodes().add(new Node(0, 0, 2, false));
         floors.get(3).getNodes().add(new Node(0, 0, 3, false));
@@ -184,14 +183,58 @@ public class MainActivity extends Activity {
         myView.setFloor(currFloor);
         setMenuText();
         myView.setNavigator(navigator);
+
+        if (!floor.isFloorSaved())
+        {
+            floor.saveFloor(currFloor);
+        }
+    }
+
+    private void persistenceStartUp(){
+
+        //Persistence test
+        for (int i = 0; i < 4; i++)
+        {
+            floor.setCurrFloor(i + 1);
+            if (floor.getSavedFloor() == 1)
+            {
+                Floor savedFloor = floor.returnSavedFloor();
+                floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
+                        ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+            } else {
+                int drawable = R.drawable.eh_floor2;
+                if (i + 1 > 2)
+                {
+                    drawable = R.drawable.eh_floor3;
+                }
+                floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                        ResourcesCompat.getDrawable(getResources(), drawable, null)));
+                floors.get(i).getNodes().add(new Node(0, 0, i, false));
+            }
+        }
+
+        currFloor= floors.get(0);
+
+
+        setContentView(R.layout.activity_main);
+        setUpSpinner();
+
+
+        ArrayList<BaseNode> graph = new ArrayList<>();
+        graph.addAll(floors.get(0).getNodes());
+        graph.addAll(floors.get(1).getNodes());
+        graph.addAll(floors.get(2).getNodes());
+        graph.addAll(floors.get(3).getNodes());
+
+        navigator = new Navigator(graph);
+        myView = (MyView) findViewById(R.id.MyViewTest);
+
+        myView.setFloor(currFloor);
+        setMenuText();
+        myView.setNavigator(navigator);
     }
 
     protected void onPause() {
-        //TODO: Persistence TESTING
-        //Persistence test
-        //floor.saveFloor(currFloor);
-        //TODO: END Persistence TESTING
-
         super.onPause();
         endFloor();
         unregisterReceiver(activityReceiver);
@@ -204,21 +247,22 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        //startUp();
         //TODO: Persistence TESTING
         //Persistence test
-        if (floor.getSavedFloor() == 1)
+        persistenceStartUp();
+        /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
             if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0)
             {
-                newStartUp(savedFloor);
+                //newStartUp(savedFloor);
+                persistenceStartUp();
             } else {
                 startUp();
             }
         } else {
             startUp();
-        }
+        } */
         //TODO: END Persistence TESTING
 
         if (activityReceiver != null) {
@@ -297,6 +341,7 @@ public class MainActivity extends Activity {
                     curFloorNum = position;
                     myView.setFloor(floors.get(position));
                     currFloor = floors.get(position);
+                    floor.setCurrFloor(curFloorNum + 1);
                     updateDisplay();
                     setMenuText();
                     endFloor();

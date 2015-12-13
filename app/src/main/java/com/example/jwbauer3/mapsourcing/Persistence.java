@@ -37,7 +37,6 @@ public class Persistence {
 
     //Persistence variables
     //private static SharedPreferences sharedPreferences;
-    private static String FLOOR_PREFS = "floor_";
 
     private SharedPreferences sharedPreferences;
 
@@ -52,9 +51,12 @@ public class Persistence {
 
     protected HashMap<String, Node> nodeHashMap;
 
+    private String building;
+
     public Persistence(Context context, int type, String building, int floorNumber)
     {
         this.context = context;
+        this.building = building;
         floor = new Floor();
         //if type == 1 then persistence is init'ed as floor
         PREF_NAME = "";
@@ -116,9 +118,12 @@ public class Persistence {
     {
         if (floor_numOfNodes == MainActivity.currFloor.nodes.size()
                 && floor_numOfEdges == MainActivity.currFloor.edges.size()
-                && nodeHashMap != null && nodeHashMap.get(nodeRefString) != null)
+                && nodeHashMap != null)
         {
-            return nodeHashMap.get(nodeRefString);
+            BaseNode node = nodeHashMap.get(nodeRefString);
+            if (node != null) {
+                return node;
+            }
         }
         String nodeHashMapString = sharedPreferences.getString("nodeHashMap", "");
         Gson gson = new Gson();
@@ -134,6 +139,19 @@ public class Persistence {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public void setCurrFloor(int floorNumber)
+    {
+        PREF_NAME = this.building + "_floor_" + floorNumber;
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String numOfEdges = sharedPreferences.getString("numOfEdges", "");
+        String numOfNodes = sharedPreferences.getString("numOfNodes", "");
+
+        if (numOfNodes.length() > 0 && numOfEdges.length() > 0) {
+            floor_numOfEdges = Integer.parseInt(numOfEdges);
+            floor_numOfNodes = Integer.parseInt(numOfNodes);
         }
     }
 
