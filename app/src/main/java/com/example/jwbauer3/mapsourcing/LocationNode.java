@@ -11,7 +11,6 @@ public class LocationNode extends BaseNode {
 
     private static final int DEFAULTLOCATIONNODEPRIORITY = 250;
     private static final int DEFAULTRADIUS = 100;
-    private int drawnRadius;
     private Edge sourceEdge;
     private LocationEdge startEdge, endEdge;
     private static final double sliceStartAngle = 240;
@@ -22,7 +21,7 @@ public class LocationNode extends BaseNode {
     private static final double sliceEndAngleVectorY = Math.sin(Math.toRadians(sliceStartAngle + sliceSweepAngle));
 
     public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge, BaseNode before, BaseNode after) {
-        super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
+        super(xPos, yPos, floor, DEFAULTRADIUS, DEFAULTLOCATIONNODEPRIORITY);
         this.drawnRadius = DEFAULTRADIUS;
         setSourceEdge(sourceEdge, before, after);
         this.options.add(MenuSelection.START);
@@ -76,15 +75,13 @@ public class LocationNode extends BaseNode {
                 isWithinRadius(positionX, positionY, radius);
     }
 
+
     @Override
-    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
-        //transxoffset and transyoffset include translated and scale factor already
-        //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
+    public boolean contains(int mapX, int mapY, float scaleFactor) {
         float displayedRadius = (drawnRadius * scaleFactor);
-        float scaledXPosition = ((this.getxPos() + transXoffset) * scaleFactor);
-        float scaledYPosition = ((this.getyPos() + transYoffset) * scaleFactor);
-        return isInsideSection(clickedX - scaledXPosition, clickedY - scaledYPosition, displayedRadius);
+        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), displayedRadius);
     }
+
 
     public Edge getSourceEdge() {
         return sourceEdge;

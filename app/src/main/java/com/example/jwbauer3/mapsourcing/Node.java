@@ -11,12 +11,11 @@ public class Node extends BaseNode {
 
     private static final int DEFAULTNODEPRIORITY = 200;
     private static final int DEFAULTRADIUS = 25;
-    private int drawnRadius;
     private boolean stairNode = false;
     private double stairSizeModifier = 1.3; //30% larger
 
     public Node(int xPos, int yPos, int floor, boolean stair) {
-        super(xPos, yPos, floor, DEFAULTNODEPRIORITY);
+        super(xPos, yPos, floor,DEFAULTRADIUS, DEFAULTNODEPRIORITY);
         drawnRadius = DEFAULTRADIUS;
         options.add(MenuSelection.START);
         options.add(MenuSelection.END);
@@ -47,18 +46,9 @@ public class Node extends BaseNode {
             canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);
             paint.setColor(prevColor);
         }
+        //TODO: can you
         canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
 
-    }
-
-    @Override
-    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
-        //transxoffset and transyoffset include translated and scale factor already
-        //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
-        int displayedRadius = (int) (drawnRadius * scaleFactor);
-        int scaledXPosition = (int) ((this.getxPos() + transXoffset) * scaleFactor);
-        int scaledYPosition = (int) ((this.getyPos() + transYoffset) * scaleFactor);
-        return (Math.sqrt(Math.pow(clickedX - scaledXPosition, 2) + Math.pow(clickedY - scaledYPosition, 2)) <= displayedRadius);
     }
 
     public void setScaleFactor(float scaleFactor) {

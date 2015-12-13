@@ -36,9 +36,9 @@ public abstract class CanvasDrawable {
     public abstract void draw(Canvas canvas, int xOffset, int yOffset);
 
     /*
-    Does the element contain the point xPos, yPos given the current OffsetValues and
+    Does the element contain the mapX and mapY point.
      */
-    public abstract boolean contains(int xPos,int yPos, int xOffset, int yOffset, float canvasScaleFactor);
+    public abstract boolean contains(int mapX,int mapY, float canvasScaleFactor);
 
     public abstract void setScaleFactor(float scaleFactor);
 

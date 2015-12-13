@@ -178,6 +178,10 @@ public class MyView extends View {
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
+        //TODO: try to incorporate the x,y offsets into the translate
+        //get rid of need to pass offsets to canvasdrawables
+        //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
+
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
 
@@ -193,12 +197,13 @@ public class MyView extends View {
      */
     private void touchDown(MotionEvent event) {
         CanvasDrawable selectedElement = null;
-        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
-        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+
+        int mapX = convertPixelToMapX((int)event.getX());
+        int mapY = convertPixelToMapY((int)event.getY());
 
         for (CanvasDrawable element : drawables_search) {
 
-            if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, canvasReferenceState.scaleFactor)) {
+            if (element.contains(mapX, mapY, canvasReferenceState.scaleFactor)) {
                 selectedElement = element;
                 break;
             }
