@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 
     //private ArrayList<Node> currNodes;
     //private ArrayList<Edge> currEdges;
-    private Floor currFloor;
+    protected static Floor currFloor;
     private ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3","Floor 4"};
     private Intent serviceIntent;
@@ -87,7 +87,6 @@ public class MainActivity extends Activity {
             }
         }
         serviceIntent = new Intent(this, EdgeLogService.class);
-
     }
 
     private void startUp(){
@@ -132,10 +131,14 @@ public class MainActivity extends Activity {
         myView.setFloor(currFloor);
         setMenuText();
         myView.setNavigator(navigator);
+
+        if (!floor.isFloorSaved())
+        {
+            floor.saveFloor(currFloor);
+        }
     }
 
     private void newStartUp(Floor savedFloor){
-        //hard coded the intialization of floors TODO generalize this -Joey
         //Retrieve saved floor and recreate floor object
         floors.add(new Floor(1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
@@ -322,6 +325,7 @@ public class MainActivity extends Activity {
             pressed = true;
         } else {
             //TODO: STUFF TO SAVE FLOOR
+            floor.saveFloor(currFloor);
             endFloor();
             pressed = false;
         }

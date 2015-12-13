@@ -3,6 +3,7 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.Menu;
 
 import java.io.Serializable;
@@ -44,7 +45,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     }
 
     public BaseNode getStart() {
-        int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
+        /*int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
         ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
         BaseNode node = null;
         for (int i = 0; i < nodes.size(); i++) {
@@ -53,11 +54,13 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
                 break;
             }
         }
-        return node;
+        return node; */
+        //Log.d("BaseEdge", "getStart");
+        return MainActivity.floor.getSpecifcNode(nodeStartId);
     }
 
     public BaseNode getEnd() {
-        int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
+        /*int floorNum = Integer.parseInt("" + nodeEndId.charAt(0));
         ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
         BaseNode node = null;
         for (int i = 0; i < nodes.size(); i++) {
@@ -66,7 +69,9 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
                 break;
             }
         }
-        return node;
+        return node; */
+        //Log.d("BaseEdge", "getEnd");
+        return MainActivity.floor.getSpecifcNode(nodeEndId);
     }
 
     /*public BaseNode getStart() {

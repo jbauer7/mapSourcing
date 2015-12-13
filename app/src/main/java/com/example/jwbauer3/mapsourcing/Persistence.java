@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,9 +22,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by njaunich on 12/12/15.
@@ -44,6 +49,8 @@ public class Persistence {
     protected static Context context;
 
     private String PREF_NAME;
+
+    protected HashMap<String, Node> nodeHashMap;
 
     public Persistence(Context context, int type, String building, int floorNumber)
     {
@@ -105,6 +112,30 @@ public class Persistence {
         }
         return nodes;
     }
+    public BaseNode getSpecifcNode(String nodeRefString)
+    {
+        if (floor_numOfNodes == MainActivity.currFloor.nodes.size()
+                && floor_numOfEdges == MainActivity.currFloor.edges.size()
+                && nodeHashMap != null && nodeHashMap.get(nodeRefString) != null)
+        {
+            return nodeHashMap.get(nodeRefString);
+        }
+        String nodeHashMapString = sharedPreferences.getString("nodeHashMap", "");
+        Gson gson = new Gson();
+        Type stringNodeMap = new TypeToken<HashMap<String, Node>>(){}.getType();
+        nodeHashMap = gson.fromJson(nodeHashMapString, stringNodeMap);
+        return nodeHashMap.get(nodeRefString);
+    }
+
+    public boolean isFloorSaved()
+    {
+        if (floor_numOfEdges == 0 && floor_numOfNodes == 0)
+        {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     public int getSavedFloor()
     {
@@ -115,7 +146,11 @@ public class Persistence {
             return 0;
         }
         Gson gson = new Gson();
-        for (int i = 0; i < floor_numOfNodes; i++)
+
+        String nodeHashMapString = sharedPreferences.getString("nodeHashMap", "");
+        Type stringNodeMap = new TypeToken<HashMap<String, Node>>(){}.getType();
+        HashMap<String, Node> nodeHashMap = gson.fromJson(nodeHashMapString, stringNodeMap);
+        /* for (int i = 0; i < floor_numOfNodes; i++)
         {
             String nodePrefId = "node_" + i;
             String nodeString = sharedPreferences.getString(nodePrefId, "");
@@ -125,17 +160,25 @@ public class Persistence {
                 //Node node = (Node) objectDeserializer(nodeString);
                 floor.nodes.add(node);
             }
+        } */
+        for (Node node : nodeHashMap.values()) {
+            floor.nodes.add(node);
         }
+
+        String edgeHashMapString = sharedPreferences.getString("edgeHashMap", "");
+        Type integerEdgeMap = new TypeToken<HashMap<Integer, Edge>>(){}.getType();
+        HashMap<Integer, Edge> edgeHashMap = gson.fromJson(edgeHashMapString, integerEdgeMap);
         for (int i = 0; i < floor_numOfEdges; i++)
         {
-            String edgePrefId = "edge_" + i;
+            /*String edgePrefId = "edge_" + i;
             String edgeString = sharedPreferences.getString(edgePrefId, "");
             if (edgeString.length() > 0)
             {
                 Edge edge = gson.fromJson(edgeString, Edge.class);
                 //Edge edge = (Edge) objectDeserializer(edgeString);
                 floor.edges.add(edge);
-            }
+            }*/
+            floor.edges.add(edgeHashMap.get(i));
         }
 
         //Get other saved floor variables
@@ -160,6 +203,7 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
+        Log.d("Persistence", "saveFloor");
         floor.edges = floorToSave.getEdges();
         floor.nodes = floorToSave.getNodes();
 
@@ -185,22 +229,30 @@ public class Persistence {
         prefsEditor.putString("numOfEdges", "" + floor_numOfEdges);
         prefsEditor.putString("numOfNodes", "" + floor_numOfNodes);
 
-        //prefsEditor.putString("nodes", gson.toJson(floor.nodes));
-        //prefsEditor.putString("edges", gson.toJson(floor.edges));
+
+        HashMap<String, Node> nodeHashMap = new HashMap<String, Node>();
         for (int i = 0; i < floor_numOfNodes; i++)
         {
-            String nodePrefId = "node_" + i;
+            /*String nodePrefId = "node_" + i;
             String nodeGson = gson.toJson(floor.nodes.get(i));
-            prefsEditor.putString(nodePrefId, nodeGson);
+            prefsEditor.putString(nodePrefId, nodeGson); */
+            nodeHashMap.put(floor.nodes.get(i).nodeRefString, floor.nodes.get(i));
             //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
         }
+        String nodeHashMapGson = gson.toJson(nodeHashMap);
+        prefsEditor.putString("nodeHashMap", nodeHashMapGson);
+
+        HashMap<Integer, Edge> edgeHashMap = new HashMap<Integer, Edge>();
         for (int i = 0; i < floor_numOfEdges; i++)
         {
-            String edgePrefId = "edge_" + i;
+            /*String edgePrefId = "edge_" + i;
             String edgeGson = gson.toJson(floor.edges.get(i));
-            prefsEditor.putString(edgePrefId, edgeGson);
+            prefsEditor.putString(edgePrefId, edgeGson); */
+            edgeHashMap.put(i, floor.edges.get(i));
             //prefsEditor.putString(edgePrefId, objectSerializer(floor.edges.get(i)));
         }
+        String edgeHashMapGson = gson.toJson(edgeHashMap);
+        prefsEditor.putString("edgeHashMap", edgeHashMapGson);
 
         prefsEditor.commit();
         /*Toast.makeText(context, "Floor saved | Edges = " + floor_numOfEdges + " Nodes = " + floor_numOfNodes,
