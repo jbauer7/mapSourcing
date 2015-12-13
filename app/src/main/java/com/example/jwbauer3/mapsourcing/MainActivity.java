@@ -42,6 +42,8 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             EdgeLogService.LocalBinder binder = (EdgeLogService.LocalBinder) service;
             mService = binder.getService();
+            myView.connectEdgeLogService(mService);
+
             updateDisplay();
             mBound = true;
         }
@@ -116,7 +118,7 @@ public class MainActivity extends Activity {
         // floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
-        currFloor= floors.get(0);
+        currFloor = floors.get(0);
 
 
         setContentView(R.layout.activity_main);
@@ -131,7 +133,7 @@ public class MainActivity extends Activity {
 
         navigator = new Navigator(graph);
         myView = (MyView) findViewById(R.id.MyViewTest);
-
+        myView.connectEdgeLogService(mService);
         myView.setFloor(currFloor);
         setMenuText();
         myView.setNavigator(navigator);
@@ -379,6 +381,7 @@ public class MainActivity extends Activity {
                     setMenuText();
                     endFloor();
                 }
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             }
 
             @Override
@@ -394,10 +397,7 @@ public class MainActivity extends Activity {
         if(navigationMode){
             if(!pressed){
              //   mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-                mService.setNavigationMode();
-                mService.setNavigationStartEdge(currFloor.getEdges().get(0) , (float) .5);
-                mService.unlockSensors();
-                mService.unlockStart();
+
                 //pressed=true;
                 //mapButton.setText("END NAV");
             }
@@ -457,7 +457,8 @@ public class MainActivity extends Activity {
                 mService.getCurrEdge();
                 Toast.makeText(getApplicationContext(), "x:" + Integer.toString(mService.getLocation()[0]) + "\nY:" + Integer.toString(mService.getLocation()[1]),
                         Toast.LENGTH_SHORT).show();
-                //TODO pass values to myView and update display
+                //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
+                //myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",

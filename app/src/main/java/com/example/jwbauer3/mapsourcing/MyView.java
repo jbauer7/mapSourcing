@@ -144,7 +144,8 @@ public class MyView extends View {
         //percent to end will be startDist/(totalDist)
         double percentToEnd = distToStart / (distToEnd + distToStart);
 
-        //service.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
+        //if(mService!=null)
+      // mService.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
     }
 
     /*

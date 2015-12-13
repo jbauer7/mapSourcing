@@ -529,7 +529,7 @@ public class EdgeLogService extends Service {
         return false;
     }
 
-    public void setNavigationStartEdge(Edge start, float percentComplete){
+    public void setNavigationStartEdge(BaseEdge start, float percentComplete){
         if(navigationMode){
             currEdge=start;
             currSteps=currEdge.getWeight()*percentComplete;
@@ -544,6 +544,13 @@ public class EdgeLogService extends Service {
         navigationMode=true;}
     public void setMappingMode(){ navigationMode=false;}
     public int[] getLocation(){return currentLocation;}
+    public void setUserLocation(BaseEdge edge, double percentToEnd){
+        setNavigationMode();
+        setNavigationStartEdge(edge , (float) percentToEnd);
+        unlockSensors();
+        unlockStart();
+
+    }
 
 
 
