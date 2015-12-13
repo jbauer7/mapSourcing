@@ -340,6 +340,7 @@ public class MainActivity extends Activity {
      //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
        //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
+        floor.saveFloor(currFloor);
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
