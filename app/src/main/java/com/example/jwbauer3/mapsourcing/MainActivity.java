@@ -191,6 +191,18 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void getCurrentFloorSavedVersion() {
+        floor.setCurrFloor(curFloorNum + 1);
+        Floor savedFloor = floor.returnSavedFloor();
+        if (floor.getSavedFloor() == 1)
+        {
+            if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0)
+            {
+                floors.add(curFloorNum, savedFloor);
+            }
+        }
+    }
+
     private void persistenceStartUp(){
         Log.d("Persistence", "persistenceStartUp");
         //Persistence test

@@ -125,18 +125,18 @@ public class Persistence {
                 && nodeHashMap != null)
         {
             BaseNode node = nodeHashMap.get(nodeRefString);
-            /*if (nodeRequestCount.get(nodeRefString) == null) {
+            if (nodeRequestCount.get(nodeRefString) == null) {
                 nodeRequestCount.put(nodeRefString, 1);
             } else {
                 nodeRequestCount.put(nodeRefString, nodeRequestCount.get(nodeRefString) + 1);
-            }*/
-            if (node != null ) {//&& nodeRequestCount.get(nodeRefString) < 1000) {
+            }
+            if (node != null && nodeRequestCount.get(nodeRefString) < 50) {
                 return node;
             }
-            /*if (nodeRequestCount.get(nodeRefString) > 1000)
+            if (nodeRequestCount.get(nodeRefString) > 50)
             {
                 nodeRequestCount.put(nodeRefString, 1);
-            }*/
+            }
         }
         String nodeHashMapString = sharedPreferences.getString("nodeHashMap", "");
         Gson gson = new Gson();
