@@ -391,29 +391,40 @@ public class MainActivity extends Activity {
     public void pressed(View view) {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
 
-        if(!gotNorth){
-            mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-            mService.setCurrFloor(curFloorNum);
-            gotNorth = true;
-            mService.unlockSensors();
-            mapButton.setText("Start Map");
+        if(navigationMode){
+            if(!pressed){
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                mService.setNavigationMode();
+                mService.setNavigationStartEdge(currFloor.getEdges().get(0) , (float) .5);
+                mService.unlockSensors();
+                mService.unlockStart();
+                pressed=true;
+                mapButton.setText("END NAV");
+            }
+            else{
+              endFloor();
+            }
+
         }
         else {
-            if (!pressed) {
-                mapButton.setText("Save Map");
-                if (navigationMode) {
-                    mService.setNavigationMode();
-                } else {
-                    mService.setMappingMode();
-                }
-                //mService.setOffsetReady();
-                mService.unlockStart();
-                pressed = true;
+            if (!gotNorth) {
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                mService.setCurrFloor(curFloorNum);
+                gotNorth = true;
+                mService.unlockSensors();
+                mapButton.setText("Start Map");
             } else {
-                //TODO: STUFF TO SAVE FLOOR
-                floor.setCurrFloor(curFloorNum + 1);
-                floor.saveFloor(currFloor);
-                endFloor();
+                if (!pressed) {
+                    mapButton.setText("Save Map");
+                    mService.setMappingMode();
+                    mService.unlockStart();
+                    pressed = true;
+                } else {
+                    //TODO: STUFF TO SAVE FLOOR
+                    floor.setCurrFloor(curFloorNum + 1);
+                    floor.saveFloor(currFloor);
+                    endFloor();
+                }
             }
         }
     }
@@ -421,7 +432,8 @@ public class MainActivity extends Activity {
     private void endFloor(){
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         mService.setOffsetNotReady();
-        mapButton.setText("Set Offset");
+        if(!navigationMode)mapButton.setText("Set Offset");
+        else mapButton.setText("START NAV");
         mService.lockSensors();
         mService.lockStart();
         pressed=false;
@@ -441,7 +453,11 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
-                //TODO: update current location navigation by calling mService.getLocation()
+                mService.getLocation();
+                mService.getCurrEdge();
+                Toast.makeText(getApplicationContext(), "x:" + Integer.toString(mService.getLocation()[0]) + "\nY:" + Integer.toString(mService.getLocation()[1]),
+                        Toast.LENGTH_SHORT).show();
+                //TODO pass values to myView and update display
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",

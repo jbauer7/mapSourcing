@@ -25,7 +25,10 @@ public class SortedArrayList<T> extends ArrayList<T> {
 
     public void addSorted(T value) {
         super.add(value);
-        for (int i = (size() - 1); (comparator.compare(value, this.get(i - 1)) <= 0) && (i > 0); i--) {
+        for (int i = (size() - 1); i > 0; i--) {
+            if(comparator.compare(value, this.get(i - 1)) > 0){
+                break;
+            }
             Collections.swap(this, i, i - 1);
         }
     }

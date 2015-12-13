@@ -32,6 +32,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         weight = 0;
         direction = 0;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
+        this.darkenOnClick = .75f;
 
         //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
         options.add(MenuSelection.LOCATE);
@@ -118,8 +119,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
             int color = paint.getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
-            //todo: magic number
-            hsv[2] = hsv[2] * 0.75f;
+            hsv[2] = hsv[2] * darkenOnClick;
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }
@@ -133,12 +133,12 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     }
 
     @Override
-    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float canvasScaleFactor) {
-        //transform out cords into pixel cords.
-        int xStart = (int) ((this.getStart().getxPos() + transXoffset) * canvasScaleFactor);
-        int yStart = (int) ((this.getStart().getyPos() + transYoffset) * canvasScaleFactor);
-        int xEnd = (int) ((this.getEnd().getxPos() + transXoffset) * canvasScaleFactor);
-        int yEnd = (int) ((this.getEnd().getyPos() + transYoffset) * canvasScaleFactor);
+    public boolean contains(int mapX, int mapY, float canvasScaleFactor) {
+
+        int xStart = this.getStart().getxPos();
+        int yStart = this.getStart().getyPos();
+        int xEnd = this.getEnd().getxPos();
+        int yEnd = this.getEnd().getyPos();
 
         //we are using herons formula to determine calculate the area of the triangle created.
         //once we have the area we can find the height with respect to our initial line (b) by doing
@@ -147,13 +147,13 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
         //length of each side
         //side a is from start to click
-        double a = Math.sqrt(Math.pow(clickedX - xStart, 2) + Math.pow(clickedY - yStart, 2));
+        double a = Math.sqrt(Math.pow(mapX - xStart, 2) + Math.pow(mapY - yStart, 2));
 
         //side b is from start to end
         double b = Math.sqrt(Math.pow(xStart - xEnd, 2) + Math.pow(yStart - yEnd, 2));
 
         //side c is from clicked to end
-        double c = Math.sqrt(Math.pow(clickedX - xEnd, 2) + Math.pow(clickedY - yEnd, 2));
+        double c = Math.sqrt(Math.pow(mapX - xEnd, 2) + Math.pow(mapY - yEnd, 2));
 
         //ensure that the point clicked is inside the line constraints, ie: not along the infinite line
         //to do this, we check to see if our constructed triangle is acute or obtuse.
@@ -182,7 +182,6 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     Update scale factor and drawnLineWidth
      */
     public void setScaleFactor(float scaleFactor) {
-        //todo: change way this is set, only store scale factor
         this.scaleFactor = scaleFactor;
         drawnLineWidth = (int) (DEFAULTDRAWNLINEWIDTH * scaleFactor);
     }

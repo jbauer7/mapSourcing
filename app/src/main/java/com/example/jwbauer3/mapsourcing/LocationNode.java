@@ -11,7 +11,6 @@ public class LocationNode extends BaseNode {
 
     private static final int DEFAULTLOCATIONNODEPRIORITY = 250;
     private static final int DEFAULTRADIUS = 100;
-    private int drawnRadius;
     private Edge sourceEdge;
     private LocationEdge startEdge, endEdge;
     private static final double sliceStartAngle = 240;
@@ -22,31 +21,20 @@ public class LocationNode extends BaseNode {
     private static final double sliceEndAngleVectorY = Math.sin(Math.toRadians(sliceStartAngle + sliceSweepAngle));
 
     public LocationNode(int xPos, int yPos, int floor, Edge sourceEdge, BaseNode before, BaseNode after) {
-        super(xPos, yPos, floor, DEFAULTLOCATIONNODEPRIORITY);
+        super(xPos, yPos, floor, DEFAULTRADIUS, DEFAULTLOCATIONNODEPRIORITY);
         this.drawnRadius = DEFAULTRADIUS;
-        this.sourceEdge = sourceEdge;
-        this.startEdge = new LocationEdge(before, this);
-        this.endEdge = new LocationEdge(this, after);
-
-
-        this.addEdge(startEdge);
-        this.addEdge(endEdge);
-        //TODO: THESE WILL NEVER BE REMOVED.
-        sourceEdge.getStart().addEdge(startEdge);
-        sourceEdge.getEnd().addEdge(endEdge);
-        //TODO: Decide on options for location node
+        setSourceEdge(sourceEdge, before, after);
         this.options.add(MenuSelection.START);
-
     }
 
-    //TODO: a second constructor to be called if this is being called from a node and not an edge.
-    //will need to add an edge from the location to that node (for navigator), the second edge isn't needed
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
-        if (this.attributes.contains(Attribute.TERMINAL)) { //either start node or end node
+        if (this.attributes.contains(Attribute.USER)) {
+            paint.setColor(Color.parseColor("#ff0000")); //red for user
+        } else if (this.attributes.contains(Attribute.DESTINATION)) { //green for destination
             paint.setColor(Color.parseColor("#00ff00"));
         } else if (this.attributes.contains(Attribute.PATH)) { //apart of the path
             paint.setColor(Color.parseColor("#ff69b4"));
@@ -58,14 +46,12 @@ public class LocationNode extends BaseNode {
             int color = paint.getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
-            //todo: magic number
-            hsv[2] = hsv[2] * 0.85f;
+            hsv[2] = hsv[2] * darkenOnClick;
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
-        //TODO: put public getters, add these drawables draw (not searchable)
         canvas.drawArc(middleX - drawnRadius,
                 middleY - drawnRadius,
                 middleX + drawnRadius,
@@ -80,7 +66,7 @@ public class LocationNode extends BaseNode {
     }
 
     private boolean isWithinRadius(float positionX, float positionY, float radius) {
-        return  ((positionX * positionX) + (positionY * positionY)) <= (radius * radius);
+        return ((positionX * positionX) + (positionY * positionY)) <= (radius * radius);
     }
 
     private boolean isInsideSection(float positionX, float positionY, float radius) {
@@ -89,19 +75,28 @@ public class LocationNode extends BaseNode {
                 isWithinRadius(positionX, positionY, radius);
     }
 
+
     @Override
-    public boolean contains(int clickedX, int clickedY, int transXoffset, int transYoffset, float scaleFactor) {
-        //transxoffset and transyoffset include translated and scale factor already
-        //transXoffset = xOffset + transX/ScaleFactor, Y is just for Y values
-        //Todo: do only the arc, not the entire circle
+    public boolean contains(int mapX, int mapY, float scaleFactor) {
         float displayedRadius = (drawnRadius * scaleFactor);
-        float scaledXPosition = ((this.getxPos() + transXoffset) * scaleFactor);
-        float scaledYPosition = ((this.getyPos() + transYoffset) * scaleFactor);
-        return isInsideSection(clickedX - scaledXPosition, clickedY - scaledYPosition, displayedRadius);
+        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), displayedRadius);
     }
+
 
     public Edge getSourceEdge() {
         return sourceEdge;
+    }
+
+    public void setSourceEdge(Edge source, BaseNode before, BaseNode after) {
+        this.sourceEdge = source;
+
+        this.startEdge = new LocationEdge(before, this);
+        this.endEdge = new LocationEdge(this, after);
+
+        this.addEdge(startEdge);
+        this.addEdge(endEdge);
+        sourceEdge.getStart().addEdge(startEdge);
+        sourceEdge.getEnd().addEdge(endEdge);
     }
 
     public void setStartEdge(LocationEdge startEdge) {

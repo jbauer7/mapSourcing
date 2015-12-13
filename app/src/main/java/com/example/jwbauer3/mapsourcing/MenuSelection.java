@@ -13,9 +13,9 @@ public enum MenuSelection {
     private final String text;
 
     /**
-     * @param text
+     * @param text: Text to display on the menu
      */
-    private MenuSelection(final String text) {
+     MenuSelection(final String text) {
         this.text = text;
     }
 

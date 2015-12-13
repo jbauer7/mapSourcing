@@ -86,15 +86,15 @@ public class MyView extends View {
         determineOffsets();
         setDrawableQueues();
 
-        if(userLocation!=null){
-            if(userLocation.getFloorNum() == curFloor.getFloorNum()){
+        if (userLocation != null) {
+            if (userLocation.getFloorNum() == curFloor.getFloorNum()) {
                 addLocationNodeToDrawables(userLocation);
             } else {
                 removeLocationNodeFromDrawables(userLocation);
             }
         }
-        if(searchLocation!=null){
-            if(searchLocation.getFloorNum() == curFloor.getFloorNum()){
+        if (searchLocation != null) {
+            if (searchLocation.getFloorNum() == curFloor.getFloorNum()) {
                 addLocationNodeToDrawables(searchLocation);
             } else {
                 removeLocationNodeFromDrawables(searchLocation);
@@ -107,6 +107,20 @@ public class MyView extends View {
         invalidate();
     }
 
+    /*
+    Allows the service to update the location of the user in real time.
+    usersEdge: Edge the user is currently on.
+    mapX: the map X coordinate the user is at
+    mapY: the map Y coordinate the user is at
+     */
+    public void updateUserLocation(Edge usersEdge, int mapX, int mapY) {
+        //this method should never be called if userLocation is null
+        setLocationNode(usersEdge, mapX, mapY, userLocation, searchLocation);
+    }
+
+    /*
+    Public access to set the navigator for this instance. Set in the main activity.
+     */
     public void setNavigator(Navigator navigator) {
         this.navigator = navigator;
     }
@@ -164,6 +178,10 @@ public class MyView extends View {
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
+        //TODO: try to incorporate the x,y offsets into the translate
+        //get rid of need to pass offsets to canvasdrawables
+        //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
+
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
 
@@ -171,9 +189,7 @@ public class MyView extends View {
         for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas, xOffset, yOffset);
         }
-
         canvas.restore();
-
     }
 
     /*
@@ -181,154 +197,45 @@ public class MyView extends View {
      */
     private void touchDown(MotionEvent event) {
         CanvasDrawable selectedElement = null;
-        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
-        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+
+        int mapX = convertPixelToMapX((int)event.getX());
+        int mapY = convertPixelToMapY((int)event.getY());
 
         for (CanvasDrawable element : drawables_search) {
 
-            if (element.contains((int) event.getX(), (int) event.getY(), translatedXOffset, translatedYOffset, canvasReferenceState.scaleFactor)) {
+            if (element.contains(mapX, mapY, canvasReferenceState.scaleFactor)) {
                 selectedElement = element;
                 break;
             }
         }
         if (selectedElement != null) {
             if (selectedElement instanceof MenuOption) {
-                //todo: ignore how shitty this is.
                 MenuOption opt = (MenuOption) selectedElement;
                 if (opt.getMenuAttribute().equals(MenuSelection.START)) {
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
-                    //locate yourself on the mesh
-
-                    //todo: check typecast to edge
-                    //todo: in future if nodes can call, put this into an if/else block
-                    Edge userSourceEdge = (Edge) opt.getParent();
-                    BaseNode nodeBefore = userSourceEdge.getStart();
-                    BaseNode nodeAfter = userSourceEdge.getEnd();
-                    if (userLocation != null) {
-                        //Remove the old user location and its edges
-                        removeLocationNodeFromDrawables(userLocation);
-                        userSourceEdge.getStart().removeEdge(userLocation.getStartEdge());
-                        userSourceEdge.getEnd().removeEdge(userLocation.getEndEdge());
-                    }
-                    if ((searchLocation != null) && (searchLocation.getSourceEdge().equals(userSourceEdge))) {
-                        //This search node is on this edge too, make both edges point to it
-                        nodeBefore = searchLocation;
-                        nodeAfter = searchLocation;
-                        drawables_draw.remove(searchLocation.getStartEdge());
-                        drawables_draw.remove(searchLocation.getEndEdge());
-                    }
-
-                    //Create the new user location and its edges
-                    userLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), userSourceEdge, nodeBefore, nodeAfter);
-                    userLocation.setScaleFactor(meshReferenceState.scaleFactor);
-                    addLocationNodeToDrawables(userLocation);
-
-                    //Update the searchLocation's edges as well
-                    if (searchLocation != null) {
-                        //Remove old edges from collections
-                        Edge searchSourceEdge = searchLocation.getSourceEdge();
-                        drawables_draw.remove(searchLocation.getStartEdge());
-                        drawables_draw.remove(searchLocation.getEndEdge());
-                        searchSourceEdge.getStart().removeEdge(searchLocation.getStartEdge());
-                        searchSourceEdge.getEnd().removeEdge(searchLocation.getEndEdge());
-                        searchLocation.clearEdges();
-
-                        if (searchLocation.getSourceEdge().equals(userSourceEdge)) {
-                            //This search node is on this edge too, connect them directly
-                            searchLocation.setEndEdge(userLocation.getStartEdge());
-                            searchLocation.setStartEdge(userLocation.getEndEdge());
-                        } else {
-                            //Revert edges to nodes on each side of the source edge
-                            LocationEdge searchStartEdge = new LocationEdge(searchSourceEdge.getStart(), searchLocation);
-                            LocationEdge searchEndEdge = new LocationEdge(searchLocation, searchSourceEdge.getEnd());
-
-                            //Add new edges to collections
-                            searchLocation.setStartEdge(searchStartEdge);
-                            searchLocation.setEndEdge(searchEndEdge);
-                            searchSourceEdge.getStart().addEdge(searchStartEdge);
-                            searchSourceEdge.getEnd().addEdge(searchEndEdge);
-                            if (searchLocation.getFloorNum() == curFloor.getFloorNum()) {
-                                drawables_draw.addSorted(searchStartEdge);
-                                drawables_draw.addSorted(searchEndEdge);
-                            }
-                        }
-                    }
-
+                    //todo: only Edge has access Locate menuOption
+                    setLocationNode((Edge)opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
+                    userLocation.toggleAttribute(Attribute.USER);
                     //Set the start node for the navigator
                     startNode = userLocation;
                     navigator.setStartNode(startNode);
-
                     if (endNode != null)
                         updatePath();
+
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
-                    //target destination on the mesh
-
-                    //todo: check typecast to edge
-                    //todo: in future if nodes can call, put this into an if/else block
-                    Edge searchSourceEdge = (Edge) opt.getParent();
-                    BaseNode nodeBefore = searchSourceEdge.getStart();
-                    BaseNode nodeAfter = searchSourceEdge.getEnd();
-                    if (searchLocation != null) {
-                        //Remove the old search location and its edges
-                        removeLocationNodeFromDrawables(searchLocation);
-                        searchSourceEdge.getStart().removeEdge(searchLocation.getStartEdge());
-                        searchSourceEdge.getEnd().removeEdge(searchLocation.getEndEdge());
-                    }
-                    if ((userLocation != null) && (userLocation.getSourceEdge().equals(searchSourceEdge))) {
-                        //This location node is on this edge too, make both edges point to it
-                        nodeBefore = userLocation;
-                        nodeAfter = userLocation;
-                        drawables_draw.remove(userLocation.getStartEdge());
-                        drawables_draw.remove(userLocation.getEndEdge());
-                    }
-
-                    //Create the new search location and its edges
-                    searchLocation = new LocationNode(opt.getXpos(), opt.getYpos(), curFloor.getFloorNum(), searchSourceEdge, nodeBefore, nodeAfter);
-                    searchLocation.setScaleFactor(meshReferenceState.scaleFactor);
-                    addLocationNodeToDrawables(searchLocation);
-
-                    //Update the userLocation's edges as well
-                    if (userLocation != null) {
-                        //Remove old edges from collections
-                        Edge userSourceEdge = userLocation.getSourceEdge();
-                        drawables_draw.remove(userLocation.getStartEdge());
-                        drawables_draw.remove(userLocation.getEndEdge());
-                        userSourceEdge.getStart().removeEdge(userLocation.getStartEdge());
-                        userSourceEdge.getEnd().removeEdge(userLocation.getEndEdge());
-                        userLocation.clearEdges();
-
-                        if (userLocation.getSourceEdge().equals(searchSourceEdge)) {
-                            //The user node is on this edge too, connect them directly
-                            userLocation.setEndEdge(searchLocation.getStartEdge());
-                            userLocation.setStartEdge(searchLocation.getEndEdge());
-                        } else {
-                            //This user node is on this edge too, connect them directly
-                            LocationEdge userStartEdge = new LocationEdge(userSourceEdge.getStart(), userLocation);
-                            LocationEdge userEndEdge = new LocationEdge(userLocation, userSourceEdge.getEnd());
-
-                            //Add new edges to collections
-                            userLocation.setStartEdge(userStartEdge);
-                            userLocation.setEndEdge(userEndEdge);
-                            userSourceEdge.getStart().addEdge(userStartEdge);
-                            userSourceEdge.getEnd().addEdge(userEndEdge);
-                            if (userLocation.getFloorNum() == curFloor.getFloorNum()) {
-                                drawables_draw.addSorted(userStartEdge);
-                                drawables_draw.addSorted(userEndEdge);
-                            }
-                        }
-                    }
-
+                    //todo: only Edge has access to Search menuOption
+                    setLocationNode((Edge)opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
+                    searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
                     endNode = searchLocation;
                     navigator.setEndNode(endNode);
-
                     if (startNode != null)
                         updatePath();
                 }
-                //Remove the menu since an option was clicked on
+                //Remove the menu since an option was clicked
                 drawables_draw.removeAll(opts);
                 drawables_search.removeAll(opts);
 
@@ -653,28 +560,105 @@ public class MyView extends View {
         }
     }
 
+    /*
+    Method to convert a clicked pixel's X coordinate to the maps X coordinate
+     */
     private int convertPixelToMapX(int pixelPoint) {
         int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
 
         return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset;
     }
 
+    /*
+    Method to convert a clicked pixel's Y coordinate to the maps Y coordinate
+     */
     private int convertPixelToMapY(int pixelPoint) {
         int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
         return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
     }
-    private void addLocationNodeToDrawables(LocationNode locationNode){
+
+    private void addLocationNodeToDrawables(LocationNode locationNode) {
         drawables_draw.addSorted(locationNode);
         drawables_search.addSorted(locationNode);
         drawables_draw.addSorted(locationNode.getStartEdge());
         drawables_draw.addSorted(locationNode.getEndEdge());
     }
-    private void removeLocationNodeFromDrawables(LocationNode locationNode){
+
+    private void removeLocationNodeFromDrawables(LocationNode locationNode) {
         drawables_draw.remove(locationNode);
         drawables_search.remove(locationNode);
         drawables_draw.remove(locationNode.getStartEdge());
         drawables_draw.remove(locationNode.getEndEdge());
+    }
+
+    /*
+    Method to set both user and search locationNode.
+    Will delete/update all references to the LocationNode 'update'
+     */
+    private void setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
+        //toSet is the LocationNode that needs to be set.
+        LocationNode toSet = update;
+        //other is the 'other' LocationNode that isn't being currently being set.
+
+        BaseNode nodeBefore = userSourceEdge.getStart();
+        BaseNode nodeAfter = userSourceEdge.getEnd();
+        if (toSet != null) {
+            //Remove the old user location and its edges
+            removeLocationNodeFromDrawables(toSet);
+            userSourceEdge.getStart().removeEdge(toSet.getStartEdge());
+            userSourceEdge.getEnd().removeEdge(toSet.getEndEdge());
+        }
+        if ((other != null) && (other.getSourceEdge().equals(userSourceEdge))) {
+            //This search node is on this edge too, make both edges point to it
+            //TODO: should only set one edge to the other.... not both.
+            nodeBefore = other;
+            nodeAfter = other;
+            drawables_draw.remove(other.getStartEdge());
+            drawables_draw.remove(other.getEndEdge());
+        }
+
+        //Create the new user location and its edges
+        toSet = new LocationNode(xPos, yPos, curFloor.getFloorNum(), userSourceEdge, nodeBefore, nodeAfter);
+        toSet.setScaleFactor(meshReferenceState.scaleFactor);
+
+        addLocationNodeToDrawables(toSet);
+
+        //Update the searchLocation's edges as well
+        if (other != null) {
+            //Remove old edges from collections
+            Edge searchSourceEdge = other.getSourceEdge();
+            drawables_draw.remove(other.getStartEdge());
+            drawables_draw.remove(other.getEndEdge());
+            searchSourceEdge.getStart().removeEdge(other.getStartEdge());
+            searchSourceEdge.getEnd().removeEdge(other.getEndEdge());
+            other.clearEdges();
+
+            if (other.getSourceEdge().equals(userSourceEdge)) {
+                //This search node is on this edge too, connect them directly
+                other.setEndEdge(toSet.getStartEdge());
+                other.setStartEdge(toSet.getEndEdge());
+            } else {
+                //Revert edges to nodes on each side of the source edge
+                LocationEdge searchStartEdge = new LocationEdge(searchSourceEdge.getStart(), other);
+                LocationEdge searchEndEdge = new LocationEdge(other, searchSourceEdge.getEnd());
+
+                //Add new edges to collections
+                other.setStartEdge(searchStartEdge);
+                other.setEndEdge(searchEndEdge);
+                searchSourceEdge.getStart().addEdge(searchStartEdge);
+                searchSourceEdge.getEnd().addEdge(searchEndEdge);
+                if (other.getFloorNum() == curFloor.getFloorNum()) {
+                    drawables_draw.addSorted(searchStartEdge);
+                    drawables_draw.addSorted(searchEndEdge);
+                }
+            }
+        }
+        if (update == userLocation) {
+            userLocation = toSet;
+        } else {
+            searchLocation = toSet;
+        }
     }
 }
 
