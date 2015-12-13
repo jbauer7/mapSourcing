@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -164,7 +165,7 @@ public class MainActivity extends Activity {
         // floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
-        currFloor= floors.get(0);
+        currFloor = floors.get(0);
 
 
         setContentView(R.layout.activity_main);
@@ -191,30 +192,41 @@ public class MainActivity extends Activity {
     }
 
     private void persistenceStartUp(){
-
+        Log.d("Persistence", "persistenceStartUp");
         //Persistence test
+        floors = new ArrayList<>();
+        curFloorNum = 0;
         for (int i = 0; i < 4; i++)
         {
             floor.setCurrFloor(i + 1);
+            int drawable = R.drawable.eh_floor2;
+            if (i + 1 > 2)
+            {
+                drawable = R.drawable.eh_floor3;
+            }
             if (floor.getSavedFloor() == 1)
             {
                 Floor savedFloor = floor.returnSavedFloor();
-                floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
-                        ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
-            } else {
-                int drawable = R.drawable.eh_floor2;
-                if (i + 1 > 2)
-                {
-                    drawable = R.drawable.eh_floor3;
+                if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0) {
+                    floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
+                            ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+                } else {
+                    floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                            ResourcesCompat.getDrawable(getResources(), drawable, null)));
+                    floors.get(i).getNodes().add(new Node(0, 0, i, false));
                 }
+            } else {
                 floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
                         ResourcesCompat.getDrawable(getResources(), drawable, null)));
                 floors.get(i).getNodes().add(new Node(0, 0, i, false));
             }
         }
-
+        Log.d("Persistence", "persistenceStartUp after for-loop");
+        floor.setCurrFloor(1);
         currFloor= floors.get(0);
 
+
+        //floors.get(1).getNodes().add(new Node(0, 0, 1, false));
 
         setContentView(R.layout.activity_main);
         setUpSpinner();
@@ -232,15 +244,22 @@ public class MainActivity extends Activity {
         myView.setFloor(currFloor);
         setMenuText();
         myView.setNavigator(navigator);
+
+        if (!floor.isFloorSaved())
+        {
+            floor.saveFloor(currFloor);
+        }
     }
 
     protected void onPause() {
         super.onPause();
         endFloor();
+        curFloorNum = 0;
         unregisterReceiver(activityReceiver);
         if (mConnection != null)
             unbindService(mConnection);
         //Node.saveNode("aNode", currFloor.getNodes().get(0));
+        floor.saveFloor(currFloor);
     }
 
 
@@ -255,8 +274,8 @@ public class MainActivity extends Activity {
             Floor savedFloor = floor.returnSavedFloor();
             if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0)
             {
-                //newStartUp(savedFloor);
-                persistenceStartUp();
+                tempStartUp(savedFloor);
+                //persistenceStartUp();
             } else {
                 startUp();
             }
@@ -338,10 +357,12 @@ public class MainActivity extends Activity {
                 if (curFloorNum == position) {
                     //do nothing
                 } else {
+                    //floor.setCurrFloor(curFloorNum + 1);
+                    //floor.saveFloor(currFloor);
                     curFloorNum = position;
+                    //floor.setCurrFloor(curFloorNum + 1);
                     myView.setFloor(floors.get(position));
                     currFloor = floors.get(position);
-                    floor.setCurrFloor(curFloorNum + 1);
                     updateDisplay();
                     setMenuText();
                     endFloor();
@@ -378,6 +399,8 @@ public class MainActivity extends Activity {
                 pressed = true;
             } else {
                 //TODO: STUFF TO SAVE FLOOR
+                floor.setCurrFloor(curFloorNum + 1);
+                floor.saveFloor(currFloor);
                 endFloor();
             }
         }
@@ -395,10 +418,11 @@ public class MainActivity extends Activity {
 
     private void updateDisplay() {
         currFloor=floors.get(curFloorNum);
+        floor.setCurrFloor(curFloorNum + 1);
+        floor.saveFloor(currFloor);
         //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
         //         Toast.LENGTH_SHORT).show();
         myView.setFloor(currFloor);
-        floor.saveFloor(currFloor);
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {

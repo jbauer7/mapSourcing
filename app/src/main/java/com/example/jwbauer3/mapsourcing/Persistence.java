@@ -53,10 +53,14 @@ public class Persistence {
 
     private String building;
 
+    private HashMap<String, Integer> nodeRequestCount;
+
     public Persistence(Context context, int type, String building, int floorNumber)
     {
         this.context = context;
         this.building = building;
+        nodeRequestCount = new HashMap<String, Integer>();
+
         floor = new Floor();
         //if type == 1 then persistence is init'ed as floor
         PREF_NAME = "";
@@ -81,8 +85,8 @@ public class Persistence {
             floor_numOfEdges = Integer.parseInt(numOfEdges);
             floor_numOfNodes = Integer.parseInt(numOfNodes);
         } else {
-            Toast.makeText(context, "Get saved floor failed; floor never saved",
-                    Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Get saved floor failed; floor never saved",
+                    //Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -121,9 +125,18 @@ public class Persistence {
                 && nodeHashMap != null)
         {
             BaseNode node = nodeHashMap.get(nodeRefString);
-            if (node != null) {
+            /*if (nodeRequestCount.get(nodeRefString) == null) {
+                nodeRequestCount.put(nodeRefString, 1);
+            } else {
+                nodeRequestCount.put(nodeRefString, nodeRequestCount.get(nodeRefString) + 1);
+            }*/
+            if (node != null ) {//&& nodeRequestCount.get(nodeRefString) < 1000) {
                 return node;
             }
+            /*if (nodeRequestCount.get(nodeRefString) > 1000)
+            {
+                nodeRequestCount.put(nodeRefString, 1);
+            }*/
         }
         String nodeHashMapString = sharedPreferences.getString("nodeHashMap", "");
         Gson gson = new Gson();
@@ -152,6 +165,9 @@ public class Persistence {
         if (numOfNodes.length() > 0 && numOfEdges.length() > 0) {
             floor_numOfEdges = Integer.parseInt(numOfEdges);
             floor_numOfNodes = Integer.parseInt(numOfNodes);
+        } else {
+            floor_numOfEdges = 0;
+            floor_numOfNodes = 0;
         }
     }
 
@@ -159,8 +175,8 @@ public class Persistence {
     {
         if (floor_numOfEdges == 0 && floor_numOfNodes == 0)
         {
-            Toast.makeText(context, "getSavedFloor failed; floor never saved",
-                    Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "getSavedFloor failed; floor never saved",
+                    //Toast.LENGTH_SHORT).show();
             return 0;
         }
         Gson gson = new Gson();
@@ -221,7 +237,7 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
-        Log.d("Persistence", "saveFloor");
+        Log.d("Persistence", "saveFloor floorNum = " + floorToSave.floorNum);
         floor.edges = floorToSave.getEdges();
         floor.nodes = floorToSave.getNodes();
 
