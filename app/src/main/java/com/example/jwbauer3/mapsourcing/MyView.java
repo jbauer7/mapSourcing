@@ -1,6 +1,7 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
@@ -58,6 +59,10 @@ public class MyView extends View {
     private LocationNode searchLocation = null;
 
     private ArrayList<MenuOption> opts = new ArrayList<>();
+
+    //Service Connection
+    private EdgeLogService mService;
+
 
     public MyView(Context context) {
         super(context);
@@ -659,6 +664,10 @@ public class MyView extends View {
         } else {
             searchLocation = toSet;
         }
+    }
+
+    public void connectEdgeLogService(EdgeLogService mService){
+        this.mService=mService;
     }
 }
 

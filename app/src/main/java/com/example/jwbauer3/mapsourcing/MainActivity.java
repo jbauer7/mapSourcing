@@ -393,16 +393,16 @@ public class MainActivity extends Activity {
 
         if(navigationMode){
             if(!pressed){
-                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+             //   mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 mService.setNavigationMode();
                 mService.setNavigationStartEdge(currFloor.getEdges().get(0) , (float) .5);
                 mService.unlockSensors();
                 mService.unlockStart();
-                pressed=true;
-                mapButton.setText("END NAV");
+                //pressed=true;
+                //mapButton.setText("END NAV");
             }
             else{
-              endFloor();
+              //endFloor();
             }
 
         }
