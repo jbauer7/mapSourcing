@@ -5,6 +5,7 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -62,6 +63,7 @@ public class MyView extends View {
 
     //Service Connection
     private EdgeLogService mService;
+
 
 
     public MyView(Context context) {

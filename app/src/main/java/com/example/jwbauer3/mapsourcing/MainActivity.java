@@ -108,14 +108,16 @@ public class MainActivity extends Activity {
 
         // I did this so it would stop crashing gets overwritten later anyway -Joey
         floors.get(0).getNodes().add(new Node(0, 0, 0, false));
+        floors.get(0).getNodes().add(new Node(100, 0, 0, false));
+
         floors.get(1).getNodes().add(new Node(0, 0, 1, false));
         floors.get(2).getNodes().add(new Node(0, 0, 2, false));
         floors.get(3).getNodes().add(new Node(0, 0, 3, false));
 
-        // floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
-        //   floors.get(1).getNodes().add(new Node(0,0,2,false));
-        //  floors.get(2).getNodes().add(new Node(0,0,3,false));
-        // floors.get(3).getNodes().add(new Node(0,0,4,false));
+        floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+        floors.get(1).getNodes().add(new Node(0,0,2,false));
+        floors.get(2).getNodes().add(new Node(0,0,3,false));
+        floors.get(3).getNodes().add(new Node(0,0,4,false));
 
 
         currFloor = floors.get(0);
@@ -137,14 +139,9 @@ public class MainActivity extends Activity {
         myView.setFloor(currFloor);
         setMenuText();
         myView.setNavigator(navigator);
-
-        if (!floor.isFloorSaved())
-        {
-            floor.saveFloor(currFloor);
-        }
     }
 
-    private void tempStartUp(Floor savedFloor){
+    /* private void tempStartUp(Floor savedFloor){
         //hard coded the intialization of floors TODO generalize this -Joey
         floors.add(new Floor(1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
@@ -191,18 +188,26 @@ public class MainActivity extends Activity {
         {
             floor.saveFloor(currFloor);
         }
-    }
+    } */
 
-    private void getCurrentFloorSavedVersion() {
+    public void getCurrentFloorSavedVersion() {
         floor.setCurrFloor(curFloorNum + 1);
-        Floor savedFloor = floor.returnSavedFloor();
-        if (floor.getSavedFloor() == 1)
-        {
-            if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0)
+        if (floor.getSavedFloor() == 1) {
+            Floor savedFloor = floor.returnSavedFloor();
+            if (savedFloor.getNodes().size() > 0)
             {
                 floors.add(curFloorNum, savedFloor);
+                myView.setFloor(floors.get(curFloorNum));
+                currFloor = floors.get(curFloorNum);
+            } else {
+                myView.setFloor(floors.get(curFloorNum));
+                currFloor = floors.get(curFloorNum);
             }
+        } else {
+            myView.setFloor(floors.get(curFloorNum));
+            currFloor = floors.get(curFloorNum);
         }
+        mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
     }
 
     private void persistenceStartUp(){
@@ -282,7 +287,8 @@ public class MainActivity extends Activity {
 
         //TODO: Persistence TESTING
         //Persistence test
-        persistenceStartUp();
+        //persistenceStartUp();
+        startUp();
         /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
@@ -306,6 +312,19 @@ public class MainActivity extends Activity {
         }
         if (serviceIntent != null)
             bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+        /*if (floor.isFloorSaved())
+        {
+            Log.d("onResume", "currFloor.getNodes().size() = "
+                    + currFloor.getNodes().size()
+                    + "currFloor.getEdges().size() = "
+                    + currFloor.getEdges().size());
+            if (mService == null)
+            {
+                Log.d("onResume", "mService == null");
+            }
+            mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+        } */
 
 
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
@@ -361,6 +380,8 @@ public class MainActivity extends Activity {
 
     }*/
 
+
+
     private void setUpSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, floorNames);
@@ -381,7 +402,7 @@ public class MainActivity extends Activity {
                     setMenuText();
                     endFloor();
                 }
-                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                //mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             }
 
             @Override
@@ -441,6 +462,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateDisplay() {
+        mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
         currFloor=floors.get(curFloorNum);
         floor.setCurrFloor(curFloorNum + 1);
         floor.saveFloor(currFloor);
@@ -453,12 +475,15 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
+                //getCurrentFloorSavedVersion();
+                //mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 mService.getLocation();
                 mService.getCurrEdge();
                 Toast.makeText(getApplicationContext(), "x:" + Integer.toString(mService.getLocation()[0]) + "\nY:" + Integer.toString(mService.getLocation()[1]),
                         Toast.LENGTH_SHORT).show();
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
-                //myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+                Log.d("MyView", "mService.getCurrEdge().getWeight() = " + mService.getCurrEdge().getWeight());
+                myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",

@@ -17,7 +17,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;
-    //private BaseNode start, end;
+    private BaseNode start, end;
     private int weight, direction;
     //protected EdgeData edgeData;
 
@@ -27,8 +27,8 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     public BaseEdge(int priority, BaseNode start, BaseNode end) {
         super(priority);
         setNodeIDs(start, end);
-        //this.start = start;
-        //this.end = end;
+        this.start = start;
+        this.end = end;
         weight = 0;
         direction = 0;
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
@@ -57,7 +57,8 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         }
         return node; */
         //Log.d("BaseEdge", "getStart");
-        return MainActivity.floor.getSpecifcNode(nodeStartId);
+        return start;
+        //return MainActivity.floor.getSpecifcNode(nodeStartId);
     }
 
     public BaseNode getEnd() {
@@ -72,7 +73,8 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         }
         return node; */
         //Log.d("BaseEdge", "getEnd");
-        return MainActivity.floor.getSpecifcNode(nodeEndId);
+        return end;
+        //return MainActivity.floor.getSpecifcNode(nodeEndId);
     }
 
     /*public BaseNode getStart() {
