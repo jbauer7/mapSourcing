@@ -34,13 +34,13 @@ public class LocationNode extends BaseNode {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
         if (this.attributes.contains(Attribute.USER)) {
-            paint.setColor(Color.parseColor("#ff0000")); //red for user
+            paint.setColor(Application.getResColor(R.color.UserLocationNodeColor)); //red for user
         } else if (this.attributes.contains(Attribute.DESTINATION)) { //green for destination
-            paint.setColor(Color.parseColor("#00ff00"));
+            paint.setColor(Application.getResColor(R.color.DestinationLocationNodeColor));
         } else if (this.attributes.contains(Attribute.PATH)) { //apart of the path
-            paint.setColor(Color.parseColor("#ff69b4"));
+            paint.setColor(Application.getResColor(R.color.PathNodeColor));
         } else { //default, nothing special about the node
-            paint.setColor(Color.parseColor("#CDCD5C"));
+            paint.setColor(Application.getResColor(R.color.DefaultNodeColor));
         }
         //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
         if (this.attributes.contains(Attribute.CLICKED)) {

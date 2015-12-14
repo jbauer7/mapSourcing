@@ -44,9 +44,9 @@ public class Node extends BaseNode implements Serializable {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
-            paint.setColor(Color.parseColor("#ff69b4"));
+            paint.setColor(Application.getResColor(R.color.PathNodeColor));
         } else { //default, nothing special about the node
-            paint.setColor(Color.parseColor("#CD5C5C"));
+            paint.setColor(Application.getResColor(R.color.DefaultNodeColor));
         }
         //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
         if (this.attributes.contains(Attribute.CLICKED)) {
@@ -59,7 +59,7 @@ public class Node extends BaseNode implements Serializable {
         }
         if(stairNode){
             int prevColor = paint.getColor();
-            paint.setColor(Color.parseColor("#ff5500"));
+            paint.setColor(Application.getResColor(R.color.StairNodeBorderColor));
             //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);
             canvas.drawCircle(this.getxPos(), this.getyPos(), (int) (drawnRadius * (stairSizeModifier)), paint);
             paint.setColor(prevColor);

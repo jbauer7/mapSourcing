@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Defaults -->
+    <color name="DefaultNodeColor">#e6b800<!--#CD5C5C--></color>
+    <color name="DefaultEdgeColor">#ffcc00<!--#7070FF--></color>
+
+    <!-- Location Nodes -->
+    <color name="UserLocationNodeColor">#00FF00</color>
+    <color name="DestinationLocationNodeColor">#FF0000</color>
+
+    <!-- Path Colors -->
+    <color name="PathNodeColor">#FF9E00</color>
+    <color name="PathEdgeColor">#00B3FD</color>
+
+    <!-- Stair Node -->
+    <color name="StairNodeBorderColor">#FF5500</color>
+</resources>

@@ -139,9 +139,9 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
         //selects color based on priority of attributes.
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
-            paint.setColor(Color.parseColor("#FFB6C1"));
+            paint.setColor(Application.getResColor(R.color.PathEdgeColor));
         } else { //default, nothing special about the node
-            paint.setColor(Color.parseColor("#7070FF"));
+            paint.setColor(Application.getResColor(R.color.DefaultEdgeColor));
         }
         //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
         if (this.attributes.contains(Attribute.CLICKED)) {
