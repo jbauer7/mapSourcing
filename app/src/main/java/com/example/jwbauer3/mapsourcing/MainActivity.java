@@ -477,16 +477,12 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
-                getCurrentFloorSavedVersion();
-                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-                mService.getLocation();
-                mService.getCurrEdge();
-                Toast.makeText(getApplicationContext(), "x:" + Integer.toString(mService.getLocation()[0]) + "\nY:" + Integer.toString(mService.getLocation()[1]),
-                        Toast.LENGTH_SHORT).show();
+                //getCurrentFloorSavedVersion();
+              //  mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
-                Toast.makeText(getApplicationContext(), "mService.getCurrEdge().getWeight() = " + mService.getCurrEdge().getWeight(),
+                Toast.makeText(getApplicationContext(), "x:" + mService.getLocation()[0]+ "\ny:"+ mService.getLocation()[1],
                         Toast.LENGTH_SHORT).show();
-                myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+             ///   myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",

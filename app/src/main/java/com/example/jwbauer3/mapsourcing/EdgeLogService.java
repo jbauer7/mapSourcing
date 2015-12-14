@@ -56,6 +56,7 @@ public class EdgeLogService extends Service {
     private float navDegree;
     private boolean atNode=false;
     private BaseNode navCurrNode;
+    private boolean noStep=true;
 
     //both navigation and mapping
     private float currSteps;
@@ -125,6 +126,7 @@ public class EdgeLogService extends Service {
 
     private void sendBroadcast() {
         Intent new_intent = new Intent();
+        //new_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         new_intent.setAction("ToActivity");
         sendBroadcast(new_intent);
     }
@@ -182,6 +184,7 @@ public class EdgeLogService extends Service {
                 if(navigationMode){
                     currSteps = (toEndNode()) ? currSteps+1 : currSteps-1;
                     step_change++;
+                    noStep=false;
                 }
                 else currSteps++;
                 lock = true;
@@ -465,9 +468,11 @@ public class EdgeLogService extends Service {
 
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
     private void navigationHandler(float newDegree){
-        Log.i("","NAVMODE TRUE");
+        if(currEdge==null || noStep) return;
+        noStep=true;
+        if(atNode){
 
-        if(currEdge==null) return;
+        }
 
         if(atNode && !checkAtNode()){
             currEdge=getNextEdge();
@@ -477,12 +482,13 @@ public class EdgeLogService extends Service {
 
         else if(!atNode && checkAtNode()){
             atNode=true;
-        }
-        navDegree=newDegree;
-        if(step_change<=NAVIGATION_UPDATE_STEP_THRESHOLD){
             return;
         }
-        step_change=0;
+        navDegree=newDegree;
+       // if(step_change<=NAVIGATION_UPDATE_STEP_THRESHOLD){
+         //   return;
+       // }
+        //step_change=0;
 
 
 
@@ -499,31 +505,45 @@ public class EdgeLogService extends Service {
         currentLocation[0]= ((int) ((( (float) currEdge.getStart().getxPos()+ (float)currEdge.getEnd().getxPos()))*percentDistance));
         currentLocation[1]= ((int) ((( (float) currEdge.getStart().getyPos()+ (float)currEdge.getEnd().getyPos()))*percentDistance));
 
+         if(step_change<=NAVIGATION_UPDATE_STEP_THRESHOLD){
+           return;
+         }
+        step_change=0;
         sendBroadcast();
     }
 
     private boolean checkAtNode(){
-        if(currSteps <5) {
+        if(currSteps/ (float)currEdge.getWeight() <0.05 ) {
             navCurrNode=currEdge.getStart();
             return true;
-        }else if(currEdge.getWeight()- currSteps <5) {
+        }else if(currSteps/ (float)currEdge.getWeight() > .95) {
             navCurrNode=currEdge.getEnd();
             return true;
         }else return false;
     }
 
     private BaseEdge getNextEdge(){
-       BaseEdge bestEdge=navCurrNode.getEdges().get(0);
+       BaseEdge nextEdge=navCurrNode.getEdges().get(0);
+        float DegreesAway=360;
         for(BaseEdge tempEdge: navCurrNode.getEdges()){
-            if(Math.abs(tempEdge.getDirection()-navDegree) < Math.abs(bestEdge.getDirection() - navDegree)){
-                bestEdge=tempEdge;
+            float tempDegreesAway= Math.abs(tempEdge.getDirection() - navDegree);
+            if(tempDegreesAway >180) {
+                tempDegreesAway =360-tempDegreesAway;
+            }
+            if(tempDegreesAway<DegreesAway){
+                DegreesAway=tempDegreesAway;
+                nextEdge=tempEdge;
             }
         }
-        return bestEdge;
+        return nextEdge;
     }
 
     private boolean toEndNode(){
-        if(navDegree < currEdge.getDirection()+90||navDegree < currEdge.getDirection()+90){
+
+       if( Math.abs((currEdge.getDirection())-navDegree) <90 ||Math.abs((currEdge.getDirection())-navDegree)>270)
+
+
+        if(navDegree < (currEdge.getDirection()+90)%360||navDegree > currEdge.getDirection() +270){
             return true;
         }
         return false;
@@ -533,14 +553,11 @@ public class EdgeLogService extends Service {
         if(navigationMode){
             currEdge=start;
             currSteps=currEdge.getWeight()*percentComplete;
-            Log.i("","NAVMODE TRUE");
-
         }
     }
 
     public BaseEdge getCurrEdge(){return currEdge;}
     public void setNavigationMode(){
-        Log.i("","NAVMODE TRUE");
         navigationMode=true;}
     public void setMappingMode(){ navigationMode=false;}
     public int[] getLocation(){return currentLocation;}
