@@ -13,7 +13,6 @@ public abstract class BaseEdge extends CanvasDrawable {
     private int drawnLineWidth;
     private BaseNode start, end;
     private int weight, direction;
-    //protected EdgeData edgeData;
 
     public BaseEdge(int priority, BaseNode start, BaseNode end) {
         super(priority);
@@ -24,7 +23,6 @@ public abstract class BaseEdge extends CanvasDrawable {
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
         this.darkenOnClick = .75f;
 
-        //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
         options.add(MenuSelection.LOCATE);
         options.add(MenuSelection.SEARCH);
     }
@@ -57,12 +55,11 @@ public abstract class BaseEdge extends CanvasDrawable {
 
     @Override
     public void draw(Canvas canvas) {
-        //Draw all the edges
         Paint paint = new Paint();
-        //Update the paintbrush to make lines (for edges)
-        //paint.setStyle(Paint.Style.FILL);
+
         paint.setStrokeWidth(drawnLineWidth);
-        //selects color based on priority
+
+        //selects color based on priority of attributes.
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
             paint.setColor(Color.parseColor("#FFB6C1"));
         } else { //default, nothing special about the node
@@ -78,12 +75,12 @@ public abstract class BaseEdge extends CanvasDrawable {
             paint.setColor(color);
         }
 
-
+        //define start and end point.
         int xStart = this.getStart().getxPos();
         int yStart = this.getStart().getyPos();
         int xEnd = this.getEnd().getxPos();
         int yEnd = this.getEnd().getyPos();
-        //canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
+
         canvas.drawLine(xStart, yStart, xEnd, yEnd, paint);
     }
 
