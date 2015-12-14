@@ -289,8 +289,8 @@ public class MainActivity extends Activity {
 
         //TODO: Persistence TESTING
         //Persistence test
-        persistenceStartUp();
-        //startUp();
+        //persistenceStartUp();
+        startUp();
         /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
@@ -478,11 +478,11 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
                 //getCurrentFloorSavedVersion();
-              //  mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
                 Toast.makeText(getApplicationContext(), "x:" + mService.getLocation()[0]+ "\ny:"+ mService.getLocation()[1],
                         Toast.LENGTH_SHORT).show();
-             ///   myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+                //myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",
