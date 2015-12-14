@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
-    private int curFloorNum=0;
+    protected static int curFloorNum=0;
     private EdgeLogService mService;
     private Navigator navigator;
 
@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
     //private ArrayList<Node> currNodes;
     //private ArrayList<Edge> currEdges;
     protected static Floor currFloor;
-    private ArrayList<Floor> floors = new ArrayList<>();
+    protected static ArrayList<Floor> floors = new ArrayList<>();
     private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3","Floor 4"};
     private Intent serviceIntent;
 
@@ -287,8 +287,8 @@ public class MainActivity extends Activity {
 
         //TODO: Persistence TESTING
         //Persistence test
-        //persistenceStartUp();
-        startUp();
+        persistenceStartUp();
+        //startUp();
         /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
@@ -475,15 +475,16 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
-                //getCurrentFloorSavedVersion();
-                //mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                getCurrentFloorSavedVersion();
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 mService.getLocation();
                 mService.getCurrEdge();
                 Toast.makeText(getApplicationContext(), "x:" + Integer.toString(mService.getLocation()[0]) + "\nY:" + Integer.toString(mService.getLocation()[1]),
                         Toast.LENGTH_SHORT).show();
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
-                Log.d("MyView", "mService.getCurrEdge().getWeight() = " + mService.getCurrEdge().getWeight());
-                myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+                Toast.makeText(getApplicationContext(), "mService.getCurrEdge().getWeight() = " + mService.getCurrEdge().getWeight(),
+                        Toast.LENGTH_SHORT).show();
+                //myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",

@@ -213,6 +213,7 @@ public class Persistence {
                 //Edge edge = (Edge) objectDeserializer(edgeString);
                 floor.edges.add(edge);
             }*/
+            edgeHashMap.get(i).getStartEndNodes(nodeHashMap);
             floor.edges.add(edgeHashMap.get(i));
         }
 
@@ -271,6 +272,10 @@ public class Persistence {
             /*String nodePrefId = "node_" + i;
             String nodeGson = gson.toJson(floor.nodes.get(i));
             prefsEditor.putString(nodePrefId, nodeGson); */
+            if (floor.nodes.get(i).drawnRadius == 0)
+            {
+                continue;
+            }
             nodeHashMap.put(floor.nodes.get(i).nodeRefString, floor.nodes.get(i));
             //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
         }

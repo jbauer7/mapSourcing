@@ -262,6 +262,7 @@ public class MyView extends View {
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
                     //todo: only Edge has access to Search menuOption
+                    Log.d("MyView", "searchLocation = " + searchLocation);
                     setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
                     searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
@@ -656,6 +657,12 @@ public class MyView extends View {
 
         //Create the new user location and its edges
         toSet = new LocationNode(xPos, yPos, curFloor.getFloorNum(), userSourceEdge, nodeBefore, nodeAfter);
+
+        Floor floor = MainActivity.floors.get(MainActivity.curFloorNum);
+        floor.getNodes().add(new Node(xPos, yPos, curFloor.getFloorNum()));
+        MainActivity.floors.add(MainActivity.curFloorNum, floor);
+        MainActivity.floor.saveFloor(floor);
+
         toSet.setScaleFactor(meshReferenceState.scaleFactor);
 
         addLocationNodeToDrawables(toSet);

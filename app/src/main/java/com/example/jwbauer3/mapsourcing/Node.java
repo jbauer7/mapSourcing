@@ -32,6 +32,12 @@ public class Node extends BaseNode implements Serializable {
         options.add(MenuSelection.END);
         stairNode = stair;
     }
+    public Node(int xPos, int yPos, int floor) {
+        super(xPos, yPos, floor,0, 0);
+        //drawnRadius = DEFAULTRADIUS;
+        //options.add(MenuSelection.START);
+        //options.add(MenuSelection.END);
+    }
 
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {

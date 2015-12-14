@@ -3,6 +3,7 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 
 /**
  * created by Eric on 12/2/15.
@@ -52,12 +53,15 @@ public class LocationNode extends BaseNode {
         }
         float middleX = (float) (this.getxPos() + xOffset);
         float middleY = (float) (this.getyPos() + yOffset);
-        canvas.drawArc(middleX - drawnRadius,
+        RectF rectf = new RectF(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius);
+        canvas.drawArc(rectf, (float) sliceStartAngle, (float) sliceSweepAngle, true, paint);
+
+        /*canvas.drawArc(middleX - drawnRadius,
                 middleY - drawnRadius,
                 middleX + drawnRadius,
                 middleY + drawnRadius,
                 (float) sliceStartAngle,
-                (float) sliceSweepAngle, true, paint);
+                (float) sliceSweepAngle, true, paint); */
 
     }
 

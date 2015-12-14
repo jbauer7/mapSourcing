@@ -9,6 +9,7 @@ import android.view.Menu;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -17,7 +18,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;
-    private BaseNode start, end;
+    private transient BaseNode start, end;
     private int weight, direction;
     //protected EdgeData edgeData;
 
@@ -45,6 +46,11 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         nodeEndId = end.nodeRefString;
     }
 
+    public void getStartEndNodes(HashMap<String, Node> nodeHashMap) {
+        start = nodeHashMap.get(nodeStartId);
+        end = nodeHashMap.get(nodeEndId);
+    }
+
     public BaseNode getStart() {
         /*int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
         ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
@@ -56,9 +62,13 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
             }
         }
         return node; */
-        //Log.d("BaseEdge", "getStart");
-        return start;
-        //return MainActivity.floor.getSpecifcNode(nodeStartId);
+        //Log.d("BaseEdge", "getStart | nodeStartId = " + nodeStartId);
+        //return start;
+        if (start != null)
+        {
+            return start;
+        }
+        return MainActivity.floor.getSpecifcNode(nodeStartId);
     }
 
     public BaseNode getEnd() {
@@ -72,9 +82,13 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
             }
         }
         return node; */
-        //Log.d("BaseEdge", "getEnd");
-        return end;
-        //return MainActivity.floor.getSpecifcNode(nodeEndId);
+        //Log.d("BaseEdge", "getEnd | nodeEndId = " + nodeEndId);
+        if (end != null)
+        {
+            return end;
+        }
+        //end = MainActivity.floor.getSpecifcNode(nodeEndId);
+        return MainActivity.floor.getSpecifcNode(nodeEndId);
     }
 
     /*public BaseNode getStart() {
@@ -131,6 +145,10 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         int yStart = this.getStart().getyPos();
         int xEnd = this.getEnd().getxPos();
         int yEnd = this.getEnd().getyPos();
+        /*Log.d("BaseEdge", "xStart = " + xStart
+                            + " yStart = " + yStart
+                            + " xEnd = " + xEnd
+                            + " yEnd = " + yEnd); */
         canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
     }
 
