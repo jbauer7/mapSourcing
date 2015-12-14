@@ -1,9 +1,11 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -58,6 +60,11 @@ public class MyView extends View {
     private LocationNode searchLocation = null;
 
     private ArrayList<MenuOption> opts = new ArrayList<>();
+
+    //Service Connection
+    private EdgeLogService mService;
+
+
 
     public MyView(Context context) {
         super(context);
@@ -139,7 +146,8 @@ public class MyView extends View {
         //percent to end will be startDist/(totalDist)
         double percentToEnd = distToStart / (distToEnd + distToStart);
 
-        //service.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
+        //if(mService!=null)
+       mService.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
     }
 
     /*
@@ -196,14 +204,15 @@ public class MyView extends View {
         super.onDraw(canvas);
 
         canvas.save();
-
         //update the scale: we zoom equally in both x and y direction
         canvas.scale(canvasReferenceState.scaleFactor, canvasReferenceState.scaleFactor);
-
-        //translate the canvas for the background.
+        //update the translation: offset by trans(XY)/scaleFactor (how far at what zoom factor)
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
+        //TODO: try to incorporate the x,y offsets into the translate
+        //get rid of need to pass offsets to canvasdrawables
+        //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
 
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
@@ -215,7 +224,6 @@ public class MyView extends View {
         for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas);
         }
-
         canvas.restore();
     }
 
@@ -251,6 +259,7 @@ public class MyView extends View {
                     if (endNode != null) {
                         updatePath();
                     }
+
                     alertServiceToUserLocationUpdate();
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
@@ -647,6 +656,12 @@ public class MyView extends View {
 
         //Create the new user location and its edges
         toSet = new LocationNode(xPos, yPos, curFloor.getFloorNum(), userSourceEdge, nodeBefore, nodeAfter);
+
+        /*Floor floor = MainActivity.floors.get(MainActivity.curFloorNum);
+        floor.getNodes().add(new Node(xPos, yPos, curFloor.getFloorNum()));
+        MainActivity.floors.add(MainActivity.curFloorNum, floor);
+        MainActivity.floor.saveFloor(floor); */
+
         toSet.setScaleFactor(meshReferenceState.scaleFactor);
 
         addLocationNodeToDrawables(toSet);
@@ -682,6 +697,10 @@ public class MyView extends View {
             }
         }
         return toSet;
+    }
+
+    public void connectEdgeLogService(EdgeLogService mService){
+        this.mService=mService;
     }
 }
 

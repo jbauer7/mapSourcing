@@ -1,16 +1,18 @@
 package com.example.jwbauer3.mapsourcing;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * created by Eric on 12/2/15.
  */
-public abstract class BaseNode extends CanvasDrawable {
+public abstract class BaseNode extends CanvasDrawable implements Serializable {
 
     private int xPos, yPos, defaultXPos, defaultYPos;
     private ArrayList<BaseEdge> edges;
     private int floor;
     private float altitude;
+    protected String nodeRefString;
     protected int drawnRadius;
 
 
@@ -22,6 +24,7 @@ public abstract class BaseNode extends CanvasDrawable {
         defaultYPos = yPos;
         edges = new ArrayList<>();
         this.floor = floor;
+        nodeRefString = floor + "_" + xPos + "_" + yPos + "_" + nodePriority;
         this.drawnRadius = drawnRadius;
     }
 
@@ -34,6 +37,7 @@ public abstract class BaseNode extends CanvasDrawable {
     }
 
     public void removeEdge(BaseEdge edge) {
+
         edges.remove(edge);
     }
 

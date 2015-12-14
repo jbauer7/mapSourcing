@@ -17,13 +17,13 @@ import java.util.ArrayList;
 public class EdgeLogService extends Service {
     //Service variables
     protected SensorManager sensorManager;
-    SensorEventListener sensorListener;
+    protected SensorEventListener sensorListener;
     private final IBinder mBinder = new LocalBinder();
-    boolean sensorLock=true;
-
+    private boolean sensorLock=true;
+    private boolean startLock = true;
     /// Floor change Variables
-    boolean newFloor=false;
-    float currPressure;
+    private boolean newFloor=false;
+    private float currPressure;
     private float floorPressure;
     private boolean getFloorReading = true; //THESE ARE FIELDS I NEED FOR DETECTING FLOOR CHANGE
     private int currFloor = 1;              //   -kyle
@@ -32,25 +32,31 @@ public class EdgeLogService extends Service {
     private boolean down = false;
 
     //Mapping variables
-    int xPos = 0;
-    int yPos = 0;
-    int prev_x = 0;
-    int prev_y = 1;
+    private int xPos = 0;
+    private int yPos = 0;
+    private int prev_x = 0;
+    private int prev_y = 1;
     private int prevDegreeRange;
     private int degreeRangeChangedCount;
     private float degreeOffset;
     private boolean noOffset = true;
     boolean lock = false;
-    Node firstNode, prevNode;
-    ArrayList<Node> nodes = new ArrayList<>();
-    ArrayList<Edge> edges = new ArrayList<>();
-    boolean running;
-    boolean offsetReady;
+    private Node firstNode, prevNode;
+    protected ArrayList<Node> nodes; //= new ArrayList<>();
+    protected ArrayList<Edge> edges; //= //new ArrayList<>();
+    private boolean running;
+    private boolean offsetReady;
 
     //navigation variables
-    boolean navigationMode=false;
-    BaseNode currNode;
-    int[] currentLocation = new int[2];
+    private boolean navigationMode=false;
+    private BaseEdge currEdge;
+    private int[] currentLocation = new int[2];
+    private int step_change=0;
+    private final int NAVIGATION_UPDATE_STEP_THRESHOLD=3;
+    private float navDegree;
+    private boolean atNode=false;
+    private BaseNode navCurrNode;
+    private boolean noStep=true;
 
     //both navigation and mapping
     private float currSteps;
@@ -67,12 +73,15 @@ public class EdgeLogService extends Service {
                         if(sensorLock) return;
 
                         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-                            if (navigationMode) navigationHandler(event.values[0]);
-                            else directionHandler(event.values[0]);
+                            if(noOffset && !navigationMode) setOffset(event.values[0]);
+                            else if(!startLock) {
+                                if (navigationMode) navigationHandler(event.values[0]);
+                                else directionHandler(event.values[0]);
+                            }
                         } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                            checkStep(event);
+                            if(!startLock) checkStep(event);
                         } else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
-                            checkAltitude(event);
+                            if(!startLock) checkAltitude(event);
                         }
                     }
 
@@ -80,16 +89,17 @@ public class EdgeLogService extends Service {
                     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
                 };
 
+                //Grabs first Node
+                while(nodes==null)
+                    ;
+                firstNode=nodes.get(0);
+                prevNode=firstNode;
+
                 // starts required sensors
                 sensorThread();
 
                 //TODO: Add floor logic (currently forced to floor 2 for EHall
                 //TODO: Add stair node logic (currently set to false)
-                firstNode = createNewNode(0, 0, currFloor, newFloor);
-                //  nodes = new ArrayList<>();
-                // edges = new ArrayList<>();
-                nodes.add(firstNode);
-                prevNode = firstNode;
                 while (running)
                     ;
             }
@@ -116,6 +126,7 @@ public class EdgeLogService extends Service {
 
     private void sendBroadcast() {
         Intent new_intent = new Intent();
+        //new_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         new_intent.setAction("ToActivity");
         sendBroadcast(new_intent);
     }
@@ -135,11 +146,25 @@ public class EdgeLogService extends Service {
 
     public void lockSensors(){sensorLock=true;}
     public void unlockSensors(){sensorLock=false;}
+    public void lockStart(){startLock=true;}
+    public void unlockStart(){startLock=false;}
+    public void setCurrFloor(int floor){ currFloor=floor;}
+    public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges){
+        this.nodes=nodes;
+        this.edges=edges;
+    }
+
+    private void setOffset (Float newDegree) {
+        setOffsetReady();
+        degreeOffset = 360 - newDegree;
+        noOffset = false;
+        // prev_x=0;
+        //  prev_y=-1;
+        return;
+    }
 
 
     /////////////////////////// MAPPING METHODS//////////////////////////////////////////////////////
-
-
     //on the sensor change (altitude) I just want to print a value to see what some
     //numbers look like to implement the way we check what floor we're on using the phone's
     //sensors as opposed to just touching a button
@@ -156,7 +181,12 @@ public class EdgeLogService extends Service {
         if (accelerationSquareRoot >= 1.3) //
         {
             if (!lock) {
-                currSteps++;
+                if(navigationMode){
+                    currSteps = (toEndNode()) ? currSteps+1 : currSteps-1;
+                    step_change++;
+                    noStep=false;
+                }
+                else currSteps++;
                 lock = true;
             }
         } else {
@@ -167,7 +197,7 @@ public class EdgeLogService extends Service {
 
     private void checkAltitude(SensorEvent event) {
         currPressure = event.values[0];
-        System.out.println(currPressure);
+        //System.out.println(currPressure);
         if (noOffset && !offsetReady) return;
 
         if (getFloorReading) {
@@ -228,6 +258,7 @@ public class EdgeLogService extends Service {
         }
     }
 
+    private float edgeDirection;
     public void directionHandler(float newDegree) {
         //float change = prevDegreeChange;
         int degreeRange;
@@ -237,15 +268,7 @@ public class EdgeLogService extends Service {
         boolean addNewNode = false;
         //setting initial degree offset
 
-        if (noOffset) {
-            if (!offsetReady)
-                return;
 
-            degreeOffset = 360 - newDegree;
-            noOffset = false;
-            prevNode.setAltitude(currPressure);
-            return;
-        }
         if (prevDegreeRange == 0) {
             getInitialDirectionRange(newDegree);
             return;
@@ -271,12 +294,13 @@ public class EdgeLogService extends Service {
             curr_x = 0;
             curr_y = -1;
         }
-        Log.i("start", Integer.toString(degreeRange));
+        // Log.i("start", Integer.toString(degreeRange));
 
 
         //checks if current direction has changed based on the set thresholds
         if (prevDegreeRange == degreeRange) {
             degreeRangeChangedCount = 0;
+            edgeDirection=newDegree;
             return;
         } else {
             degreeRangeChangedCount++;
@@ -300,6 +324,11 @@ public class EdgeLogService extends Service {
 
         //creating a new node and adding the corresponding edge between the prev node and new node
         Node newNode = nodeExists(xPos, yPos);
+        if(newNode==prevNode){
+            prev_x=curr_x;
+            prev_y=curr_y;
+            return;
+        }
         if (newNode == null) {
             //TODO: Add floor logic (currently forced to floor 2 for EHall
             //TODO: Add stair node logic (currently set to false)
@@ -310,24 +339,22 @@ public class EdgeLogService extends Service {
         }
         Edge newEdge = new Edge(prevNode, newNode);
         newEdge.setWeight((int) currSteps);
-        newEdge.setDirection((int) newDegree);
+        newEdge.setDirection((int) edgeDirection);
         prevNode.addEdge(newEdge);
         newNode.addEdge(newEdge);
         if (addNewNode) nodes.add(newNode);
         edges.add(newEdge);
+
         prevNode = newNode;
         prev_x = curr_x;
         prev_y = curr_y;
         currSteps = 0;
-        Log.i("New Node", newNode.getxPos() + " , " + newNode.getyPos() + " Dir: " + newDegree);
+        Log.i("New Node", Integer.toString(edges.size())+"edgessss  "+ newNode.getxPos() + " , " + newNode.getyPos() + " Dir: " + newDegree);
         //set values as needed
         sendBroadcast();
     }
 
-    //methods for main activity to grab nodes and edges
-    public ArrayList<Node> getNodes() {
-        return nodes;
-    }
+
 
     public Node nodeExists(int xPos, int yPos) {
         Node curr;
@@ -431,59 +458,116 @@ public class EdgeLogService extends Service {
         noOffset = true;
     }
 
+    //methods for main activity to grab nodes and edges
+    public ArrayList<Node> getNodes() {
+        return nodes;
+    }
     public ArrayList<Edge> getEdges() {
         return edges;
     }
+
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
     private void navigationHandler(float newDegree){
-        int direction;
-        BaseEdge closestEdge=null;
-        BaseNode endNode;
-        if(currNode==null) return;
+        if(currEdge==null || noStep) return;
+        noStep=true;
+        if(atNode){
 
-        for(BaseEdge currEdge: currNode.getEdges()){
-            direction=currEdge.getDirection();
-            if(!currEdge.getStart().equals(currNode)) direction=(direction+180)%360;
-            if(Math.abs(currEdge.getDirection()-newDegree)<45){
-                closestEdge=currEdge;
-                break;
-            }
         }
-        if(closestEdge==null) return;
 
-
-
-        if(closestEdge.getStart().equals(currNode)){
-            endNode=closestEdge.getEnd();
+        if(atNode && !checkAtNode()){
+            currEdge=getNextEdge();
+            atNode=false;
+            step_change=NAVIGATION_UPDATE_STEP_THRESHOLD;
         }
-        else endNode=closestEdge.getStart();
 
-        float percentDistance= currSteps/closestEdge.getWeight();
+        else if(!atNode && checkAtNode()){
+            atNode=true;
+            return;
+        }
+        navDegree=newDegree;
+       // if(step_change<=NAVIGATION_UPDATE_STEP_THRESHOLD){
+         //   return;
+       // }
+        //step_change=0;
+
+
+
+
+        //change how currSteps is calculated
+        float percentDistance=  currSteps/ (float)currEdge.getWeight();
+        System.out.println(Float.toString(percentDistance)+"%");
+
+
+
+
 
         //calculate where user is
-        currentLocation[0]= ((int) (((float)( endNode.getxPos()-currNode.getxPos()))*percentDistance))+currNode.getxPos();
-        currentLocation[1]= ((int) (((float)( endNode.getyPos()-currNode.getyPos()))*percentDistance))+currNode.getyPos();
+        currentLocation[0]= ((int) ((( (float) currEdge.getStart().getxPos()+ (float)currEdge.getEnd().getxPos()))*percentDistance));
+        currentLocation[1]= ((int) ((( (float) currEdge.getStart().getyPos()+ (float)currEdge.getEnd().getyPos()))*percentDistance));
+
+         if(step_change<=NAVIGATION_UPDATE_STEP_THRESHOLD){
+           return;
+         }
+        step_change=0;
         sendBroadcast();
-        // send this to main
-        if(closestEdge.getWeight()-currSteps <5 ){
-            if(closestEdge.getStart().equals(currNode)){
-                currNode=closestEdge.getEnd();
+    }
+
+    private boolean checkAtNode(){
+        if(currSteps/ (float)currEdge.getWeight() <0.05 ) {
+            navCurrNode=currEdge.getStart();
+            return true;
+        }else if(currSteps/ (float)currEdge.getWeight() > .95) {
+            navCurrNode=currEdge.getEnd();
+            return true;
+        }else return false;
+    }
+
+    private BaseEdge getNextEdge(){
+       BaseEdge nextEdge=navCurrNode.getEdges().get(0);
+        float DegreesAway=360;
+        for(BaseEdge tempEdge: navCurrNode.getEdges()){
+            float tempDegreesAway= Math.abs(tempEdge.getDirection() - navDegree);
+            if(tempDegreesAway >180) {
+                tempDegreesAway =360-tempDegreesAway;
             }
-            else currNode=closestEdge.getStart();
+            if(tempDegreesAway<DegreesAway){
+                DegreesAway=tempDegreesAway;
+                nextEdge=tempEdge;
+            }
         }
+        return nextEdge;
     }
 
-    public void setNavigationStartnode(Node start){
+    private boolean toEndNode(){
+
+       if( Math.abs((currEdge.getDirection())-navDegree) <90 ||Math.abs((currEdge.getDirection())-navDegree)>270)
+
+
+        if(navDegree < (currEdge.getDirection()+90)%360||navDegree > currEdge.getDirection() +270){
+            return true;
+        }
+        return false;
+    }
+
+    public void setNavigationStartEdge(BaseEdge start, float percentComplete){
         if(navigationMode){
-            currNode=start;
-            currSteps=0;
+            currEdge=start;
+            currSteps=currEdge.getWeight()*percentComplete;
         }
     }
 
-
-    public void setNavigationMode(){ navigationMode=true;}
+    public BaseEdge getCurrEdge(){return currEdge;}
+    public void setNavigationMode(){
+        navigationMode=true;}
     public void setMappingMode(){ navigationMode=false;}
     public int[] getLocation(){return currentLocation;}
+    public void setUserLocation(BaseEdge edge, double percentToEnd){
+        setNavigationMode();
+        setNavigationStartEdge(edge , (float) percentToEnd);
+        unlockSensors();
+        unlockStart();
+
+    }
 
 
 

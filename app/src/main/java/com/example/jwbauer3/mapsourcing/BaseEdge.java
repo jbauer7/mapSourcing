@@ -3,19 +3,30 @@ package com.example.jwbauer3.mapsourcing;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
+import android.view.Menu;
+
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * created by Nikhil on 10/11/2015.
  */
-public abstract class BaseEdge extends CanvasDrawable {
+public class BaseEdge extends CanvasDrawable implements Serializable {
 
     private static final int DEFAULTDRAWNLINEWIDTH = 25;
     private int drawnLineWidth;
-    private BaseNode start, end;
+    private transient BaseNode start, end;
     private int weight, direction;
+
+    private String nodeStartId;
+    private String nodeEndId;
 
     public BaseEdge(int priority, BaseNode start, BaseNode end) {
         super(priority);
+        setNodeIDs(start, end);
         this.start = start;
         this.end = end;
         weight = 0;
@@ -27,13 +38,80 @@ public abstract class BaseEdge extends CanvasDrawable {
         options.add(MenuSelection.SEARCH);
     }
 
+    private void setNodeIDs(BaseNode start, BaseNode end)
+    {
+        nodeStartId = start.nodeRefString;
+        nodeEndId = end.nodeRefString;
+    }
+
+    public void getStartEndNodes(HashMap<String, Node> nodeHashMap) {
+        start = nodeHashMap.get(nodeStartId);
+        end = nodeHashMap.get(nodeEndId);
+    }
+
     public BaseNode getStart() {
+        /*int floorNum = Integer.parseInt("" + nodeStartId.charAt(0));
+        ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
+        BaseNode node = null;
+        for (int i = 0; i < nodes.size(); i++) {
+            if (nodes.get(i).nodeRefString.equals(nodeStartId)) {
+                node = nodes.get(i);
+                break;
+            }
+        }
+        return node; */
+        //Log.d("BaseEdge", "getStart | nodeStartId = " + nodeStartId);
+        //return start;
+        if (start != null)
+        {
+            return start;
+        }
+        for (Node node: MainActivity.floors.get(MainActivity.curFloorNum).getNodes())
+        {
+            if (node.nodeRefString.equals(nodeStartId))
+            {
+                return node;
+            }
+        }
+        return null;
+        //return MainActivity.floor.getSpecifcNode(nodeStartId);
+    }
+
+    public BaseNode getEnd() {
+        /*int floorNum = Integer.parseInt("" + nodeEndId.charAt(0));
+        ArrayList<Node> nodes = MainActivity.floor.getFloorNodes();
+        BaseNode node = null;
+        for (int i = 0; i < nodes.size(); i++) {
+            if (nodes.get(i).nodeRefString.equals(nodeEndId)) {
+                node = nodes.get(i);
+                break;
+            }
+        }
+        return node; */
+        //Log.d("BaseEdge", "getEnd | nodeEndId = " + nodeEndId);
+        if (end != null)
+        {
+            return end;
+        }
+        //end = MainActivity.floor.getSpecifcNode(nodeEndId);
+        for (Node node: MainActivity.floors.get(MainActivity.curFloorNum).getNodes())
+        {
+            if (node.nodeRefString.equals(nodeEndId))
+            {
+                return node;
+            }
+        }
+        return null;
+        //return MainActivity.floor.getSpecifcNode(nodeEndId);
+    }
+
+    /*public BaseNode getStart() {
         return start;
     }
 
     public BaseNode getEnd() {
         return end;
-    }
+    } */
 
     public int getWeight() {
         return weight;
@@ -142,11 +220,22 @@ public abstract class BaseEdge extends CanvasDrawable {
         if (!(toCompare instanceof BaseEdge)) {
             return false;
         }
+
         BaseEdge comp = (BaseEdge) toCompare;
+        Log.d("BaseEdge", "comp.getStart() = " + comp.getEnd().toString());
         return ((comp.getStart().getxPos() == this.getStart().getxPos()) &&
                 (comp.getStart().getyPos() == this.getStart().getyPos()) &&
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
+    }
+
+    //have menus display in the middle of the edge, halfway through x and y.
+    public int getMenuStartX() {
+        return (getStart().getxPos() + getEnd().getxPos()) / 2;
+    }
+
+    public int getMenuStartY() {
+        return (getEnd().getyPos() + getEnd().getyPos()) / 2;
     }
 
 }
