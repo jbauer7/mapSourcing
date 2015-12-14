@@ -39,8 +39,6 @@ public class MenuOption extends CanvasDrawable {
 
         Paint paint = new Paint();
 
-        //int x = xPos + xOffset;
-        //int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
         int x = xPos;
         int y = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
         int xEnd = (int) (x + elementWidth * scaleFactor);
@@ -58,7 +56,6 @@ public class MenuOption extends CanvasDrawable {
 
     @Override
     public boolean contains(int clickedX, int clickedY) {
-        //TODO: does this allow hits on the 'border'?
         int xStart = xPos;
         int yStart = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * elementNum * scaleFactor);
         int xEnd = xStart + (int) (elementWidth * scaleFactor);

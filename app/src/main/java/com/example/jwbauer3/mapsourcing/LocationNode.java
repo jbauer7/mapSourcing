@@ -51,8 +51,6 @@ public class LocationNode extends BaseNode {
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }
-        //float middleX = (float) (this.getxPos() + xOffset);
-        //float middleY = (float) (this.getyPos() + yOffset);
         float middleX = this.getxPos();
         float middleY = this.getyPos();
         //can't use this call as it requires API lv 21.

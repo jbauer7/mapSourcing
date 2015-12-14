@@ -1,11 +1,9 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -666,7 +664,7 @@ public class MyView extends View {
 
         addLocationNodeToDrawables(toSet);
 
-        //Update the searchLocation's edges as well
+        //Update the others edges as well
         if (other != null) {
             //Remove old edges from collections
             Edge searchSourceEdge = other.getSourceEdge();

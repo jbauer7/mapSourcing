@@ -50,11 +50,9 @@ public class Node extends BaseNode implements Serializable {
         if (stairNode) {
             int prevColor = paint.getColor();
             paint.setColor(Application.getResColor(R.color.StairNodeBorderColor));
-            //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);
             canvas.drawCircle(this.getxPos(), this.getyPos(), (int) (drawnRadius * (stairSizeModifier)), paint);
             paint.setColor(prevColor);
         }
-        //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, drawnRadius, paint);
 
         canvas.drawCircle(this.getxPos(), this.getyPos(), drawnRadius, paint);
 

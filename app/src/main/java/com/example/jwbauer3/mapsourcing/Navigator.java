@@ -11,8 +11,6 @@ public class Navigator {
     private ArrayList<BaseNode> graph;
     private ArrayList<CanvasDrawable> path;
 
-
-    //todo: make static?
     public Navigator(BaseNode startNode, BaseNode endNode, ArrayList<BaseNode> graph) {
         setStartNode(startNode);
         setEndNode(endNode);
@@ -21,9 +19,6 @@ public class Navigator {
     public Navigator(ArrayList<BaseNode> graph) {
         this.graph = graph;
     }
-
-
-    //todo: method to set graph?
 
     public void setStartNode(BaseNode startNode) {
         //get rid of old start node, IFF its a location node.
