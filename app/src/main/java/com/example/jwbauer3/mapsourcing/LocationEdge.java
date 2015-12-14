@@ -10,4 +10,9 @@ public class LocationEdge extends BaseEdge {
     public LocationEdge(BaseNode start, BaseNode end) {
         super(DEFAULTLOCATIONEDGEPRIORITY, start, end);
     }
+    //can never click on a locationNode.
+    @Override
+    public boolean contains(int mapX, int mapY) {
+        return false;
+    }
 }

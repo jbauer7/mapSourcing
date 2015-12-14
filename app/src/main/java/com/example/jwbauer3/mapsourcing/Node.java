@@ -1,15 +1,10 @@
 package com.example.jwbauer3.mapsourcing;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * created by Nikhil on 10/11/2015.
@@ -20,23 +15,18 @@ public class Node extends BaseNode implements Serializable {
     private static final int DEFAULTRADIUS = 25;
     private boolean stairNode = false;
 
-    //Persistence variables
-    private static SharedPreferences sharedPreferences;
-    private static String PREF_NAME = "FloorStorage";
     private double stairSizeModifier = 1.3; //30% larger
 
     public Node(int xPos, int yPos, int floor, boolean stair) {
-        super(xPos, yPos, floor,DEFAULTRADIUS, DEFAULTNODEPRIORITY);
+        super(xPos, yPos, floor, DEFAULTRADIUS, DEFAULTNODEPRIORITY);
         drawnRadius = DEFAULTRADIUS;
-        options.add(MenuSelection.START);
-        options.add(MenuSelection.END);
-        stairNode = stair;
-    }
-    public Node(int xPos, int yPos, int floor) {
-        super(xPos, yPos, floor,0, 0);
-        //drawnRadius = DEFAULTRADIUS;
         //options.add(MenuSelection.START);
         //options.add(MenuSelection.END);
+        stairNode = stair;
+    }
+
+    public Node(int xPos, int yPos, int floor) {
+        this(xPos, yPos, floor, false);
     }
 
     @Override
@@ -57,7 +47,7 @@ public class Node extends BaseNode implements Serializable {
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }
-        if(stairNode){
+        if (stairNode) {
             int prevColor = paint.getColor();
             paint.setColor(Application.getResColor(R.color.StairNodeBorderColor));
             //canvas.drawCircle(this.getxPos() + xOffset, this.getyPos() + yOffset, (int) (drawnRadius * (stairSizeModifier)), paint);

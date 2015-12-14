@@ -229,13 +229,4 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
     }
 
-    //have menus display in the middle of the edge, halfway through x and y.
-    public int getMenuStartX() {
-        return (getStart().getxPos() + getEnd().getxPos()) / 2;
-    }
-
-    public int getMenuStartY() {
-        return (getEnd().getyPos() + getEnd().getyPos()) / 2;
-    }
-
 }
