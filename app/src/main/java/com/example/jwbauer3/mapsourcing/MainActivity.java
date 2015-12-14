@@ -484,7 +484,7 @@ public class MainActivity extends Activity {
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
                 Toast.makeText(getApplicationContext(), "mService.getCurrEdge().getWeight() = " + mService.getCurrEdge().getWeight(),
                         Toast.LENGTH_SHORT).show();
-                //myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+                myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",
