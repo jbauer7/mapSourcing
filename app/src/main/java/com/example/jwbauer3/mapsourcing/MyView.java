@@ -196,29 +196,26 @@ public class MyView extends View {
         super.onDraw(canvas);
 
         canvas.save();
+
         //update the scale: we zoom equally in both x and y direction
-
         canvas.scale(canvasReferenceState.scaleFactor, canvasReferenceState.scaleFactor);
-        //update the translation: offset by trans(XY)/scaleFactor (how far at what zoom factor)
-        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
-        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
+        //translate the canvas for the background.
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
-        // canvas.translate(xOffset,yOffset);
-        //TODO: try to incorporate the x,y offsets into the translate
-        //get rid of need to pass offsets to canvasdrawables
-        //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
+
 
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
-        //draw each drawable element (nodes, edges, etc etc)
 
+        //translate the canvas for the canvasDrawable objects.
         canvas.translate(xOffset, yOffset);
 
+        //draw each drawable element (nodes, edges, etc etc)
         for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas);
         }
+
         canvas.restore();
     }
 
@@ -240,12 +237,12 @@ public class MyView extends View {
         if (selectedElement != null) {
             if (selectedElement instanceof MenuOption) {
                 MenuOption opt = (MenuOption) selectedElement;
-                if (opt.getMenuAttribute().equals(MenuSelection.START)) {
+                //if (opt.getMenuAttribute().equals(MenuSelection.START)) {
 
-                } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
+                //} else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
 
-                } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
-                    //todo: only Edge has access Locate menuOption
+                //} else
+                if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
                     userLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
                     userLocation.toggleAttribute(Attribute.USER);
                     //Set the start node for the navigator
@@ -257,7 +254,6 @@ public class MyView extends View {
                     alertServiceToUserLocationUpdate();
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
-                    //todo: only Edge has access to Search menuOption
                     searchLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
                     searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
@@ -643,7 +639,6 @@ public class MyView extends View {
         }
         if ((other != null) && (other.getSourceEdge().equals(userSourceEdge))) {
             //This search node is on this edge too, make both edges point to it
-            //TODO: should only set one edge to the other.... not both.
             nodeBefore = other;
             nodeAfter = other;
             drawables_draw.remove(other.getStartEdge());
@@ -686,7 +681,7 @@ public class MyView extends View {
                 }
             }
         }
-      return toSet;
+        return toSet;
     }
 }
 
