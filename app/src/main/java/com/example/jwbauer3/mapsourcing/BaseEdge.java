@@ -68,7 +68,15 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         {
             return start;
         }
-        return MainActivity.floor.getSpecifcNode(nodeStartId);
+        for (Node node: MainActivity.floors.get(MainActivity.curFloorNum).getNodes())
+        {
+            if (node.nodeRefString.equals(nodeStartId))
+            {
+                return node;
+            }
+        }
+        return null;
+        //return MainActivity.floor.getSpecifcNode(nodeStartId);
     }
 
     public BaseNode getEnd() {
@@ -88,7 +96,15 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
             return end;
         }
         //end = MainActivity.floor.getSpecifcNode(nodeEndId);
-        return MainActivity.floor.getSpecifcNode(nodeEndId);
+        for (Node node: MainActivity.floors.get(MainActivity.curFloorNum).getNodes())
+        {
+            if (node.nodeRefString.equals(nodeEndId))
+            {
+                return node;
+            }
+        }
+        return null;
+        //return MainActivity.floor.getSpecifcNode(nodeEndId);
     }
 
     /*public BaseNode getStart() {
@@ -210,7 +226,9 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         if (!(toCompare instanceof BaseEdge)) {
             return false;
         }
+
         BaseEdge comp = (BaseEdge) toCompare;
+        Log.d("BaseEdge", "comp.getStart() = " + comp.getEnd().toString());
         return ((comp.getStart().getxPos() == this.getStart().getxPos()) &&
                 (comp.getStart().getyPos() == this.getStart().getyPos()) &&
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&

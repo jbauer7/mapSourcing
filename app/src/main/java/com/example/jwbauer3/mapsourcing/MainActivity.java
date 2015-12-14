@@ -109,12 +109,14 @@ public class MainActivity extends Activity {
         // I did this so it would stop crashing gets overwritten later anyway -Joey
         floors.get(0).getNodes().add(new Node(0, 0, 0, false));
         floors.get(0).getNodes().add(new Node(100, 0, 0, false));
+        floors.get(0).getNodes().add(new Node(100, 100, 0, false));
 
         floors.get(1).getNodes().add(new Node(0, 0, 1, false));
         floors.get(2).getNodes().add(new Node(0, 0, 2, false));
         floors.get(3).getNodes().add(new Node(0, 0, 3, false));
 
         floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+        floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(1), floors.get(0).getNodes().get(2)));
         floors.get(1).getNodes().add(new Node(0,0,2,false));
         floors.get(2).getNodes().add(new Node(0,0,3,false));
         floors.get(3).getNodes().add(new Node(0,0,4,false));

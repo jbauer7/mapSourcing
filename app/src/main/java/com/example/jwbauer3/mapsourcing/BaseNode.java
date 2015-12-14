@@ -37,6 +37,7 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
     }
 
     public void removeEdge(BaseEdge edge) {
+
         edges.remove(edge);
     }
 
