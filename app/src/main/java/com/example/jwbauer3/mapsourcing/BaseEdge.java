@@ -88,7 +88,7 @@ public abstract class BaseEdge extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int mapX, int mapY, float canvasScaleFactor) {
+    public boolean contains(int mapX, int mapY) {
 
         int xStart = this.getStart().getxPos();
         int yStart = this.getStart().getyPos();
@@ -130,7 +130,7 @@ public abstract class BaseEdge extends CanvasDrawable {
 
         //check to see if the height is less than our scaled width of the line.
         //take the half because the drawn line width is the entire line, we only can allow for half of that.
-        return (height <= (drawnLineWidth / 2.0) * canvasScaleFactor);
+        return (height <= (drawnLineWidth / 2.0));
     }
 
     /*

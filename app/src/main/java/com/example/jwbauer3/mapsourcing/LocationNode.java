@@ -79,9 +79,8 @@ public class LocationNode extends BaseNode {
 
 
     @Override
-    public boolean contains(int mapX, int mapY, float scaleFactor) {
-        float displayedRadius = (drawnRadius * scaleFactor);
-        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), displayedRadius);
+    public boolean contains(int mapX, int mapY) {
+        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), drawnRadius);
     }
 
 

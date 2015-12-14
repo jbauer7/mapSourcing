@@ -232,8 +232,7 @@ public class MyView extends View {
         int mapY = convertPixelToMapY((int) event.getY());
 
         for (CanvasDrawable element : drawables_search) {
-
-            if (element.contains(mapX, mapY, canvasReferenceState.scaleFactor)) {
+            if (element.contains(mapX, mapY)) {
                 selectedElement = element;
                 break;
             }

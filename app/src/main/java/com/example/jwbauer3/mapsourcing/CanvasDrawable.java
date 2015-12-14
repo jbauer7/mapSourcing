@@ -38,7 +38,7 @@ public abstract class CanvasDrawable {
     /*
     Does the element contain the mapX and mapY point.
      */
-    public abstract boolean contains(int mapX,int mapY, float canvasScaleFactor);
+    public abstract boolean contains(int mapX, int mapY);
 
     public abstract void setScaleFactor(float scaleFactor);
 

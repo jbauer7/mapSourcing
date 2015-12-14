@@ -57,12 +57,12 @@ public class MenuOption extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int clickedX, int clickedY, float canvasScaleFactor) {
+    public boolean contains(int clickedX, int clickedY) {
         //TODO: does this allow hits on the 'border'?
         int xStart = xPos;
-        int yStart = yPos +elementHeight*elementNum - borderPix*elementNum;
-        int xEnd = xStart + elementWidth;
-        int yEnd = yStart + elementHeight;
+        int yStart = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * elementNum * scaleFactor);
+        int xEnd = xStart + (int) (elementWidth * scaleFactor);
+        int yEnd = yStart + (int) (elementHeight * scaleFactor);
         return (clickedX > xStart && clickedY > yStart && clickedX < xEnd && clickedY < yEnd);
     }
 
