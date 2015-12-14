@@ -45,7 +45,6 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
         edges.clear();
     }
 
-    //could store radius, color, pixel area coverage.
     public ArrayList<BaseEdge> getEdges() {
         return edges;
     }
@@ -90,8 +89,7 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
         return altitude;
     }
 
-    public boolean contains(int mapX, int mapY, float scaleFactor) {
-        int displayedRadius = (int) (drawnRadius * scaleFactor);
-        return (Math.sqrt(Math.pow(mapX - this.getxPos(), 2) + Math.pow(mapY - this.getyPos(), 2)) <= displayedRadius);
+    public boolean contains(int mapX, int mapY) {
+        return (Math.sqrt(Math.pow(mapX - this.getxPos(), 2) + Math.pow(mapY - this.getyPos(), 2)) <= drawnRadius);
     }
 }

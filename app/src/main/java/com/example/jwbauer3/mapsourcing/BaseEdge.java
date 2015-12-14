@@ -20,7 +20,6 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     private int drawnLineWidth;
     private transient BaseNode start, end;
     private int weight, direction;
-    //protected EdgeData edgeData;
 
     private String nodeStartId;
     private String nodeEndId;
@@ -35,7 +34,6 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         drawnLineWidth = DEFAULTDRAWNLINEWIDTH;
         this.darkenOnClick = .75f;
 
-        //MenuOption newOpt = new MenuOption(this, 0, MenuSelection.EDGE);
         options.add(MenuSelection.LOCATE);
         options.add(MenuSelection.SEARCH);
     }
@@ -134,13 +132,12 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
     //can implement getPriority;
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
-        //Draw all the edges
+    public void draw(Canvas canvas) {
         Paint paint = new Paint();
-        //Update the paintbrush to make lines (for edges)
-        //paint.setStyle(Paint.Style.FILL);
+
         paint.setStrokeWidth(drawnLineWidth);
-        //selects color based on priority
+
+        //selects color based on priority of attributes.
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
             paint.setColor(Color.parseColor("#FFB6C1"));
         } else { //default, nothing special about the node
@@ -156,20 +153,17 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
             paint.setColor(color);
         }
 
-
+        //define start and end point.
         int xStart = this.getStart().getxPos();
         int yStart = this.getStart().getyPos();
         int xEnd = this.getEnd().getxPos();
         int yEnd = this.getEnd().getyPos();
-        /*Log.d("BaseEdge", "xStart = " + xStart
-                            + " yStart = " + yStart
-                            + " xEnd = " + xEnd
-                            + " yEnd = " + yEnd); */
-        canvas.drawLine(xStart + xOffset, yStart + yOffset, xEnd + xOffset, yEnd + yOffset, paint);
+
+        canvas.drawLine(xStart, yStart, xEnd, yEnd, paint);
     }
 
     @Override
-    public boolean contains(int mapX, int mapY, float canvasScaleFactor) {
+    public boolean contains(int mapX, int mapY) {
 
         int xStart = this.getStart().getxPos();
         int yStart = this.getStart().getyPos();
@@ -211,7 +205,7 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
         //check to see if the height is less than our scaled width of the line.
         //take the half because the drawn line width is the entire line, we only can allow for half of that.
-        return (height <= (drawnLineWidth / 2.0) * canvasScaleFactor);
+        return (height <= (drawnLineWidth / 2.0));
     }
 
     /*

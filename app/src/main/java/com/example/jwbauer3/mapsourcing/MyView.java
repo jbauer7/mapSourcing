@@ -217,9 +217,12 @@ public class MyView extends View {
         //draw the background image (if there is one)
         curFloor.getBackgroundImage().draw(canvas);
 
+        //translate the canvas for the canvasDrawable objects.
+        canvas.translate(xOffset, yOffset);
+
         //draw each drawable element (nodes, edges, etc etc)
         for (CanvasDrawable element : drawables_draw) {
-            element.draw(canvas, xOffset, yOffset);
+            element.draw(canvas);
         }
         canvas.restore();
     }
@@ -234,8 +237,7 @@ public class MyView extends View {
         int mapY = convertPixelToMapY((int) event.getY());
 
         for (CanvasDrawable element : drawables_search) {
-
-            if (element.contains(mapX, mapY, canvasReferenceState.scaleFactor)) {
+            if (element.contains(mapX, mapY)) {
                 selectedElement = element;
                 break;
             }
@@ -243,13 +245,13 @@ public class MyView extends View {
         if (selectedElement != null) {
             if (selectedElement instanceof MenuOption) {
                 MenuOption opt = (MenuOption) selectedElement;
-                if (opt.getMenuAttribute().equals(MenuSelection.START)) {
+                //if (opt.getMenuAttribute().equals(MenuSelection.START)) {
 
-                } else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
+                //} else if (opt.getMenuAttribute().equals(MenuSelection.END)) {
 
-                } else if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
-                    //todo: only Edge has access Locate menuOption
-                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
+                //} else
+                if (opt.getMenuAttribute().equals(MenuSelection.LOCATE)) {
+                    userLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), userLocation, searchLocation);
                     userLocation.toggleAttribute(Attribute.USER);
                     //Set the start node for the navigator
                     startNode = userLocation;
@@ -261,9 +263,7 @@ public class MyView extends View {
                     alertServiceToUserLocationUpdate();
 
                 } else if (opt.getMenuAttribute().equals(MenuSelection.SEARCH)) {
-                    //todo: only Edge has access to Search menuOption
-                    Log.d("MyView", "searchLocation = " + searchLocation);
-                    setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
+                    searchLocation = setLocationNode((Edge) opt.getParent(), opt.getXpos(), opt.getYpos(), searchLocation, userLocation);
                     searchLocation.toggleAttribute(Attribute.DESTINATION);
                     //Set the end node for the navigator
                     endNode = searchLocation;
@@ -633,7 +633,7 @@ public class MyView extends View {
     Method to set both user and search locationNode.
     Will delete/update all references to the LocationNode 'update'
      */
-    private void setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
+    private LocationNode setLocationNode(Edge userSourceEdge, int xPos, int yPos, LocationNode update, LocationNode other) {
         //toSet is the LocationNode that needs to be set.
         LocationNode toSet = update;
         //other is the 'other' LocationNode that isn't being currently being set.
@@ -648,7 +648,6 @@ public class MyView extends View {
         }
         if ((other != null) && (other.getSourceEdge().equals(userSourceEdge))) {
             //This search node is on this edge too, make both edges point to it
-            //TODO: should only set one edge to the other.... not both.
             nodeBefore = other;
             nodeAfter = other;
             drawables_draw.remove(other.getStartEdge());
@@ -697,11 +696,7 @@ public class MyView extends View {
                 }
             }
         }
-        if (update == userLocation) {
-            userLocation = toSet;
-        } else {
-            searchLocation = toSet;
-        }
+        return toSet;
     }
 
     public void connectEdgeLogService(EdgeLogService mService){

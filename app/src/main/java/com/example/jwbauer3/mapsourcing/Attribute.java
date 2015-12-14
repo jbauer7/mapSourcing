@@ -12,9 +12,9 @@ public enum Attribute {
     private final String text;
 
     /**
-     * @param text
+     * @param text: String to be displayed on the screen
      */
-    private Attribute(final String text) {
+     Attribute(final String text) {
         this.text = text;
     }
 

@@ -30,7 +30,7 @@ public class LocationNode extends BaseNode {
 
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
+    public void draw(Canvas canvas) {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
         Paint paint = new Paint();
         if (this.attributes.contains(Attribute.USER)) {
@@ -51,17 +51,16 @@ public class LocationNode extends BaseNode {
             color = Color.HSVToColor(hsv);
             paint.setColor(color);
         }
-        float middleX = (float) (this.getxPos() + xOffset);
-        float middleY = (float) (this.getyPos() + yOffset);
+        //float middleX = (float) (this.getxPos() + xOffset);
+        //float middleY = (float) (this.getyPos() + yOffset);
+        float middleX = this.getxPos();
+        float middleY = this.getyPos();
+        //can't use this call as it requires API lv 21.
+        //canvas.drawArc(middleX - drawnRadius,  middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius, (float) sliceStartAngle,(float) sliceSweepAngle, true, paint);
+
+        //Below call requires API lv 1, and affords the exact same functionality, albeit with an added memory structure created.
         RectF rectf = new RectF(middleX - drawnRadius, middleY - drawnRadius, middleX + drawnRadius, middleY + drawnRadius);
         canvas.drawArc(rectf, (float) sliceStartAngle, (float) sliceSweepAngle, true, paint);
-
-        /*canvas.drawArc(middleX - drawnRadius,
-                middleY - drawnRadius,
-                middleX + drawnRadius,
-                middleY + drawnRadius,
-                (float) sliceStartAngle,
-                (float) sliceSweepAngle, true, paint); */
 
     }
 
@@ -81,9 +80,8 @@ public class LocationNode extends BaseNode {
 
 
     @Override
-    public boolean contains(int mapX, int mapY, float scaleFactor) {
-        float displayedRadius = (drawnRadius * scaleFactor);
-        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), displayedRadius);
+    public boolean contains(int mapX, int mapY) {
+        return isInsideSection(mapX - this.getxPos(), mapY - this.getyPos(), drawnRadius);
     }
 
 

@@ -33,14 +33,16 @@ public class MenuOption extends CanvasDrawable {
     }
 
     @Override
-    public void draw(Canvas canvas, int xOffset, int yOffset) {
+    public void draw(Canvas canvas) {
         //update scale factor
         this.scaleFactor = menuOwner.getScaleFactor();
 
         Paint paint = new Paint();
 
-        int x = xPos + xOffset;
-        int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        //int x = xPos + xOffset;
+        //int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
+        int x = xPos;
+        int y = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
         int xEnd = (int) (x + elementWidth * scaleFactor);
         int yEnd = (int) (y + elementHeight * scaleFactor);
         int border = (int) (borderPix * scaleFactor);
@@ -55,12 +57,12 @@ public class MenuOption extends CanvasDrawable {
     }
 
     @Override
-    public boolean contains(int clickedX, int clickedY, float canvasScaleFactor) {
+    public boolean contains(int clickedX, int clickedY) {
         //TODO: does this allow hits on the 'border'?
         int xStart = xPos;
-        int yStart = yPos +elementHeight*elementNum - borderPix*elementNum;
-        int xEnd = xStart + elementWidth;
-        int yEnd = yStart + elementHeight;
+        int yStart = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * elementNum * scaleFactor);
+        int xEnd = xStart + (int) (elementWidth * scaleFactor);
+        int yEnd = yStart + (int) (elementHeight * scaleFactor);
         return (clickedX > xStart && clickedY > yStart && clickedX < xEnd && clickedY < yEnd);
     }
 
