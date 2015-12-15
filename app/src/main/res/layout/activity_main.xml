@@ -53,7 +53,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Mesh Mode"
+            android:text="@string/mesh_mode"
             android:onClick="toggleMesh" />
 
         <Button
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="pressed"
-            android:text="Set Offset" />
+            android:text="@string/set_offset" />
 
 
     </LinearLayout>
