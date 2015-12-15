@@ -49,7 +49,6 @@ public class EdgeLogService extends Service {
     private boolean offsetReady;
 
     //navigation variables
-    private boolean navigationMode = false;
     private BaseEdge currEdge;
     private int[] currentLocation = new int[2];
     private int step_change = 0;
@@ -58,11 +57,14 @@ public class EdgeLogService extends Service {
     private boolean atNode = false;
     private BaseNode navCurrNode;
     private boolean noStep = true;
+    private float edgeDirection;
 
     //both navigation and mapping
     private float currSteps;
+    private boolean navigationMode = false;
 
 
+    /* start sensor thread*/
     public void onCreate() {
         running = true;
         Thread thread = new Thread() {
@@ -109,23 +111,24 @@ public class EdgeLogService extends Service {
         thread.start();
     }
 
+    /*kill infinte loop onDestroy*/
     public void onDestroy() {
         super.onDestroy();
         offsetReady = false;
         running = false;
     }
 
-
+    /* Allows service to be bound to */
     public class LocalBinder extends Binder {
         EdgeLogService getService() {
             return EdgeLogService.this;
         }
     }
-
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
+    /* allows service to send messages to main activity */
     private void sendBroadcast() {
         Intent new_intent = new Intent();
         //new_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -133,6 +136,7 @@ public class EdgeLogService extends Service {
         sendBroadcast(new_intent);
     }
 
+    /* starts sensors */
     public void sensorThread() {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(sensorListener,
@@ -146,31 +150,32 @@ public class EdgeLogService extends Service {
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /*control sensor methods*/
     public void lockSensors() {
         sensorLock = true;
     }
-
     public void unlockSensors() {
         sensorLock = false;
     }
-
     public void lockStart() {
         startLock = true;
     }
-
     public void unlockStart() {
         startLock = false;
     }
 
+    /*set current floor for nodes*/
     public void setCurrFloor(int floor) {
         currFloor = floor;
     }
 
+    /* setNodes and edges that service should use*/
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
         this.edges = edges;
     }
 
+    /* Set degreeOffset for mapping*/
     private void setOffset(Float newDegree) {
         setOffsetReady();
         degreeOffset = 360 - newDegree;
@@ -210,7 +215,7 @@ public class EdgeLogService extends Service {
         }
     }
 
-
+    /* currently unused will TODO implement auto floor detection */
     private void checkAltitude(SensorEvent event) {
         currPressure = event.values[0];
         //System.out.println(currPressure);
@@ -256,7 +261,7 @@ public class EdgeLogService extends Service {
         //newFloor=true;
     }
 
-
+    /* set ranges for mapping screen orientation to real world orientation */
     private void getInitialDirectionRange(float newDegree) {
         //  degreeOffset = -270; // These will have to be calculated on a building by building basis
         float currDegreeOffset = 0;
@@ -274,8 +279,8 @@ public class EdgeLogService extends Service {
         }
     }
 
-    private float edgeDirection;
 
+    /* handel direction for creating nodes*/
     public void directionHandler(float newDegree) {
         //float change = prevDegreeChange;
         int degreeRange;
@@ -291,7 +296,6 @@ public class EdgeLogService extends Service {
             return;
         }
         currDegreeOffset = degreeOffset;
-        //Log.i("offset", Float.toString(currDegreeOffset));
 
         //Thresholds are based on standard direction and an offset to match building map
         if ((newDegree + currDegreeOffset) % 360 >= 45 && (newDegree + currDegreeOffset) % 360 < 135) { // East
@@ -311,8 +315,6 @@ public class EdgeLogService extends Service {
             curr_x = 0;
             curr_y = -1;
         }
-        // Log.i("start", Integer.toString(degreeRange));
-
 
         //checks if current direction has changed based on the set thresholds
         if (prevDegreeRange == degreeRange) {
@@ -321,7 +323,6 @@ public class EdgeLogService extends Service {
             return;
         } else {
             degreeRangeChangedCount++;
-
         }
 
         if (degreeRangeChangedCount == 1) {
@@ -361,17 +362,16 @@ public class EdgeLogService extends Service {
         newNode.addEdge(newEdge);
         if (addNewNode) nodes.add(newNode);
         edges.add(newEdge);
-
         prevNode = newNode;
         prev_x = curr_x;
         prev_y = curr_y;
         currSteps = 0;
-        Log.i("New Node", Integer.toString(edges.size()) + "edgessss  " + newNode.getxPos() + " , " + newNode.getyPos() + " Dir: " + newDegree);
-        //set values as needed
+
+        //Tell display new node has been added to allow real time node creation
         sendBroadcast();
     }
 
-
+    /* checks if location of newNode is within a threshold of a current node*/
     public Node nodeExists(int xPos, int yPos) {
         Node curr;
         for (int i = 0; i < nodes.size(); i++) {
@@ -383,6 +383,7 @@ public class EdgeLogService extends Service {
         return null;
     }
 
+    /* splits edge when node is created in the middle of the edge*/
     public void splitEdge(Node newNode) {
 
         Node curr;
@@ -460,16 +461,16 @@ public class EdgeLogService extends Service {
         }
     }
 
+    /*method to create new node*/
     private Node createNewNode(int xPos, int yPos, int floor, boolean stairs) {
         Node newNode = new Node(xPos, yPos, floor, stairs);
         return newNode;
     }
 
-
+    /* locks to prevent mapping before offset has been set*/
     public void setOffsetReady() {
         offsetReady = true;
     }
-
     public void setOffsetNotReady() {
         offsetReady = false;
         noOffset = true;
@@ -479,7 +480,6 @@ public class EdgeLogService extends Service {
     public ArrayList<Node> getNodes() {
         return nodes;
     }
-
     public ArrayList<Edge> getEdges() {
         return edges;
     }
