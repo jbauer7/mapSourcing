@@ -394,10 +394,10 @@ public class MainActivity extends Activity {
                 if (curFloorNum == position) {
                     //do nothing
                 } else {
-                    //floor.setCurrFloor(curFloorNum + 1);
-                    //floor.saveFloor(currFloor);
+                    floor.setCurrFloor(curFloorNum + 1);
+                    floor.saveFloor(currFloor);
                     curFloorNum = position;
-                    //floor.setCurrFloor(curFloorNum + 1);
+                    floor.setCurrFloor(curFloorNum + 1);
                     myView.setFloor(floors.get(position));
                     currFloor = floors.get(position);
                     updateDisplay();
