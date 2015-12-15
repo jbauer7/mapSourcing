@@ -1,7 +1,14 @@
-<resources>
+<resources>>
     <string name="app_name">MapSourcing</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_map">MapActivity</string>
+    <string name="set_offset">Set Offset</string>
+    <string name="mesh_mode">Mesh Mode</string>
+    <string name="canvas_mode">Canvas Mode</string>
+    <string name="building"><b>Building:</b></string>
+    <string name="navigate">Navigate</string>
+    <string name="map">Map</string>
+    <string name="add_new_building">Add New Building</string>
 </resources>

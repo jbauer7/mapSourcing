@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/TextView_MainMenu_Title"
-        android:text="MapSourcing"
+        android:text="@string/app_name"
         android:textSize="44sp"
         android:gravity="center"
         android:textColor="@android:color/black" />
@@ -33,7 +33,7 @@
             android:id="@+id/TextView_MainMenu_BuildingSearch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Building:"
+            android:text="@string/building"
             android:textSize="24sp"
             android:textColor="@android:color/black"
             android:gravity="center" />
@@ -59,7 +59,7 @@
             android:id="@+id/Button_MainMenu_NavigateBuilding"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Navigate"
+            android:text="@string/navigate"
             android:textSize="24sp"
             android:layout_weight="1"
             android:onClick="navigatePressed"/>
@@ -68,7 +68,7 @@
             android:id="@+id/Button_MainMenu_MapBuilding"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Map"
+            android:text="@string/map"
             android:textSize="24sp"
             android:layout_weight="1"
             android:onClick="mapPressed"/>
@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/LinearLayout_MainMenu_BuildingButtons"
-        android:text="Add New Building"
+        android:text="@string/add_new_building"
         android:textSize="24sp"
         android:onClick="addBuilding"/>
 
