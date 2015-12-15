@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     //private ArrayList<Edge> currEdges;
     protected static Floor currFloor;
     protected static ArrayList<Floor> floors = new ArrayList<>();
-    private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3","Floor 4"};
+    private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3", "Floor 4"};
     private Intent serviceIntent;
 
 
