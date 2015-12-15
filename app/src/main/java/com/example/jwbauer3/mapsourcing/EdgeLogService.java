@@ -564,7 +564,8 @@ public class EdgeLogService extends Service {
 
     /* Ability to get current Edge for myView */
     public BaseEdge getCurrEdge() {
-        return currEdge;
+
+        return (BaseEdge) currEdge;
     }
 
     /* Change EdgeLogService to Navigation Mode */
