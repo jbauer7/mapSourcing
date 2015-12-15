@@ -39,28 +39,25 @@ public class MenuOption extends CanvasDrawable {
 
         Paint paint = new Paint();
 
-        //int x = xPos + xOffset;
-        //int y = yPos + yOffset + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
-        int x = xPos;
-        int y = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * scaleFactor * elementNum);
-        int xEnd = (int) (x + elementWidth * scaleFactor);
-        int yEnd = (int) (y + elementHeight * scaleFactor);
+        int xStart = xPos;
+        int yStart = yPos + (int) ((elementHeight * elementNum * scaleFactor) - (borderPix * scaleFactor * elementNum));
+        int xEnd = xStart + (int) (elementWidth * scaleFactor);
+        int yEnd = yStart + (int) (elementHeight * scaleFactor);
         int border = (int) (borderPix * scaleFactor);
 
         paint.setColor(Color.BLACK);
-        canvas.drawRect(x, y, xEnd, yEnd, paint);
+        canvas.drawRect(xStart, yStart, xEnd, yEnd, paint);
         paint.setColor(Color.CYAN);
-        canvas.drawRect(x + border, y + border, xEnd - border, yEnd - border, paint);
+        canvas.drawRect(xStart + border, yStart + border, xEnd - border, yEnd - border, paint);
         paint.setColor(Color.BLACK);
         paint.setTextSize(defaultTextSize * scaleFactor);
-        canvas.drawText(displaySelection.toString(), x, y + (scaleFactor * elementHeight / 2), paint);
+        canvas.drawText(displaySelection.toString(), xStart, yStart + (scaleFactor * elementHeight / 2), paint);
     }
 
     @Override
     public boolean contains(int clickedX, int clickedY) {
-        //TODO: does this allow hits on the 'border'?
         int xStart = xPos;
-        int yStart = yPos + (int) (elementHeight * elementNum * scaleFactor) - (int) (borderPix * elementNum * scaleFactor);
+        int yStart = yPos + (int) ((elementHeight * elementNum * scaleFactor) - (borderPix * elementNum * scaleFactor));
         int xEnd = xStart + (int) (elementWidth * scaleFactor);
         int yEnd = yStart + (int) (elementHeight * scaleFactor);
         return (clickedX > xStart && clickedY > yStart && clickedX < xEnd && clickedY < yEnd);
@@ -70,8 +67,8 @@ public class MenuOption extends CanvasDrawable {
     @Override
     public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
-        xPos = (int)(defaultXpos * scaleFactor);
-        yPos = (int)(defaultYpos * scaleFactor);
+        xPos = (int) (defaultXpos * scaleFactor);
+        yPos = (int) (defaultYpos * scaleFactor);
     }
 
     public MenuSelection getMenuAttribute() {
@@ -83,9 +80,9 @@ public class MenuOption extends CanvasDrawable {
     }
 
     public int getXpos(){
-        return (defaultXpos);
+        return defaultXpos;
     }
     public  int getYpos(){
-        return (defaultYpos);
+        return defaultYpos;
     }
 }

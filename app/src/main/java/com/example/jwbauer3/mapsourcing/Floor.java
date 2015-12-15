@@ -1,10 +1,6 @@
 package com.example.jwbauer3.mapsourcing;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -25,18 +21,12 @@ public class Floor {
     protected Drawable backgroundImage;
     protected float maxMeshScaleFactor = -1f;
 
-    //todo: do we need to store these? We need to recalculate all the
-    //private int originalMinXOffset;
-    //private int originalMinYOffset;
-    //private int originalMaxX;
-    //private int originalMaxY;
-
     public Floor()
     {
         this.floorNum = -1;
         meshReferenceState = null;
-        this.nodes = new ArrayList<Node>();
-        this.edges = new ArrayList<Edge>();
+        this.nodes = new ArrayList<>();
+        this.edges = new ArrayList<>();
     }
 
     public Floor(int floorNum, ArrayList<Node> nodes, ArrayList<Edge> edges, ReferenceState referenceState, Drawable image) {
@@ -47,7 +37,6 @@ public class Floor {
         setImageInfo(image);
         this.nodes = nodes;
         this.edges = edges;
-        //originalMinXOffset=originalMinYOffset=originalMaxX=originalMaxY=0;
     }
 
     public ArrayList<Node> getNodes() {

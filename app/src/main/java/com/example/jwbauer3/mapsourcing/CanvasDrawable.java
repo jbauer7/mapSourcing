@@ -1,7 +1,6 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.graphics.Canvas;
-
 import java.util.ArrayList;
 
 /**

@@ -4,11 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
-import android.view.Menu;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -139,9 +136,9 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
 
         //selects color based on priority of attributes.
         if (this.attributes.contains(Attribute.PATH)) { //apart of the path
-            paint.setColor(Color.parseColor("#FFB6C1"));
+            paint.setColor(Application.getResColor(R.color.PathEdgeColor));
         } else { //default, nothing special about the node
-            paint.setColor(Color.parseColor("#7070FF"));
+            paint.setColor(Application.getResColor(R.color.DefaultEdgeColor));
         }
         //if clicked, just darken the color, maintain other info, but lets you know its been clicked.
         if (this.attributes.contains(Attribute.CLICKED)) {
@@ -227,15 +224,6 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
                 (comp.getStart().getyPos() == this.getStart().getyPos()) &&
                 (comp.getEnd().getxPos() == this.getEnd().getxPos()) &&
                 (comp.getEnd().getyPos() == this.getEnd().getyPos()));
-    }
-
-    //have menus display in the middle of the edge, halfway through x and y.
-    public int getMenuStartX() {
-        return (getStart().getxPos() + getEnd().getxPos()) / 2;
-    }
-
-    public int getMenuStartY() {
-        return (getEnd().getyPos() + getEnd().getyPos()) / 2;
     }
 
 }

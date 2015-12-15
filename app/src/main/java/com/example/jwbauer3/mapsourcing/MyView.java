@@ -1,11 +1,9 @@
 package com.example.jwbauer3.mapsourcing;
 
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -233,8 +231,8 @@ public class MyView extends View {
     private void touchDown(MotionEvent event) {
         CanvasDrawable selectedElement = null;
 
-        int mapX = convertPixelToMapX((int) event.getX());
-        int mapY = convertPixelToMapY((int) event.getY());
+        int mapX = convertPixelToMapX(event.getX());
+        int mapY = convertPixelToMapY(event.getY());
 
         for (CanvasDrawable element : drawables_search) {
             if (element.contains(mapX, mapY)) {
@@ -304,8 +302,8 @@ public class MyView extends View {
             ypos = ((Node) selectedElement).getDefaultYPos();
         } else {
             //edge, make it where you click. Need to divide out the scale Factor for the original point.
-            xpos = (int) (convertPixelToMapX((int) event.getX()) / meshReferenceState.scaleFactor);
-            ypos = (int) (convertPixelToMapY((int) event.getY()) / meshReferenceState.scaleFactor);
+            xpos = (int) (convertPixelToMapX(event.getX()) / meshReferenceState.scaleFactor);
+            ypos = (int) (convertPixelToMapY(event.getY()) / meshReferenceState.scaleFactor);
         }
         for (int x = 0; x < selectedElement.getOptions().size(); x++) {
             MenuOption menuOption = new MenuOption(selectedElement, xpos, ypos, x, selectedElement.getOptions().get(x));
@@ -600,19 +598,19 @@ public class MyView extends View {
     /*
     Method to convert a clicked pixel's X coordinate to the maps X coordinate
      */
-    private int convertPixelToMapX(int pixelPoint) {
-        int translatedXOffset = xOffset + (int) (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
+    private int convertPixelToMapX(float pixelPoint) {
+        float translatedXOffset = xOffset + (canvasReferenceState.transX / canvasReferenceState.scaleFactor);
 
-        return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset;
+        return (int) ((pixelPoint / canvasReferenceState.scaleFactor) - translatedXOffset);
     }
 
     /*
     Method to convert a clicked pixel's Y coordinate to the maps Y coordinate
      */
-    private int convertPixelToMapY(int pixelPoint) {
-        int translatedYOffset = yOffset + (int) (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
+    private int convertPixelToMapY(float pixelPoint) {
+        float translatedYOffset = yOffset + (canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
-        return (int) (pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset;
+        return (int) ((pixelPoint / canvasReferenceState.scaleFactor) - translatedYOffset);
     }
 
     private void addLocationNodeToDrawables(LocationNode locationNode) {
@@ -666,7 +664,7 @@ public class MyView extends View {
 
         addLocationNodeToDrawables(toSet);
 
-        //Update the searchLocation's edges as well
+        //Update the others edges as well
         if (other != null) {
             //Remove old edges from collections
             Edge searchSourceEdge = other.getSourceEdge();
