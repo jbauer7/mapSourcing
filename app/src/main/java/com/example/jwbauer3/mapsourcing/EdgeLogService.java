@@ -14,7 +14,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 
-/*Service handles the collection of sensor data in the background*/
+/*Service handles the collection of sensor data in the background creates a thread that handles
+* mapping and navigating algorithms */
 public class EdgeLogService extends Service {
     //Service variables
     protected SensorManager sensorManager;
@@ -22,6 +23,9 @@ public class EdgeLogService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private boolean sensorLock = true;
     private boolean startLock = true;
+    private boolean running;
+    private boolean offsetReady;
+
     /// Floor change Variables
     private boolean newFloor = false;
     private float currPressure;
@@ -31,6 +35,7 @@ public class EdgeLogService extends Service {
     private int altCount = 0;
     private boolean up = false;
     private boolean down = false;
+    private boolean noOffset = true;
 
     //Mapping variables
     private int xPos = 0;
@@ -40,13 +45,10 @@ public class EdgeLogService extends Service {
     private int prevDegreeRange;
     private int degreeRangeChangedCount;
     private float degreeOffset;
-    private boolean noOffset = true;
     boolean lock = false;
     private Node firstNode, prevNode;
     protected ArrayList<Node> nodes; //= new ArrayList<>();
     protected ArrayList<Edge> edges; //= //new ArrayList<>();
-    private boolean running;
-    private boolean offsetReady;
 
     //navigation variables
     private BaseEdge currEdge;
@@ -102,8 +104,6 @@ public class EdgeLogService extends Service {
                 // starts required sensors
                 sensorThread();
 
-                //TODO: Add floor logic (currently forced to floor 2 for EHall
-                //TODO: Add stair node logic (currently set to false)
                 while (running)
                     ;
             }
@@ -111,7 +111,7 @@ public class EdgeLogService extends Service {
         thread.start();
     }
 
-    /*kill infinte loop onDestroy*/
+    /*kill infinite loop onDestroy*/
     public void onDestroy() {
         super.onDestroy();
         offsetReady = false;
@@ -215,7 +215,9 @@ public class EdgeLogService extends Service {
         }
     }
 
-    /* currently unused will TODO implement auto floor detection */
+    /* currently unused will
+    TODO: Add floor logic (currently forced to floor 2 for EHall
+    TODO: Add stair node logic (currently set to false) */
     private void checkAltitude(SensorEvent event) {
         currPressure = event.values[0];
         //System.out.println(currPressure);
@@ -397,19 +399,37 @@ public class EdgeLogService extends Service {
                     || Math.abs(curr.getyPos() - newNode.getyPos()) < 15) {
 
                 for (int j = 0; j < nodes.size(); j++) {
-                    if (i == j) break;
+                    if (i == j) continue;
                     temp = nodes.get(j);
                     if (Math.abs(temp.getxPos() - newNode.getxPos()) < 15
                             || Math.abs(temp.getyPos() - newNode.getyPos()) < 15) {
 
                         if (Math.abs(temp.getxPos() - newNode.getxPos()) < 15) xAxis = false;
 
+
                         Edge currEdge;
                         for (int k = 0; k < edges.size(); k++) {
                             currEdge = edges.get(k);
                             //IF THERE IS AN EDGE BETWEEN THESE 2 NODES THAT ALREADY EXIST
                             //EDGE(CURR , TEMP)
+
                             if (currEdge.getStart() == curr && currEdge.getEnd() == temp) {
+                                if(xAxis){
+                                    if(curr.getxPos() > temp.getxPos()){
+                                        if(!(newNode.getxPos() > temp.getxPos() && newNode.getxPos() < curr.getxPos())) continue;
+                                    }
+                                    else{
+                                        if(!(newNode.getxPos() > curr.getxPos() && newNode.getxPos() < curr.getxPos())) continue;
+                                    }
+                                }
+                                else{
+                                    if(curr.getyPos() > temp.getyPos()){
+                                        if(!(newNode.getyPos() > temp.getyPos() && newNode.getyPos() < curr.getyPos())) continue;
+                                    }
+                                    else{
+                                        if(!(newNode.getyPos() > curr.getyPos() && newNode.getyPos() < curr.getyPos())) continue;
+                                    }
+                                }
                                 curr.getEdges().remove(edges.get(k));
                                 temp.getEdges().remove(edges.get(k));
                                 Edge oneEdge = new Edge(curr, newNode);
@@ -484,8 +504,11 @@ public class EdgeLogService extends Service {
         return edges;
     }
 
+
     ///////////////////////////////////////// Navigation Methods////////////////////////////////////////
-    /* Navigation Edge TODO FIX small at node error */
+    /* Navigation algo
+    TODO FIX small at node error
+    TODO add multifloor implementation*/
     private void navigationHandler(float newDegree) {
         if (currEdge == null || noStep) return;
         noStep = true;
@@ -509,7 +532,7 @@ public class EdgeLogService extends Service {
         currentLocation[1] = ((int) ((((float) currEdge.getStart().getyPos() + (float) currEdge.getEnd().getyPos())) * percentDistance));
 
         //Require three steps to update
-        if (step_change <= NAVIGATION_UPDATE_STEP_THRESHOLD) {
+        if (step_change <= NAVIGATION_UPDATE_STEP_THRESHOLD || atNode) {
             return;
         }
         step_change = 0;
