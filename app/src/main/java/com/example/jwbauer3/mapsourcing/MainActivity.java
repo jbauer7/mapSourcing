@@ -395,6 +395,7 @@ public class MainActivity extends Activity {
                 if (curFloorNum == position) {
                     //do nothing
                 } else {
+                    endFloor();
                     floor.setCurrFloor(curFloorNum + 1);
                     floor.saveFloor(currFloor);
                     curFloorNum = position;
@@ -403,7 +404,6 @@ public class MainActivity extends Activity {
                     currFloor = floors.get(position);
                     updateDisplay();
                     setMenuText();
-                    endFloor();
                 }
                 mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             }
@@ -439,6 +439,7 @@ public class MainActivity extends Activity {
                 mapButton.setText("Start Map");
             } else {
                 if (!pressed) {
+                    //mService.setPrevNode(currFloor.getNodes().get(0));
                     mapButton.setText("Save Map");
                     mService.setMappingMode();
                     mService.unlockStart();
