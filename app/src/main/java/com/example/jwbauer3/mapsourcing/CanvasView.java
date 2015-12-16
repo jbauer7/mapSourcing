@@ -115,7 +115,7 @@ public class CanvasView extends View {
         yOffset = originalYOffset + (int) (meshReferenceState.transY);
 
         //Load the current background image from resources
-        currentFloorBackground = ResourcesCompat.getDrawable(getResources(), this.curFloor.backgroundImageResId, null);
+        currentFloorBackground = ResourcesCompat.getDrawable(getResources(), curFloor.getBackgroundImageResId(), null);
         currentFloorBackgroundWidth = currentFloorBackground.getMinimumWidth();
         currentFloorBackgroundHeight = currentFloorBackground.getMinimumHeight();
         currentFloorBackground.setBounds(0, 0, currentFloorBackgroundWidth, currentFloorBackgroundHeight);
