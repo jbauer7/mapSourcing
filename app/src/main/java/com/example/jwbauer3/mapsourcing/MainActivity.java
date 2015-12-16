@@ -223,9 +223,15 @@ public class MainActivity extends Activity {
         {
             floor.setCurrFloor(i + 1);
             int drawable = R.drawable.eh_floor2;
-            if (i + 1 > 2)
+            if (i == 1)
+            {
+                drawable = R.drawable.eh_floor2;
+            } else if (i == 2)
             {
                 drawable = R.drawable.eh_floor3;
+            } else if (i == 3)
+            {
+                drawable = R.drawable.eh_floor4;
             }
             if (floor.getSavedFloor() == 1)
             {
