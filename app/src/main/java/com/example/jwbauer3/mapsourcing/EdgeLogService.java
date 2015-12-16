@@ -364,14 +364,15 @@ public class EdgeLogService extends Service {
             newNode.setAltitude(currPressure);
             splitEdge(newNode);
             addNewNode = true;
-        }
-        else{
-            for(BaseEdge tempEdge : newNode.getEdges()){
-                if(tempEdge.getStart()==prevNode || tempEdge.getEnd()==prevNode){
+        } else {
+            for (BaseEdge tempEdge : newNode.getEdges()) {
+                if (tempEdge.getStart() == prevNode || tempEdge.getEnd() == prevNode) {
                     return;
                 }
             }
         }
+
+        //add new edge to each node and add nodes to edge
         Edge newEdge = new Edge(prevNode, newNode);
         newEdge.setWeight((int) currSteps);
         newEdge.setDirection((int) edgeDirection);
@@ -421,7 +422,8 @@ public class EdgeLogService extends Service {
                     if (Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) < 15
                             || Math.abs(temp.getDefaultYPos() - newNode.getDefaultYPos()) < 15) {
 
-                        if (Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) < 15) xAxis = false;
+                        if (Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) < 15)
+                            xAxis = false;
 
 
                         Edge currEdge;
@@ -559,7 +561,7 @@ public class EdgeLogService extends Service {
         if (atNode) {
             System.out.println("HERE");
             currEdge = getNextEdge();
-           // currSteps = 0;
+            // currSteps = 0;
         }
 
 
@@ -582,9 +584,8 @@ public class EdgeLogService extends Service {
             currentLocation[0] = currEdge.getStart().getDefaultYPos();
         }
         */
-        currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() - (float) currEdge.getEnd().getDefaultXPos())) * -percentDistance))+currEdge.getStart().getDefaultXPos();
-        currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() - (float) currEdge.getEnd().getDefaultYPos())) * -percentDistance))+currEdge.getStart().getDefaultYPos();
-
+        currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() - (float) currEdge.getEnd().getDefaultXPos())) * -percentDistance)) + currEdge.getStart().getDefaultXPos();
+        currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() - (float) currEdge.getEnd().getDefaultYPos())) * -percentDistance)) + currEdge.getStart().getDefaultYPos();
 
 
         System.out.println("Top Node:" + currEdge.getEnd().getDefaultYPos() + "\n percentage:" + Float.toString(percentDistance));
@@ -618,12 +619,12 @@ public class EdgeLogService extends Service {
         //find best fit edge
         for (BaseEdge tempEdge : navCurrNode.getEdges()) {
             float tempDegreesAway = Math.abs(tempEdge.getDirection() - navDegree);
-           //Degree difference
+            //Degree difference
             if (tempDegreesAway > 180) {
                 tempDegreesAway = 360 - tempDegreesAway;
             }
             //accounting for direction of edge
-            tempDegreesAway= (tempEdge.getStart()==navCurrNode) ? tempDegreesAway : (tempDegreesAway+180)%360;
+            tempDegreesAway = (tempEdge.getStart() == navCurrNode) ? tempDegreesAway : (tempDegreesAway + 180) % 360;
             //finding the closest edge
             if (tempDegreesAway < DegreesAway) {
                 DegreesAway = tempDegreesAway;
@@ -631,7 +632,7 @@ public class EdgeLogService extends Service {
             }
         }
         //Setingg the new currSteps
-        if(nextEdge!=currEdge) {
+        if (nextEdge != currEdge) {
             currSteps = (nextEdge.getStart() == navCurrNode) ? 0 : nextEdge.getWeight();
         }
         return nextEdge;

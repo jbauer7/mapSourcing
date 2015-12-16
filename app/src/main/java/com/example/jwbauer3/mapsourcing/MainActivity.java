@@ -23,26 +23,39 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
+    //Function control variables
+    private boolean navigationMode;
+    protected static int curFloorNum = 0;
+    private long selectedBuildingId = 0;
+    private Navigator navigator;
+    protected static Floor currFloor;
+    protected static ArrayList<Floor> floors = new ArrayList<>();
+    private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3", "Floor 4"};
+    CanvasView canvasView;
+
+    //Button Control variables
     private boolean gotNorth = false;
     private boolean pressed = false;
-    private boolean mBound = false;
-    private boolean navigationMode;
-    protected static int curFloorNum=0;
-    private long selectedBuildingId = 0;
+
+    //Service variables
     private EdgeLogService mService;
-    private Navigator navigator;
+    private boolean mBound = false;
+    private Intent serviceIntent;
 
     //Persistence variables
     Context mContext;
 
+
+    /*Connect to back ground service that handles sensors and mapping/navigation algorithms*/
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             EdgeLogService.LocalBinder binder = (EdgeLogService.LocalBinder) service;
             mService = binder.getService();
+            //connect MyView to service
             canvasView.connectEdgeLogService(mService);
-
+            //update Display after connection
             updateDisplay();
             mBound = true;
         }
@@ -53,52 +66,37 @@ public class MainActivity extends Activity {
         }
     };
 
-    protected static Floor currFloor;
-    protected static ArrayList<Floor> floors = new ArrayList<>();
-    private String[] floorNames = {"Floor 1", "Floor 2", "Floor 3", "Floor 4"};
-    private Intent serviceIntent;
-
-
-    CanvasView canvasView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //set static context variable in Floor class (for persistence)
         mContext = this;
-
         super.onCreate(savedInstanceState);
+
+        //Force screen to not sleep
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //Set current state of app
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.getString("mode").equals("navigation")) {
                 navigationMode = true;
-                if (bundle.getString("presentationMode").equals("true"))
-                {
-                    //floor = new Persistence(mContext, 4, "ehall", 1);
-                } else {
-                   // floor = new Persistence(mContext, 2, "ehall", 1);
-                }
                 Toast.makeText(getApplicationContext(), "Navigation Mode",
                         Toast.LENGTH_SHORT).show();
             } else if (bundle.getString("mode").equals("map")) {
-                if (bundle.getString("presentationMode").equals("true"))
-                {
-                   // floor = new Persistence(mContext, 3, "ehall", 1);
-                } else {
-                   // floor = new Persistence(mContext, 1, "ehall", 1);
-                }
                 navigationMode = false;
                 Toast.makeText(getApplicationContext(), "Map Mode",
                         Toast.LENGTH_SHORT).show();
             }
             selectedBuildingId = bundle.getLong("selectedBuildingId");
         }
+        //start background service
         serviceIntent = new Intent(this, EdgeLogService.class);
-
     }
 
+
+    /*Set up andriod SQLlite interface*/
     private void databaseHelperStartUp() {
         //Load all floors
         floors = DatabaseHelper.getAllFloors(selectedBuildingId);
@@ -146,62 +144,16 @@ public class MainActivity extends Activity {
         canvasView.setNavigator(navigator);
     }
 
-    /*
-    private void startUp(){
-        floors.add(new Floor(1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                R.drawable.eh_floor1));
-        floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                R.drawable.eh_floor2));
-        floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                R.drawable.eh_floor3));
-        floors.add(new Floor(4, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                R.drawable.eh_floor4));
 
-        // I did this so it would stop crashing gets overwritten later anyway -Joey
-        floors.get(0).getNodes().add(new Node(0, 0, 0, false));
-        floors.get(0).getNodes().add(new Node(100, 0, 0, false));
-        floors.get(0).getNodes().add(new Node(100, 100, 0, false));
-
-        floors.get(1).getNodes().add(new Node(0, 0, 1, false));
-        floors.get(1).getNodes().add(new Node(0, 100, 1, false));
-        floors.get(1).getNodes().add(new Node(100, 100, 1, false));
-
-        floors.get(2).getNodes().add(new Node(100, 100, 2, false));
-        floors.get(3).getNodes().add(new Node(100, 100, 3, false));
-
-        floors.get(0).getEdges().add(new Edge(floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
-        floors.get(0).getEdges().add(new Edge(floors.get(0).getNodes().get(1), floors.get(0).getNodes().get(2)));
-
-        floors.get(1).getEdges().add(new Edge(floors.get(1).getNodes().get(0), floors.get(1).getNodes().get(1)));
-        floors.get(1).getEdges().add(new Edge(floors.get(1).getNodes().get(1), floors.get(1).getNodes().get(2)));
-
-        currFloor = floors.get(0);
-
-
-        setContentView(R.layout.activity_main);
-        setUpSpinner();
-
-
-        ArrayList<BaseNode> graph = new ArrayList<>();
-        graph.addAll(floors.get(0).getNodes());
-        graph.addAll(floors.get(1).getNodes());
-        graph.addAll(floors.get(2).getNodes());
-        graph.addAll(floors.get(3).getNodes());
-
-        navigator = new Navigator(graph);
-        canvasView = (CanvasView) findViewById(R.id.MyViewTest);
-        canvasView.connectEdgeLogService(mService);
-        canvasView.setFloor(currFloor);
-        setMenuText();
-        canvasView.setNavigator(navigator);
-    }
-    */
-
+    //properly close back ground services and save current data
     protected void onPause() {
         super.onPause();
+        //handle background service
         endFloor();
         curFloorNum = 0;
+        //properly unregister receiver
         unregisterReceiver(activityReceiver);
+        //kill service
         if (mConnection != null)
             unbindService(mConnection);
 
@@ -217,9 +169,9 @@ public class MainActivity extends Activity {
     }
 
 
+    //Restart background services and set message receiver
     protected void onResume() {
         super.onResume();
-
         databaseHelperStartUp();
 
         if (activityReceiver != null) {
@@ -232,16 +184,19 @@ public class MainActivity extends Activity {
             bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
 
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
-        if(navigationMode) mapButton.setText("Start Nav");
-        // else mapButton.setText("Start Map");
+        if (navigationMode) mapButton.setText("Start Nav");
+        else mapButton.setText("Start Map");
     }
 
 
+    //Set up floor selection spinner
     private void setUpSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.Spinner_ToggleFloors);
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, floorNames);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            //spinner being used
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (curFloorNum == position) {
@@ -265,19 +220,14 @@ public class MainActivity extends Activity {
         });
     }
 
+    //handle bottom right button
     public void pressed(View view) {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
-
-        if(navigationMode){
-            if(!pressed){
-
-            }
-            else{
-
-            }
-
-        }
-        else {
+        if (navigationMode) {
+            //do nothing
+            return;
+        } else {
+            //map mode set offset
             if (!gotNorth) {
                 mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
                 mService.setCurrFloor(curFloorNum);
@@ -285,6 +235,7 @@ public class MainActivity extends Activity {
                 mService.unlockSensors();
                 mapButton.setText("Start Map");
             } else {
+                //start mapping
                 if (!pressed) {
 
                     mService.setPrevNode();
@@ -293,7 +244,7 @@ public class MainActivity extends Activity {
                     mService.unlockStart();
                     pressed = true;
                 } else {
-                    //save floor
+                    //stop mapping and save floor
                     DatabaseHelper.saveFloor(selectedBuildingId, currFloor);
                     endFloor();
                 }
@@ -301,34 +252,37 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void endFloor(){
+    //end floor safely and update control variables
+    private void endFloor() {
         Button mapButton = (Button) findViewById(R.id.Button_MapMode);
         mService.setOffsetNotReady();
-        if(!navigationMode)mapButton.setText("Set Offset");
+        if (!navigationMode) mapButton.setText("Set Offset");
         else mapButton.setText("START NAV");
         mService.lockSensors();
         mService.lockStart();
-        pressed=false;
-        gotNorth=false;
+        pressed = false;
+        gotNorth = false;
     }
 
+    //signal myView to update display
     private void updateDisplay() {
         mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-        currFloor=floors.get(curFloorNum);
+        currFloor = floors.get(curFloorNum);
         canvasView.setFloor(currFloor);
     }
 
+    //receive messages from EdgeLogServices
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (navigationMode) {
-                //getCurrentFloorSavedVersion();
+                //update userloction
                 mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
-                //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
-                Toast.makeText(getApplicationContext(), "x:" + mService.getLocation()[0]+ "\ny:"+ mService.getLocation()[1],
+                Toast.makeText(getApplicationContext(), "x:" + mService.getLocation()[0] + "\ny:" + mService.getLocation()[1],
                         Toast.LENGTH_SHORT).show();
                 canvasView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
+                //show new node and edges
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",
                         Toast.LENGTH_SHORT).show();
@@ -336,6 +290,8 @@ public class MainActivity extends Activity {
         }
     };
 
+
+    //handle mesh mode button
     public void toggleMesh(View view) {
         Button toggleButton = (Button) findViewById(R.id.Button_SwitchMode);
         if (toggleButton.getText().equals("Mesh Mode")) {
@@ -346,6 +302,7 @@ public class MainActivity extends Activity {
         canvasView.toggleMeshMovementMode();
     }
 
+    //modify title text
     private void setMenuText() {
         //todo: replace hard coded string with fetched name
         TextView textView = (TextView) findViewById(R.id.TextView_MapTitle);
