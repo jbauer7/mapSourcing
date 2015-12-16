@@ -7,28 +7,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by njaunich on 12/12/15.
@@ -236,8 +226,6 @@ public class Persistence {
 
         //Get other saved floor variables
         floor.floorNum = Integer.parseInt(sharedPreferences.getString("floorNum", ""));
-        floor.backgroundWidth = Integer.parseInt(sharedPreferences.getString("backgroundWidth", ""));
-        floor.backgroundHeight = Integer.parseInt(sharedPreferences.getString("backgroundHeight", ""));
         floor.maxMeshScaleFactor = Float.parseFloat(sharedPreferences.getString("maxMeshScaleFactor", ""));
         floor.meshReferenceState = gson.fromJson(sharedPreferences.getString("meshReferenceState", ""), ReferenceState.class);
         if (floor.floorNum == 0)
@@ -277,10 +265,6 @@ public class Persistence {
 
         prefsEditor.putString("meshReferenceState", gson.toJson(floorToSave.meshReferenceState));
         prefsEditor.putString("floorNum", "" + floorToSave.floorNum);
-        //private int backgroundWidth; //image
-        prefsEditor.putString("backgroundWidth", "" + floorToSave.backgroundWidth);
-        //private int backgroundHeight; //image
-        prefsEditor.putString("backgroundHeight", "" + floorToSave.backgroundHeight);
         //private float maxMeshScaleFactor = -1f;
         prefsEditor.putString("maxMeshScaleFactor", "" + floorToSave.maxMeshScaleFactor);
         prefsEditor.putString("numOfEdges", "" + floor_numOfEdges);
