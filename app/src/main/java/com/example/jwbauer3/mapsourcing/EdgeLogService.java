@@ -124,6 +124,7 @@ public class EdgeLogService extends Service {
             return EdgeLogService.this;
         }
     }
+
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
@@ -154,12 +155,15 @@ public class EdgeLogService extends Service {
     public void lockSensors() {
         sensorLock = true;
     }
+
     public void unlockSensors() {
         sensorLock = false;
     }
+
     public void lockStart() {
         startLock = true;
     }
+
     public void unlockStart() {
         startLock = false;
     }
@@ -185,8 +189,8 @@ public class EdgeLogService extends Service {
         return;
     }
 
-    public void setPrevNode(){
-        prevNode=nodes.get(0);
+    public void setPrevNode() {
+        prevNode = nodes.get(0);
     }
 
 
@@ -420,20 +424,21 @@ public class EdgeLogService extends Service {
                             //EDGE(CURR , TEMP)
 
                             if (currEdge.getStart() == curr && currEdge.getEnd() == temp) {
-                                if(xAxis){
-                                    if(curr.getxPos() > temp.getxPos()){
-                                        if(!(newNode.getxPos() > temp.getxPos() && newNode.getxPos() < curr.getxPos())) continue;
+                                if (xAxis) {
+                                    if (curr.getxPos() > temp.getxPos()) {
+                                        if (!(newNode.getxPos() > temp.getxPos() && newNode.getxPos() < curr.getxPos()))
+                                            continue;
+                                    } else {
+                                        if (!(newNode.getxPos() > curr.getxPos() && newNode.getxPos() < curr.getxPos()))
+                                            continue;
                                     }
-                                    else{
-                                        if(!(newNode.getxPos() > curr.getxPos() && newNode.getxPos() < curr.getxPos())) continue;
-                                    }
-                                }
-                                else{
-                                    if(curr.getyPos() > temp.getyPos()){
-                                        if(!(newNode.getyPos() > temp.getyPos() && newNode.getyPos() < curr.getyPos())) continue;
-                                    }
-                                    else{
-                                        if(!(newNode.getyPos() > curr.getyPos() && newNode.getyPos() < curr.getyPos())) continue;
+                                } else {
+                                    if (curr.getyPos() > temp.getyPos()) {
+                                        if (!(newNode.getyPos() > temp.getyPos() && newNode.getyPos() < curr.getyPos()))
+                                            continue;
+                                    } else {
+                                        if (!(newNode.getyPos() > curr.getyPos() && newNode.getyPos() < curr.getyPos()))
+                                            continue;
                                     }
                                 }
                                 curr.getEdges().remove(edges.get(k));
@@ -497,6 +502,7 @@ public class EdgeLogService extends Service {
     public void setOffsetReady() {
         offsetReady = true;
     }
+
     public void setOffsetNotReady() {
         offsetReady = false;
         noOffset = true;
@@ -506,6 +512,7 @@ public class EdgeLogService extends Service {
     public ArrayList<Node> getNodes() {
         return nodes;
     }
+
     public ArrayList<Edge> getEdges() {
         return edges;
     }
@@ -524,11 +531,11 @@ public class EdgeLogService extends Service {
         //if leaving node get new edge;
         navDegree = newDegree;
 
-        atNode=checkAtNode();
-        if(atNode){
+        atNode = checkAtNode();
+        if (atNode) {
             System.out.println("HERE");
             currEdge = getNextEdge();
-            currSteps=0;
+           // currSteps = 0;
         }
 
 
@@ -537,11 +544,26 @@ public class EdgeLogService extends Service {
         // Distance user has walked to the endNode of the edge
         float percentDistance = currSteps / (float) currEdge.getWeight();
 
-        //calculate where user is
-        currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() + (float) currEdge.getEnd().getDefaultXPos())) * percentDistance));
-        currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() + (float) currEdge.getEnd().getDefaultYPos())) * percentDistance));
+        /*/calculate where user is
+        if (Math.abs(currEdge.getStart().getDefaultXPos() - (float) currEdge.getEnd().getDefaultXPos()) > 10) {
+            currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() - (float) currEdge.getEnd().getDefaultXPos())) * percentDistance))+currEdge.getStart().getDefaultXPos();
+        }
+        else{
+            currentLocation[0] =  currEdge.getStart().getDefaultXPos();
+        }
+        if (Math.abs(currEdge.getStart().getDefaultYPos() - (float) currEdge.getEnd().getDefaultYPos()) > 10) {
+            currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() + (float) currEdge.getEnd().getDefaultYPos())) * percentDistance));
+        }
+        else {
+            currentLocation[0] = currEdge.getStart().getDefaultYPos();
+        }
+        */
+        currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() - (float) currEdge.getEnd().getDefaultXPos())) * -percentDistance))+currEdge.getStart().getDefaultXPos();
+        currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() - (float) currEdge.getEnd().getDefaultYPos())) * -percentDistance))+currEdge.getStart().getDefaultYPos();
 
-        System.out.println("Top Node:"+currEdge.getEnd().getDefaultYPos()+"\n percentage:"+Float.toString(percentDistance));
+
+
+        System.out.println("Top Node:" + currEdge.getEnd().getDefaultYPos() + "\n percentage:" + Float.toString(percentDistance));
 
         //Require three steps to update
         if (step_change <= NAVIGATION_UPDATE_STEP_THRESHOLD || atNode) {
@@ -553,7 +575,7 @@ public class EdgeLogService extends Service {
         sendBroadcast();
     }
 
-    /* Checks if user is a node decsion point*/
+    /* Checks if user is at node point*/
     private boolean checkAtNode() {
         if (currSteps / (float) currEdge.getWeight() < 0.05) {
             navCurrNode = currEdge.getStart();
@@ -568,15 +590,25 @@ public class EdgeLogService extends Service {
     private BaseEdge getNextEdge() {
         BaseEdge nextEdge = navCurrNode.getEdges().get(0);
         float DegreesAway = 360;
+
+        //find best fit edge
         for (BaseEdge tempEdge : navCurrNode.getEdges()) {
             float tempDegreesAway = Math.abs(tempEdge.getDirection() - navDegree);
+           //Degree difference
             if (tempDegreesAway > 180) {
                 tempDegreesAway = 360 - tempDegreesAway;
             }
+            //accounting for direction of edge
+            tempDegreesAway= (tempEdge.getStart()==navCurrNode) ? tempDegreesAway : (tempDegreesAway+180)%360;
+            //finding the closest edge
             if (tempDegreesAway < DegreesAway) {
                 DegreesAway = tempDegreesAway;
                 nextEdge = tempEdge;
             }
+        }
+        //Setingg the new currSteps
+        if(nextEdge!=currEdge) {
+            currSteps = (nextEdge.getStart() == navCurrNode) ? 0 : nextEdge.getWeight();
         }
         return nextEdge;
     }
