@@ -518,15 +518,19 @@ public class EdgeLogService extends Service {
     private void navigationHandler(float newDegree) {
         if (currEdge == null || noStep) return;
         noStep = true;
+        Log.i("DIR", Float.toString(currEdge.getDirection()));
+        Log.i("NAVDIR", Float.toString(newDegree));
 
         //if leaving node get new edge;
-        if (atNode && !checkAtNode()) {
+        navDegree = newDegree;
+
+        atNode=checkAtNode();
+        if(atNode){
+            System.out.println("HERE");
             currEdge = getNextEdge();
-            atNode = false;
-            step_change = NAVIGATION_UPDATE_STEP_THRESHOLD;
-        } else if (!atNode && checkAtNode()) {
-            atNode = true;
+            currSteps=0;
         }
+
 
         navDegree = newDegree;
 
@@ -534,8 +538,10 @@ public class EdgeLogService extends Service {
         float percentDistance = currSteps / (float) currEdge.getWeight();
 
         //calculate where user is
-        currentLocation[0] = ((int) ((((float) currEdge.getStart().getxPos() + (float) currEdge.getEnd().getxPos())) * percentDistance));
-        currentLocation[1] = ((int) ((((float) currEdge.getStart().getyPos() + (float) currEdge.getEnd().getyPos())) * percentDistance));
+        currentLocation[0] = ((int) ((((float) currEdge.getStart().getDefaultXPos() + (float) currEdge.getEnd().getDefaultXPos())) * percentDistance));
+        currentLocation[1] = ((int) ((((float) currEdge.getStart().getDefaultYPos() + (float) currEdge.getEnd().getDefaultYPos())) * percentDistance));
+
+        System.out.println("Top Node:"+currEdge.getEnd().getDefaultYPos()+"\n percentage:"+Float.toString(percentDistance));
 
         //Require three steps to update
         if (step_change <= NAVIGATION_UPDATE_STEP_THRESHOLD || atNode) {
