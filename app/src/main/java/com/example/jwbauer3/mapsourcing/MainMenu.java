@@ -13,6 +13,8 @@ public class MainMenu extends Activity {
 
     private String[] buildingNames = {"Engineering Hall", "Computer Aided Engineering", "Engineering Centers Building"};
 
+    private static boolean presentationMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,16 +26,38 @@ public class MainMenu extends Activity {
         //start activity with mapping enabled
         Intent mapIntent = new Intent(this, MainActivity.class);
         mapIntent.putExtra("mode", "navigation");
+        if (presentationMode)
+        {
+            mapIntent.putExtra("presentationMode", "true");
+        } else {
+            mapIntent.putExtra("presentationMode", "false");
+        }
         startActivity(mapIntent);
     }
     public void mapPressed(View view){
         //start activity with mapping disabled.
         Intent mapIntent = new Intent(this, MainActivity.class);
         mapIntent.putExtra("mode", "map");
+        if (presentationMode)
+        {
+            mapIntent.putExtra("presentationMode", "true");
+        } else {
+            mapIntent.putExtra("presentationMode", "false");
+        }
         startActivity(mapIntent);
     }
     public void addBuilding(View view){
         Toast.makeText(this, "Not enabled", Toast.LENGTH_SHORT).show();
+    }
+    public void presentationModeToggle(View view){
+        if (!presentationMode)
+        {
+            presentationMode = true;
+            Toast.makeText(this, "Presentation Mode Enabled", Toast.LENGTH_SHORT).show();
+        } else {
+            presentationMode = false;
+            Toast.makeText(this, "Presentation Mode Disabled", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setUpSpinner() {

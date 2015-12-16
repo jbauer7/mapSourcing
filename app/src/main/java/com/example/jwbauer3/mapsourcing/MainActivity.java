@@ -83,11 +83,21 @@ public class MainActivity extends Activity {
         if (bundle != null) {
             if (bundle.getString("mode").equals("navigation")) {
                 navigationMode = true;
-                floor = new Persistence(mContext, 2, "ehall", 1);
+                if (bundle.getString("presentationMode").equals("true"))
+                {
+                    floor = new Persistence(mContext, 4, "ehall", 1);
+                } else {
+                    floor = new Persistence(mContext, 2, "ehall", 1);
+                }
                 Toast.makeText(getApplicationContext(), "Navigation Mode",
                         Toast.LENGTH_SHORT).show();
             } else if (bundle.getString("mode").equals("map")) {
-                floor = new Persistence(mContext, 1, "ehall", 1);
+                if (bundle.getString("presentationMode").equals("true"))
+                {
+                    floor = new Persistence(mContext, 3, "ehall", 1);
+                } else {
+                    floor = new Persistence(mContext, 1, "ehall", 1);
+                }
                 navigationMode = false;
                 Toast.makeText(getApplicationContext(), "Map Mode",
                         Toast.LENGTH_SHORT).show();

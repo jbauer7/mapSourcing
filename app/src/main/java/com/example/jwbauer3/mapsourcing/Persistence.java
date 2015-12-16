@@ -72,6 +72,12 @@ public class Persistence {
         } else if (type == 2) { // DON'T Save Floors
             this.type = 2;
             PREF_NAME = building + "_floor_" + floorNumber;
+        } else if (type == 3) { // Save Floors
+            this.type = 3;
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
+        } else if (type == 4) { // DON'T Save Floors
+            this.type = 4;
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
         }
 
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -163,7 +169,12 @@ public class Persistence {
 
     public void setCurrFloor(int floorNumber)
     {
-        PREF_NAME = this.building + "_floor_" + floorNumber;
+        if (this.type == 1 || this.type == 2)
+        {
+            PREF_NAME = this.building + "_floor_" + floorNumber;
+        } else {
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
+        }
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String numOfEdges = sharedPreferences.getString("numOfEdges", "");
         String numOfNodes = sharedPreferences.getString("numOfNodes", "");
@@ -245,7 +256,7 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
-        if(this.type == 2)
+        if(this.type == 2 || this.type == 4)
         {
             return;
         }
