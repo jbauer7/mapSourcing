@@ -121,6 +121,7 @@ public class MyView extends View {
     public void updateUserLocation(Edge usersEdge, int mapX, int mapY) {
         //this method should never be called if userLocation is null
         setLocationNode(usersEdge, mapX, mapY, userLocation, searchLocation);
+        invalidate();
     }
 
     /*

@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
     private boolean gotNorth = false;
     private boolean pressed = false;
     private boolean mBound = false;
-    private boolean navigationMode;
+    protected static boolean navigationMode;
     protected static int curFloorNum=0;
     private EdgeLogService mService;
     private Navigator navigator;
@@ -232,14 +232,18 @@ public class MainActivity extends Activity {
                     floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                             ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
                 } else {
-                    floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    ArrayList<Node> nodes = new ArrayList<Node>();
+                    ArrayList<Edge> edges = new ArrayList<Edge>();
+                    nodes.add(new Node(0, 0, i, false));
+                    floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
                             ResourcesCompat.getDrawable(getResources(), drawable, null)));
-                    floors.get(i).getNodes().add(new Node(0, 0, i, false));
                 }
             } else {
-                floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ArrayList<Node> nodes = new ArrayList<Node>();
+                ArrayList<Edge> edges = new ArrayList<Edge>();
+                nodes.add(new Node(0, 0, i, false));
+                floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
                         ResourcesCompat.getDrawable(getResources(), drawable, null)));
-                floors.get(i).getNodes().add(new Node(0, 0, i, false));
             }
         }
         Log.d("Persistence", "persistenceStartUp after for-loop");
@@ -398,6 +402,9 @@ public class MainActivity extends Activity {
                     endFloor();
                     floor.setCurrFloor(curFloorNum + 1);
                     floor.saveFloor(currFloor);
+
+                    mService.setNodesEdges(new ArrayList<Node>(), new ArrayList<Edge>());
+
                     curFloorNum = position;
                     floor.setCurrFloor(curFloorNum + 1);
                     myView.setFloor(floors.get(position));

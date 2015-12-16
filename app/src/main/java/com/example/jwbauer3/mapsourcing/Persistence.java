@@ -239,6 +239,10 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
+        if(MainActivity.navigationMode)
+        {
+            return;
+        }
         Log.d("Persistence", "saveFloor floorNum = " + floorToSave.floorNum);
         floor.edges = floorToSave.getEdges();
         floor.nodes = floorToSave.getNodes();
@@ -272,10 +276,6 @@ public class Persistence {
             /*String nodePrefId = "node_" + i;
             String nodeGson = gson.toJson(floor.nodes.get(i));
             prefsEditor.putString(nodePrefId, nodeGson); */
-            if (floor.nodes.get(i).drawnRadius == 0)
-            {
-                continue;
-            }
             nodeHashMap.put(floor.nodes.get(i).nodeRefString, floor.nodes.get(i));
             //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
         }
