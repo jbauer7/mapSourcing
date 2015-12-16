@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
+
+    private final static int EHALL_BUILDING_NUM = 0;
 
     private boolean gotNorth = false;
     private boolean pressed = false;
@@ -103,6 +106,53 @@ public class MainActivity extends Activity {
         }
         serviceIntent = new Intent(this, EdgeLogService.class);
 
+    }
+
+    private void databaseHelperStartUp() {
+        //Load all floors
+        floors = DatabaseHelper.getAllFloors(EHALL_BUILDING_NUM);
+
+        //Init floors if it doesn't exist
+        if (floors.size() == 0) {
+            floors.add(new Floor(1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    R.drawable.eh_floor1));
+            floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    R.drawable.eh_floor2));
+            floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    R.drawable.eh_floor3));
+            floors.add(new Floor(4, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    R.drawable.eh_floor4));
+
+            floors.get(0).getNodes().add(new Node(0, 0, 1));
+            floors.get(1).getNodes().add(new Node(0, 0, 2));
+            floors.get(2).getNodes().add(new Node(0, 0, 3));
+            floors.get(3).getNodes().add(new Node(0, 0, 4));
+
+            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(0));
+            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(1));
+            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(2));
+            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(3));
+        }
+
+        //Load the last floor we were on
+        SharedPreferences mPrefs = getSharedPreferences("mapSourcingCurrentFloor", MODE_PRIVATE);
+        int curFloorNum = mPrefs.getInt("currentFloorNum", 1);
+        currFloor = floors.get(curFloorNum - 1);
+
+        setContentView(R.layout.activity_main);
+        setUpSpinner();
+
+        ArrayList<BaseNode> graph = new ArrayList<>();
+        for (Floor floor : floors) {
+            graph.addAll(floor.getNodes());
+        }
+
+        navigator = new Navigator(graph);
+        canvasView = (CanvasView) findViewById(R.id.MyViewTest);
+        canvasView.connectEdgeLogService(mService);
+        canvasView.setFloor(currFloor);
+        setMenuText();
+        canvasView.setNavigator(navigator);
     }
 
     private void startUp(){
@@ -300,7 +350,17 @@ public class MainActivity extends Activity {
             unbindService(mConnection);
         //Node.saveNode("aNode", currFloor.getNodes().get(0));
 
-        floor.saveFloor(currFloor);
+        //floor.saveFloor(currFloor);
+
+        //Save the floor
+        DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
+
+        //Save which floor we were on
+        SharedPreferences mPrefs = getSharedPreferences("mapSourcingCurrentFloor", MODE_PRIVATE);
+        SharedPreferences.Editor mEditor = mPrefs.edit();
+        mEditor.clear();
+        mEditor.putInt("currentFloorNum", currFloor.getFloorNum());
+        mEditor.commit();
     }
 
 
@@ -309,8 +369,9 @@ public class MainActivity extends Activity {
 
         //TODO: Persistence TESTING
         //Persistence test
-        persistenceStartUp();
+        //persistenceStartUp();
         //startUp();
+        databaseHelperStartUp();
         /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
@@ -415,13 +476,14 @@ public class MainActivity extends Activity {
                     //do nothing
                 } else {
                     endFloor();
-                    floor.setCurrFloor(curFloorNum + 1);
-                    floor.saveFloor(currFloor);
+                    //floor.setCurrFloor(curFloorNum + 1);
+                    //floor.saveFloor(currFloor);
+                    DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
 
-                    mService.setNodesEdges(new ArrayList<Node>(), new ArrayList<Edge>());
+                    //mService.setNodesEdges(new ArrayList<Node>(), new ArrayList<Edge>());
 
                     curFloorNum = position;
-                    floor.setCurrFloor(curFloorNum + 1);
+                    //floor.setCurrFloor(curFloorNum + 1);
                     canvasView.setFloor(floors.get(position));
                     currFloor = floors.get(position);
                     updateDisplay();
@@ -461,6 +523,7 @@ public class MainActivity extends Activity {
                 mapButton.setText("Start Map");
             } else {
                 if (!pressed) {
+
                     mService.setPrevNode();
                     mapButton.setText("Save Map");
                     mService.setMappingMode();
@@ -468,8 +531,9 @@ public class MainActivity extends Activity {
                     pressed = true;
                 } else {
                     //TODO: STUFF TO SAVE FLOOR
-                    floor.setCurrFloor(curFloorNum + 1);
-                    floor.saveFloor(currFloor);
+                    //floor.setCurrFloor(curFloorNum + 1);
+                    //floor.saveFloor(currFloor);
+                    DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
                     endFloor();
                 }
             }
@@ -490,8 +554,8 @@ public class MainActivity extends Activity {
     private void updateDisplay() {
         mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
         currFloor=floors.get(curFloorNum);
-        floor.setCurrFloor(curFloorNum + 1);
-        floor.saveFloor(currFloor);
+        //floor.setCurrFloor(curFloorNum + 1);
+        //floor.saveFloor(currFloor);
         //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
         //         Toast.LENGTH_SHORT).show();
         canvasView.setFloor(currFloor);
@@ -523,7 +587,7 @@ public class MainActivity extends Activity {
             toggleButton.setText("Mesh Mode");
         }
         canvasView.toggleMeshMovementMode();
-        floor.saveFloor(currFloor);
+        //floor.saveFloor(currFloor);
     }
 
     private void setMenuText() {

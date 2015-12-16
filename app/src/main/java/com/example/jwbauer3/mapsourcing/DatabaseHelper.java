@@ -168,13 +168,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long floorId = -1;
         while(cur.moveToNext()) {
             floorId = cur.getLong(cur.getColumnIndex("floorId"));
-            db.rawQuery("DELETE FROM " + EDGE_TABLE + " WHERE floorId = ?",
+            db.execSQL("DELETE FROM " + EDGE_TABLE + " WHERE floorId = ?",
                     new String[]{Long.toString(floorId)});
-            db.rawQuery("DELETE FROM " + NODE_TABLE + " WHERE floorId = ?",
+            db.execSQL("DELETE FROM " + NODE_TABLE + " WHERE floorId = ?",
                     new String[]{Long.toString(floorId)});
-            db.rawQuery("DELETE FROM " + REFERENCE_STATE_TABLE + " WHERE floorId = ?",
+            db.execSQL("DELETE FROM " + REFERENCE_STATE_TABLE + " WHERE floorId = ?",
                     new String[]{Long.toString(floorId)});
-            db.rawQuery("DELETE FROM " + FLOOR_TABLE + " WHERE floorId = ?",
+            db.execSQL("DELETE FROM " + FLOOR_TABLE + " WHERE floorId = ?",
                     new String[]{Long.toString(floorId)});
         }
 
@@ -203,8 +203,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insertWithOnConflict(REFERENCE_STATE_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
 
         //Save the nodes and edges (nodes must be done first)
-        DatabaseHelper.saveNodes(db, floorId, floor.nodes);
-        DatabaseHelper.saveEdges(db, floorId, floor.edges);
+        DatabaseHelper.saveNodes(db, newFloorId, floor.nodes);
+        DatabaseHelper.saveEdges(db, newFloorId, floor.edges);
 
         db.close();
     }
@@ -272,6 +272,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    private static Floor getFloorFromCursor(SQLiteDatabase db, Cursor cur, int floorNum) {
+        long floorId = cur.getLong(cur.getColumnIndex("floorId"));
+        int backgroundImageResId = cur.getInt(cur.getColumnIndex("backgroundImageResId"));
+        float maxMeshScaleFactor = cur.getFloat(cur.getColumnIndex("maxMeshScaleFactor"));
+
+        Floor result = new Floor();
+        result.floorNum = floorNum;
+        result.backgroundImageResId = backgroundImageResId;
+        result.maxMeshScaleFactor = maxMeshScaleFactor;
+
+        //Get the ReferenceState
+        Cursor refCur = db.rawQuery("SELECT * FROM " + REFERENCE_STATE_TABLE +
+                        " WHERE floorId = ?",
+                new String[]{Long.toString(floorId)});
+
+        result.meshReferenceState = new ReferenceState();
+        if(refCur.moveToNext()) {
+            long referenceStateId = refCur.getLong(refCur.getColumnIndex("referenceStateId"));
+            float startX = refCur.getFloat(refCur.getColumnIndex("startX"));
+            float startY = refCur.getFloat(refCur.getColumnIndex("startY"));
+            float transX = refCur.getFloat(refCur.getColumnIndex("transX"));
+            float transY = refCur.getFloat(refCur.getColumnIndex("transY"));
+            float prevTransX = refCur.getFloat(refCur.getColumnIndex("prevTransX"));
+            float prevTransY = refCur.getFloat(refCur.getColumnIndex("prevTransY"));
+            float scaleFactor = refCur.getFloat(refCur.getColumnIndex("scaleFactor"));
+
+            result.meshReferenceState.startX = startX;
+            result.meshReferenceState.startY = startY;
+            result.meshReferenceState.transX = transX;
+            result.meshReferenceState.transY = transY;
+            result.meshReferenceState.prevTransX = prevTransX;
+            result.meshReferenceState.prevTransY = prevTransY;
+            result.meshReferenceState.scaleFactor = scaleFactor;
+        }
+
+        result.nodes = DatabaseHelper.getNodes(db, floorId, floorNum, result.meshReferenceState.scaleFactor);
+        result.edges = DatabaseHelper.getEdges(db, floorId, result.meshReferenceState.scaleFactor);
+
+        return result;
+    }
+
     public static Floor getFloor(int buildingId, int floorNum)
     {
         DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
@@ -286,41 +327,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Get the floor
         Floor result = null;
         if(cur.moveToNext()) {
-            long floorId = cur.getLong(cur.getColumnIndex("floorId"));
-            int backgroundImageResId = cur.getInt(cur.getColumnIndex("backgroundImageResId"));
-            float maxMeshScaleFactor = cur.getFloat(cur.getColumnIndex("maxMeshScaleFactor"));
-
-            result = new Floor();
-            result.floorNum = floorNum;
-            result.maxMeshScaleFactor = maxMeshScaleFactor;
-
-            //Get the ReferenceState
-            Cursor refCur = db.rawQuery("SELECT * FROM " + REFERENCE_STATE_TABLE +
-                            " WHERE floorId = ?",
-                    new String[]{Long.toString(floorId)});
-
-            result.meshReferenceState = new ReferenceState();
-            if(refCur.moveToNext()) {
-                long referenceStateId = refCur.getLong(refCur.getColumnIndex("referenceStateId"));
-                float startX = refCur.getFloat(refCur.getColumnIndex("startX"));
-                float startY = refCur.getFloat(refCur.getColumnIndex("startY"));
-                float transX = refCur.getFloat(refCur.getColumnIndex("transX"));
-                float transY = refCur.getFloat(refCur.getColumnIndex("transY"));
-                float prevTransX = refCur.getFloat(refCur.getColumnIndex("prevTransX"));
-                float prevTransY = refCur.getFloat(refCur.getColumnIndex("prevTransY"));
-                float scaleFactor = refCur.getFloat(refCur.getColumnIndex("scaleFactor"));
-
-                result.meshReferenceState.startX = startX;
-                result.meshReferenceState.startY = startY;
-                result.meshReferenceState.transX = transX;
-                result.meshReferenceState.transY = transY;
-                result.meshReferenceState.prevTransX = prevTransX;
-                result.meshReferenceState.prevTransY = prevTransY;
-                result.meshReferenceState.scaleFactor = scaleFactor;
-            }
-
-            result.nodes = DatabaseHelper.getNodes(db, floorId, floorNum, result.meshReferenceState.scaleFactor);
-            result.edges = DatabaseHelper.getEdges(db, floorId, result.meshReferenceState.scaleFactor);
+            result = getFloorFromCursor(db, cur, floorNum);
         }
 
         //Hmmmm, there shouldn't be the same floor twice for a building
@@ -329,6 +336,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         db.close();
+
+        return result;
+    }
+
+    public static ArrayList<Floor> getAllFloors(int buildingId) {
+        DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor cur = db.rawQuery("SELECT * FROM " + FLOOR_TABLE +
+                        " WHERE buildingId = ?",
+                new String[]{Integer.toString(buildingId)});
+
+        ArrayList<Floor> result = new ArrayList<>();
+
+        while (cur.moveToNext()) {
+            int floorNum = cur.getInt(cur.getColumnIndex("floorNum"));
+            result.add(getFloorFromCursor(db, cur, floorNum));
+        }
 
         return result;
     }
