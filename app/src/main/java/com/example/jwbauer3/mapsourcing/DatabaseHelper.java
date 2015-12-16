@@ -152,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void saveFloor(int buildingId, Floor floor)
+    public static void saveFloor(long buildingId, Floor floor)
     {
         DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -160,7 +160,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cur = db.rawQuery("SELECT * FROM " + FLOOR_TABLE +
                         " WHERE buildingId = ? AND" +
                         " floorNum = ?",
-                new String[]{Integer.toString(buildingId),
+                new String[]{Long.toString(buildingId),
                         Integer.toString(floor.getFloorNum())});
 
         //Delete old Floor (or multiple if there are more somehow)
@@ -209,6 +209,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper.saveEdges(db, newFloorId, floor.edges);
 
         db.close();
+    }
+
+    public static long addBuilding(String buildingName) {
+        DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        //Insert the building
+        ContentValues row = new ContentValues();
+        row.put("buildingName", buildingName);
+        long result = db.insertWithOnConflict(BUILDING_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
+
+        db.close();
+
+        return result;
     }
 
     private static HashMap<Long, Node> nodeHashMap = null;
@@ -322,7 +336,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public static Floor getFloor(int buildingId, int floorNum)
+    public static Floor getFloor(long buildingId, int floorNum)
     {
         DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
@@ -330,8 +344,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cur = db.rawQuery("SELECT * FROM " + FLOOR_TABLE +
                         " WHERE buildingId = ? AND" +
                         " floorNum = ?",
-                new String[]{Integer.toString(buildingId),
-                            Integer.toString(floorNum)});
+                new String[]{Long.toString(buildingId),
+                        Integer.toString(floorNum)});
 
         //Get the floor
         Floor result = null;
@@ -351,19 +365,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public static ArrayList<Floor> getAllFloors(int buildingId) {
+    public static ArrayList<Floor> getAllFloors(long buildingId) {
         DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
         SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor cur = db.rawQuery("SELECT * FROM " + FLOOR_TABLE +
                         " WHERE buildingId = ?",
-                new String[]{Integer.toString(buildingId)});
+                new String[]{Long.toString(buildingId)});
 
         ArrayList<Floor> result = new ArrayList<>();
 
         while (cur.moveToNext()) {
             int floorNum = cur.getInt(cur.getColumnIndex("floorNum"));
             result.add(getFloorFromCursor(db, cur, floorNum));
+        }
+
+        //Close the cursor
+        cur.close();
+
+        return result;
+    }
+
+    public static ArrayList<Building> getBuildings() {
+        DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
+        Cursor cur = db.rawQuery("SELECT * FROM " + BUILDING_TABLE, new String[]{});
+
+        ArrayList<Building> result = new ArrayList<>();
+
+        while (cur.moveToNext()) {
+            long id = cur.getLong(cur.getColumnIndex("buildingId"));
+            String name = cur.getString(cur.getColumnIndex("buildingName"));
+            result.add(new Building(id, name));
         }
 
         //Close the cursor
