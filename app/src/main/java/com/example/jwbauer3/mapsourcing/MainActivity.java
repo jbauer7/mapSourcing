@@ -232,7 +232,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < 4; i++)
         {
             floor.setCurrFloor(i + 1);
-            int drawable = R.drawable.eh_floor2;
+            int drawable = R.drawable.eh_floor1;
             if (i == 1)
             {
                 drawable = R.drawable.eh_floor2;
