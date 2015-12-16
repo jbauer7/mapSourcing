@@ -133,10 +133,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             row.put("xPos", node.getxPos());
             row.put("yPos", node.getyPos());
             row.put("isStairNode", node.getIsStairNode());
-            long newNodeId = db.insertWithOnConflict(NODE_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
 
-            //Update the node.id
-            node.id = newNodeId;
+            //Commit and update the node.id
+            node.id = db.insertWithOnConflict(NODE_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
         }
     }
 
@@ -149,7 +148,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             row.put("endNodeId", edge.getEnd().id);
             row.put("weight", edge.getWeight());
             row.put("direction", edge.getDirection());
-            long newEdgeId = db.insertWithOnConflict(EDGE_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
+            db.insertWithOnConflict(EDGE_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
         }
     }
 
@@ -177,6 +176,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM " + FLOOR_TABLE + " WHERE floorId = ?",
                     new String[]{Long.toString(floorId)});
         }
+
+        //Close the cursor
+        cur.close();
 
         //Insert the Floor
         ContentValues row = new ContentValues();
@@ -239,6 +241,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             result.add(temp);
         }
 
+        //Close the cursor
+        cur.close();
+
         return result;
     }
 
@@ -250,7 +255,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(floorId)});
 
         while(cur.moveToNext()) {
-            long edgeId = cur.getLong(cur.getColumnIndex("edgeId"));
             long startNodeId = cur.getLong(cur.getColumnIndex("startNodeId"));
             long endNodeId = cur.getLong(cur.getColumnIndex("endNodeId"));
             int weight = cur.getInt(cur.getColumnIndex("weight"));
@@ -268,6 +272,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             temp.setScaleFactor(scaleFactor);
             result.add(temp);
         }
+
+        //Close the cursor
+        cur.close();
 
         return result;
     }
@@ -289,7 +296,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         result.meshReferenceState = new ReferenceState();
         if(refCur.moveToNext()) {
-            long referenceStateId = refCur.getLong(refCur.getColumnIndex("referenceStateId"));
             float startX = refCur.getFloat(refCur.getColumnIndex("startX"));
             float startY = refCur.getFloat(refCur.getColumnIndex("startY"));
             float transX = refCur.getFloat(refCur.getColumnIndex("transX"));
@@ -306,6 +312,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             result.meshReferenceState.prevTransY = prevTransY;
             result.meshReferenceState.scaleFactor = scaleFactor;
         }
+
+        //Close the cursor
+        refCur.close();
 
         result.nodes = DatabaseHelper.getNodes(db, floorId, floorNum, result.meshReferenceState.scaleFactor);
         result.edges = DatabaseHelper.getEdges(db, floorId, result.meshReferenceState.scaleFactor);
@@ -335,6 +344,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             System.err.println("Multiple Floors Defined, Returned First");
         }
 
+        //Close the cursor and database
+        cur.close();
         db.close();
 
         return result;
@@ -354,6 +365,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int floorNum = cur.getInt(cur.getColumnIndex("floorNum"));
             result.add(getFloorFromCursor(db, cur, floorNum));
         }
+
+        //Close the cursor
+        cur.close();
 
         return result;
     }
