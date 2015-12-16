@@ -23,7 +23,7 @@
         android:background="@android:color/darker_gray">
 
 
-        <com.example.jwbauer3.mapsourcing.MyView
+        <com.example.jwbauer3.mapsourcing.CanvasView
             android:id="@+id/MyViewTest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

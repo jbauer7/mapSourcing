@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class MainMenu extends Activity {
+public class MainMenuActivity extends Activity {
 
     private String[] buildingNames = {"Engineering Hall", "Computer Aided Engineering", "Engineering Centers Building"};
 

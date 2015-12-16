@@ -17,7 +17,7 @@ import java.util.Comparator;
 /**
  * created by Nikhil on 10/11/2015.
  */
-public class MyView extends View {
+public class CanvasView extends View {
     private Floor curFloor = null;
     //priority queue for drawing (stores lowest elements first)
     private SortedArrayList<CanvasDrawable> drawables_draw;
@@ -68,17 +68,18 @@ public class MyView extends View {
     private EdgeLogService mService;
 
 
-    public MyView(Context context) {
+
+    public CanvasView(Context context) {
         super(context);
         preformSetup();
     }
 
-    public MyView(Context context, AttributeSet attrs) {
+    public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
         preformSetup();
     }
 
-    public MyView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CanvasView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         preformSetup();
     }
@@ -427,7 +428,7 @@ public class MyView extends View {
 
 
     /*
-    Custom class to define the onTouch properties of the MyView View.
+    Custom class to define the onTouch properties of the CanvasView View.
      */
     class MyOnTouchListener implements OnTouchListener {
 
