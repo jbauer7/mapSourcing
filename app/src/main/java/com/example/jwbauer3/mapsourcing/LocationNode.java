@@ -25,7 +25,6 @@ public class LocationNode extends BaseNode {
         super(xPos, yPos, floor, DEFAULTRADIUS, DEFAULTLOCATIONNODEPRIORITY);
         this.drawnRadius = DEFAULTRADIUS;
         setSourceEdge(sourceEdge, before, after);
-        this.options.add(MenuSelection.START);
     }
 
 
