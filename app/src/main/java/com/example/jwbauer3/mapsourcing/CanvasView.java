@@ -692,8 +692,8 @@ public class CanvasView extends View {
                 other.setStartEdge(toSet.getEndEdge());
             } else {
                 //Revert edges to nodes on each side of the source edge
-                LocationEdge searchStartEdge = new LocationEdge(searchSourceEdge.getStart(), other);
-                LocationEdge searchEndEdge = new LocationEdge(other, searchSourceEdge.getEnd());
+                LocationEdge searchStartEdge = new LocationEdge(searchSourceEdge.getStart(), other, meshReferenceState.scaleFactor);
+                LocationEdge searchEndEdge = new LocationEdge(other, searchSourceEdge.getEnd(), meshReferenceState.scaleFactor);
 
                 //Add new edges to collections
                 other.setStartEdge(searchStartEdge);
