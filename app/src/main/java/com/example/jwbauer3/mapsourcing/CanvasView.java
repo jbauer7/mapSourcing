@@ -213,27 +213,27 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        //Save the original scale and translation so we can restore to it after drawing
         canvas.save();
+
         //update the scale: we zoom equally in both x and y direction
         canvas.scale(canvasReferenceState.scaleFactor, canvasReferenceState.scaleFactor);
         //update the translation: offset by trans(XY)/scaleFactor (how far at what zoom factor)
         canvas.translate(canvasReferenceState.transX / canvasReferenceState.scaleFactor,
                 canvasReferenceState.transY / canvasReferenceState.scaleFactor);
 
-        //TODO: try to incorporate the x,y offsets into the translate
-        //get rid of need to pass offsets to canvasdrawables
-        //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
-
         //draw the background image (if there is one)
         currentFloorBackground.draw(canvas);
 
-        //translate the canvas for the canvasDrawable objects.
+        //translate the canvas for the canvasDrawable objects
         canvas.translate(xOffset, yOffset);
 
         //draw each drawable element (nodes, edges, etc etc)
         for (CanvasDrawable element : drawables_draw) {
             element.draw(canvas);
         }
+
+        //Restore the canvas to its original position for the next time we arrive here
         canvas.restore();
     }
 
