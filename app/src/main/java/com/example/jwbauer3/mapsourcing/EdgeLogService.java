@@ -336,8 +336,8 @@ public class EdgeLogService extends Service {
         }
 
         if (degreeRangeChangedCount == 1) {
-            xPos = prevNode.getxPos() + (int) currSteps * prev_x * 5;
-            yPos = prevNode.getyPos() + (int) currSteps * prev_y * 5;
+            xPos = prevNode.getDefaultXPos() + (int) currSteps * prev_x * 5;
+            yPos = prevNode.getDefaultYPos() + (int) currSteps * prev_y * 5;
             //currSteps = 0;
         }
 
@@ -388,7 +388,7 @@ public class EdgeLogService extends Service {
         Node curr;
         for (int i = 0; i < nodes.size(); i++) {
             curr = nodes.get(i);
-            if (Math.abs(curr.getxPos() - xPos) < 25 && Math.abs(curr.getyPos() - yPos) < 25) {
+            if (Math.abs(curr.getDefaultXPos() - xPos) < 25 && Math.abs(curr.getDefaultYPos() - yPos) < 25) {
                 return nodes.get(i);
             }
         }
@@ -405,16 +405,16 @@ public class EdgeLogService extends Service {
             curr = nodes.get(i);
             //check if the current node is either on the same x or y line
             //as the "new" node
-            if (Math.abs(curr.getxPos() - newNode.getxPos()) < 15
-                    || Math.abs(curr.getyPos() - newNode.getyPos()) < 15) {
+            if (Math.abs(curr.getDefaultXPos() - newNode.getDefaultXPos()) < 15
+                    || Math.abs(curr.getDefaultYPos() - newNode.getDefaultYPos()) < 15) {
 
                 for (int j = 0; j < nodes.size(); j++) {
                     if (i == j) continue;
                     temp = nodes.get(j);
-                    if (Math.abs(temp.getxPos() - newNode.getxPos()) < 15
-                            || Math.abs(temp.getyPos() - newNode.getyPos()) < 15) {
+                    if (Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) < 15
+                            || Math.abs(temp.getDefaultYPos() - newNode.getDefaultYPos()) < 15) {
 
-                        if (Math.abs(temp.getxPos() - newNode.getxPos()) < 15) xAxis = false;
+                        if (Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) < 15) xAxis = false;
 
 
                         Edge currEdge;
@@ -425,19 +425,19 @@ public class EdgeLogService extends Service {
 
                             if (currEdge.getStart() == curr && currEdge.getEnd() == temp) {
                                 if (xAxis) {
-                                    if (curr.getxPos() > temp.getxPos()) {
-                                        if (!(newNode.getxPos() > temp.getxPos() && newNode.getxPos() < curr.getxPos()))
+                                    if (curr.getDefaultXPos() > temp.getDefaultXPos()) {
+                                        if (!(newNode.getDefaultXPos() > temp.getDefaultXPos() && newNode.getDefaultXPos() < curr.getDefaultXPos()))
                                             continue;
                                     } else {
-                                        if (!(newNode.getxPos() > curr.getxPos() && newNode.getxPos() < curr.getxPos()))
+                                        if (!(newNode.getDefaultXPos() > curr.getDefaultXPos() && newNode.getDefaultXPos() < curr.getDefaultXPos()))
                                             continue;
                                     }
                                 } else {
-                                    if (curr.getyPos() > temp.getyPos()) {
-                                        if (!(newNode.getyPos() > temp.getyPos() && newNode.getyPos() < curr.getyPos()))
+                                    if (curr.getDefaultYPos() > temp.getDefaultYPos()) {
+                                        if (!(newNode.getDefaultYPos() > temp.getDefaultYPos() && newNode.getDefaultYPos() < curr.getDefaultYPos()))
                                             continue;
                                     } else {
-                                        if (!(newNode.getyPos() > curr.getyPos() && newNode.getyPos() < curr.getyPos()))
+                                        if (!(newNode.getDefaultYPos() > curr.getDefaultYPos() && newNode.getDefaultYPos() < curr.getDefaultYPos()))
                                             continue;
                                     }
                                 }
@@ -448,11 +448,11 @@ public class EdgeLogService extends Service {
                                 Edge twoEdge = new Edge(newNode, temp);
                                 twoEdge.setDirection(edges.get(k).getDirection());
                                 if (xAxis) {
-                                    oneEdge.setWeight(Math.abs(curr.getxPos() - newNode.getxPos()) / 5);
-                                    twoEdge.setWeight(Math.abs(temp.getxPos() - newNode.getxPos()) / 5);
+                                    oneEdge.setWeight(Math.abs(curr.getDefaultXPos() - newNode.getDefaultXPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) / 5);
                                 } else {
-                                    oneEdge.setWeight(Math.abs(curr.getyPos() - newNode.getyPos()) / 5);
-                                    twoEdge.setWeight(Math.abs(temp.getyPos() - newNode.getyPos()) / 5);
+                                    oneEdge.setWeight(Math.abs(curr.getDefaultYPos() - newNode.getDefaultYPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(temp.getDefaultYPos() - newNode.getDefaultYPos()) / 5);
                                 }
                                 edges.add(oneEdge);
                                 edges.add(twoEdge);
@@ -464,6 +464,23 @@ public class EdgeLogService extends Service {
                             }
                             //Edge (Temp, Curr)
                             else if (currEdge.getStart() == temp && currEdge.getEnd() == curr) {
+                                if (xAxis) {
+                                    if (curr.getDefaultXPos() > temp.getDefaultXPos()) {
+                                        if (!(newNode.getDefaultXPos() > temp.getDefaultXPos() && newNode.getDefaultXPos() < curr.getDefaultXPos()))
+                                            continue;
+                                    } else {
+                                        if (!(newNode.getDefaultXPos() > curr.getDefaultXPos() && newNode.getDefaultXPos() < curr.getDefaultXPos()))
+                                            continue;
+                                    }
+                                } else {
+                                    if (curr.getDefaultYPos() > temp.getDefaultYPos()) {
+                                        if (!(newNode.getDefaultYPos() > temp.getDefaultYPos() && newNode.getDefaultYPos() < curr.getDefaultYPos()))
+                                            continue;
+                                    } else {
+                                        if (!(newNode.getDefaultYPos() > curr.getDefaultYPos() && newNode.getDefaultYPos() < curr.getDefaultYPos()))
+                                            continue;
+                                    }
+                                }
                                 curr.getEdges().remove(edges.get(k));
                                 temp.getEdges().remove(edges.get(k));
                                 Edge oneEdge = new Edge(temp, newNode);
@@ -471,11 +488,11 @@ public class EdgeLogService extends Service {
                                 Edge twoEdge = new Edge(newNode, curr);
                                 oneEdge.setDirection(edges.get(k).getDirection());
                                 if (xAxis) {
-                                    oneEdge.setWeight(Math.abs(temp.getxPos() - newNode.getxPos()) / 5);
-                                    twoEdge.setWeight(Math.abs(curr.getxPos() - newNode.getxPos()) / 5);
+                                    oneEdge.setWeight(Math.abs(temp.getDefaultXPos() - newNode.getDefaultXPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(curr.getDefaultXPos() - newNode.getDefaultXPos()) / 5);
                                 } else {
-                                    oneEdge.setWeight(Math.abs(temp.getyPos() - newNode.getyPos()) / 5);
-                                    twoEdge.setWeight(Math.abs(curr.getyPos() - newNode.getyPos()) / 5);
+                                    oneEdge.setWeight(Math.abs(temp.getDefaultYPos() - newNode.getDefaultYPos()) / 5);
+                                    twoEdge.setWeight(Math.abs(curr.getDefaultYPos() - newNode.getDefaultYPos()) / 5);
                                 }
                                 edges.add(oneEdge);
                                 edges.add(twoEdge);
