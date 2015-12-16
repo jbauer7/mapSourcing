@@ -173,7 +173,6 @@ public class EdgeLogService extends Service {
     public void setNodesEdges(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         this.nodes = nodes;
         this.edges = edges;
-        setPrevNode();
     }
 
     /* Set degreeOffset for mapping*/
@@ -186,7 +185,7 @@ public class EdgeLogService extends Service {
         return;
     }
 
-    private void setPrevNode(){
+    public void setPrevNode(){
         prevNode=nodes.get(0);
     }
 

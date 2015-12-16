@@ -405,7 +405,7 @@ public class MainActivity extends Activity {
                     updateDisplay();
                     setMenuText();
                 }
-                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+//                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             }
 
             @Override
@@ -439,7 +439,7 @@ public class MainActivity extends Activity {
                 mapButton.setText("Start Map");
             } else {
                 if (!pressed) {
-                    //mService.setPrevNode(currFloor.getNodes().get(0));
+                    mService.setPrevNode();
                     mapButton.setText("Save Map");
                     mService.setMappingMode();
                     mService.unlockStart();
