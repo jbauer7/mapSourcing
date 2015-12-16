@@ -23,13 +23,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
-    private final static int EHALL_BUILDING_NUM = 0;
-
     private boolean gotNorth = false;
     private boolean pressed = false;
     private boolean mBound = false;
     private boolean navigationMode;
     protected static int curFloorNum=0;
+    private int buildingId = 0;
     private EdgeLogService mService;
     private Navigator navigator;
 
@@ -94,6 +93,7 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Map Mode",
                         Toast.LENGTH_SHORT).show();
             }
+            buildingId = bundle.getInt("buildingId");
         }
         serviceIntent = new Intent(this, EdgeLogService.class);
 
@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
 
     private void databaseHelperStartUp() {
         //Load all floors
-        floors = DatabaseHelper.getAllFloors(EHALL_BUILDING_NUM);
+        floors = DatabaseHelper.getAllFloors(buildingId);
 
         //Init floors if it doesn't exist
         if (floors.size() == 0) {
@@ -119,10 +119,10 @@ public class MainActivity extends Activity {
             floors.get(2).getNodes().add(new Node(0, 0, 3));
             floors.get(3).getNodes().add(new Node(0, 0, 4));
 
-            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(0));
-            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(1));
-            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(2));
-            DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, floors.get(3));
+            DatabaseHelper.saveFloor(buildingId, floors.get(0));
+            DatabaseHelper.saveFloor(buildingId, floors.get(1));
+            DatabaseHelper.saveFloor(buildingId, floors.get(2));
+            DatabaseHelper.saveFloor(buildingId, floors.get(3));
         }
 
         //Load the last floor we were on
@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
             unbindService(mConnection);
 
         //Save the floor
-        DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
+        DatabaseHelper.saveFloor(buildingId, currFloor);
 
         //Save which floor we were on
         SharedPreferences mPrefs = getSharedPreferences("mapSourcingCurrentFloor", MODE_PRIVATE);
@@ -248,7 +248,7 @@ public class MainActivity extends Activity {
                     //do nothing
                 } else {
                     endFloor();
-                    DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
+                    DatabaseHelper.saveFloor(buildingId, currFloor);
 
                     curFloorNum = position;
                     canvasView.setFloor(floors.get(position));
@@ -294,7 +294,7 @@ public class MainActivity extends Activity {
                     pressed = true;
                 } else {
                     //save floor
-                    DatabaseHelper.saveFloor(EHALL_BUILDING_NUM, currFloor);
+                    DatabaseHelper.saveFloor(buildingId, currFloor);
                     endFloor();
                 }
             }

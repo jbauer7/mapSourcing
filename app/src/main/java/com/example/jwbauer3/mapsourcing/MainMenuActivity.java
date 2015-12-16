@@ -12,6 +12,7 @@ import android.widget.Toast;
 public class MainMenuActivity extends Activity {
 
     private String[] buildingNames = {"Engineering Hall", "Computer Aided Engineering", "Engineering Centers Building"};
+    private int buildingId = 0;
 
     private static boolean presentationMode;
 
@@ -26,6 +27,7 @@ public class MainMenuActivity extends Activity {
         //start activity with mapping enabled
         Intent mapIntent = new Intent(this, MainActivity.class);
         mapIntent.putExtra("mode", "navigation");
+        mapIntent.putExtra("buildingId", buildingId);
         if (presentationMode)
         {
             mapIntent.putExtra("presentationMode", "true");
@@ -34,10 +36,12 @@ public class MainMenuActivity extends Activity {
         }
         startActivity(mapIntent);
     }
+
     public void mapPressed(View view){
         //start activity with mapping disabled.
         Intent mapIntent = new Intent(this, MainActivity.class);
         mapIntent.putExtra("mode", "map");
+        mapIntent.putExtra("buildingId", buildingId);
         if (presentationMode)
         {
             mapIntent.putExtra("presentationMode", "true");
@@ -68,6 +72,7 @@ public class MainMenuActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 //does nothing atm
+                buildingId = position;
             }
 
             @Override
