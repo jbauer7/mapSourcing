@@ -31,7 +31,7 @@ public class LocationNode extends BaseNode {
 
     @Override
     public void draw(Canvas canvas) {
-        //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var
+        //magic number 100, represents radius of node. Might be passed in from CanvasView, might be a class var
         Paint paint = new Paint();
         if (this.attributes.contains(Attribute.USER)) {
             paint.setColor(Application.getResColor(R.color.UserLocationNodeColor)); //red for user

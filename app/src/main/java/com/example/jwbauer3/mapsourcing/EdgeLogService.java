@@ -591,7 +591,7 @@ public class EdgeLogService extends Service {
         }
     }
 
-    /* Ability to get current Edge for myView */
+    /* Ability to get current Edge for canvasView */
     public BaseEdge getCurrEdge() {
 
         return (BaseEdge) currEdge;
@@ -612,7 +612,7 @@ public class EdgeLogService extends Service {
         return currentLocation;
     }
 
-    /* Set in myView.java to start navigation functionality */
+    /* Set in canvasView.java to start navigation functionality */
     public void setUserLocation(BaseEdge edge, double percentToEnd) {
         setNavigationMode();
         setNavigationStartEdge(edge, (float) percentToEnd);

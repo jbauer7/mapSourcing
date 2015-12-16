@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Class the deals with Navigation. Is called by MyView to do work on multiple nodes.
+ * Class the deals with Navigation. Is called by CanvasView to do work on multiple nodes.
  */
 public class Navigator {
     private BaseNode startNode, endNode;

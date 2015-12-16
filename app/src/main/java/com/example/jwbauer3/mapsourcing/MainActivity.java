@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.res.ResourcesCompat;
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             EdgeLogService.LocalBinder binder = (EdgeLogService.LocalBinder) service;
             mService = binder.getService();
-            myView.connectEdgeLogService(mService);
+            canvasView.connectEdgeLogService(mService);
 
             updateDisplay();
             mBound = true;
@@ -63,7 +62,7 @@ public class MainActivity extends Activity {
     private Intent serviceIntent;
 
 
-    MyView myView;
+    CanvasView canvasView;
 
     protected static Persistence floor;
 
@@ -148,11 +147,11 @@ public class MainActivity extends Activity {
         graph.addAll(floors.get(3).getNodes());
 
         navigator = new Navigator(graph);
-        myView = (MyView) findViewById(R.id.MyViewTest);
-        myView.connectEdgeLogService(mService);
-        myView.setFloor(currFloor);
+        canvasView = (CanvasView) findViewById(R.id.MyViewTest);
+        canvasView.connectEdgeLogService(mService);
+        canvasView.setFloor(currFloor);
         setMenuText();
-        myView.setNavigator(navigator);
+        canvasView.setNavigator(navigator);
     }
 
     /* private void tempStartUp(Floor savedFloor){
@@ -192,11 +191,11 @@ public class MainActivity extends Activity {
         graph.addAll(floors.get(3).getNodes());
 
         navigator = new Navigator(graph);
-        myView = (MyView) findViewById(R.id.MyViewTest);
+        canvasView = (CanvasView) findViewById(R.id.MyViewTest);
 
-        myView.setFloor(currFloor);
+        canvasView.setFloor(currFloor);
         setMenuText();
-        myView.setNavigator(navigator);
+        canvasView.setNavigator(navigator);
 
         if (!floor.isFloorSaved())
         {
@@ -211,14 +210,14 @@ public class MainActivity extends Activity {
             if (savedFloor.getNodes().size() > 0)
             {
                 floors.add(curFloorNum, savedFloor);
-                myView.setFloor(floors.get(curFloorNum));
+                canvasView.setFloor(floors.get(curFloorNum));
                 currFloor = floors.get(curFloorNum);
             } else {
-                myView.setFloor(floors.get(curFloorNum));
+                canvasView.setFloor(floors.get(curFloorNum));
                 currFloor = floors.get(curFloorNum);
             }
         } else {
-            myView.setFloor(floors.get(curFloorNum));
+            canvasView.setFloor(floors.get(curFloorNum));
             currFloor = floors.get(curFloorNum);
         }
         mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
@@ -282,11 +281,11 @@ public class MainActivity extends Activity {
         graph.addAll(floors.get(3).getNodes());
 
         navigator = new Navigator(graph);
-        myView = (MyView) findViewById(R.id.MyViewTest);
+        canvasView = (CanvasView) findViewById(R.id.MyViewTest);
 
-        myView.setFloor(currFloor);
+        canvasView.setFloor(currFloor);
         setMenuText();
-        myView.setNavigator(navigator);
+        canvasView.setNavigator(navigator);
 
         if (!floor.isFloorSaved())
         {
@@ -425,7 +424,7 @@ public class MainActivity extends Activity {
 
                     curFloorNum = position;
                     floor.setCurrFloor(curFloorNum + 1);
-                    myView.setFloor(floors.get(position));
+                    canvasView.setFloor(floors.get(position));
                     currFloor = floors.get(position);
                     updateDisplay();
                     setMenuText();
@@ -497,7 +496,7 @@ public class MainActivity extends Activity {
         floor.saveFloor(currFloor);
         //   Toast.makeText(getApplicationContext(), "Edges:" + Integer.toString(currFloor.getEdges().size()) + "  nodes:" + Integer.toString(currFloor.getNodes().size()),
         //         Toast.LENGTH_SHORT).show();
-        myView.setFloor(currFloor);
+        canvasView.setFloor(currFloor);
     }
 
     private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
@@ -509,7 +508,7 @@ public class MainActivity extends Activity {
                 //********************* UNCOMMENT THIS TO UPDATE DISPLAY WHEN READY ********************////
                 Toast.makeText(getApplicationContext(), "x:" + mService.getLocation()[0]+ "\ny:"+ mService.getLocation()[1],
                         Toast.LENGTH_SHORT).show();
-                myView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
+                canvasView.updateUserLocation((Edge) mService.getCurrEdge(), mService.getLocation()[0], mService.getLocation()[1]);
             } else {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "New Node Created",
@@ -525,7 +524,7 @@ public class MainActivity extends Activity {
         } else {
             toggleButton.setText("Mesh Mode");
         }
-        myView.toggleMeshMovementMode();
+        canvasView.toggleMeshMovementMode();
         floor.saveFloor(currFloor);
     }
 
