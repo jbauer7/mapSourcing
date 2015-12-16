@@ -365,6 +365,13 @@ public class EdgeLogService extends Service {
             splitEdge(newNode);
             addNewNode = true;
         }
+        else{
+            for(BaseEdge tempEdge : newNode.getEdges()){
+                if(tempEdge.getStart()==prevNode || tempEdge.getEnd()==prevNode){
+                    return;
+                }
+            }
+        }
         Edge newEdge = new Edge(prevNode, newNode);
         newEdge.setWeight((int) currSteps);
         newEdge.setDirection((int) edgeDirection);
