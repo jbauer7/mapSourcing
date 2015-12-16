@@ -89,8 +89,8 @@ public class LocationNode extends BaseNode {
     public void setSourceEdge(Edge source, BaseNode before, BaseNode after) {
         this.sourceEdge = source;
 
-        this.startEdge = new LocationEdge(before, this);
-        this.endEdge = new LocationEdge(this, after);
+        this.startEdge = new LocationEdge(before, this, scaleFactor);
+        this.endEdge = new LocationEdge(this, after, scaleFactor);
 
         this.addEdge(startEdge);
         this.addEdge(endEdge);

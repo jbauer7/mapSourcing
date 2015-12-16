@@ -9,8 +9,9 @@ public class LocationEdge extends BaseEdge {
 
     private static final int DEFAULTLOCATIONEDGEPRIORITY = 150;
 
-    public LocationEdge(BaseNode start, BaseNode end) {
+    public LocationEdge(BaseNode start, BaseNode end, float scaleFactor) {
         super(DEFAULTLOCATIONEDGEPRIORITY, start, end);
+        setScaleFactor(scaleFactor);
     }
 
     @Override
