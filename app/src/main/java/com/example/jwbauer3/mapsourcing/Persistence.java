@@ -55,6 +55,8 @@ public class Persistence {
 
     private HashMap<String, Integer> nodeRequestCount;
 
+    private int type;
+
     public Persistence(Context context, int type, String building, int floorNumber)
     {
         this.context = context;
@@ -64,8 +66,18 @@ public class Persistence {
         floor = new Floor();
         //if type == 1 then persistence is init'ed as floor
         PREF_NAME = "";
-        if (type == 1) {
+        if (type == 1) { // Save floors
+            this.type = 1;
             PREF_NAME = building + "_floor_" + floorNumber;
+        } else if (type == 2) { // DON'T Save Floors
+            this.type = 2;
+            PREF_NAME = building + "_floor_" + floorNumber;
+        } else if (type == 3) { // Save Floors
+            this.type = 3;
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
+        } else if (type == 4) { // DON'T Save Floors
+            this.type = 4;
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
         }
 
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -157,7 +169,12 @@ public class Persistence {
 
     public void setCurrFloor(int floorNumber)
     {
-        PREF_NAME = this.building + "_floor_" + floorNumber;
+        if (this.type == 1 || this.type == 2)
+        {
+            PREF_NAME = this.building + "_floor_" + floorNumber;
+        } else {
+            PREF_NAME = building + "_floor_" + floorNumber + "_presentation";
+        }
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String numOfEdges = sharedPreferences.getString("numOfEdges", "");
         String numOfNodes = sharedPreferences.getString("numOfNodes", "");
@@ -239,6 +256,10 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
+        if(this.type == 2 || this.type == 4)
+        {
+            return;
+        }
         Log.d("Persistence", "saveFloor floorNum = " + floorToSave.floorNum);
         floor.edges = floorToSave.getEdges();
         floor.nodes = floorToSave.getNodes();
@@ -272,10 +293,6 @@ public class Persistence {
             /*String nodePrefId = "node_" + i;
             String nodeGson = gson.toJson(floor.nodes.get(i));
             prefsEditor.putString(nodePrefId, nodeGson); */
-            if (floor.nodes.get(i).drawnRadius == 0)
-            {
-                continue;
-            }
             nodeHashMap.put(floor.nodes.get(i).nodeRefString, floor.nodes.get(i));
             //prefsEditor.putString(nodePrefId, objectSerializer(floor.nodes.get(i)));
         }

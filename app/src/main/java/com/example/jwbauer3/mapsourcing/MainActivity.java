@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
         mContext = this;
 
         //Persistence(Context context, int type, String building, int floorNumber)
-        floor = new Persistence(mContext, 1, "ehall", 1);
+        //floor = new Persistence(mContext, 1, "ehall", 1);
 
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -83,9 +83,21 @@ public class MainActivity extends Activity {
         if (bundle != null) {
             if (bundle.getString("mode").equals("navigation")) {
                 navigationMode = true;
+                if (bundle.getString("presentationMode").equals("true"))
+                {
+                    floor = new Persistence(mContext, 4, "ehall", 1);
+                } else {
+                    floor = new Persistence(mContext, 2, "ehall", 1);
+                }
                 Toast.makeText(getApplicationContext(), "Navigation Mode",
                         Toast.LENGTH_SHORT).show();
             } else if (bundle.getString("mode").equals("map")) {
+                if (bundle.getString("presentationMode").equals("true"))
+                {
+                    floor = new Persistence(mContext, 3, "ehall", 1);
+                } else {
+                    floor = new Persistence(mContext, 1, "ehall", 1);
+                }
                 navigationMode = false;
                 Toast.makeText(getApplicationContext(), "Map Mode",
                         Toast.LENGTH_SHORT).show();
@@ -221,9 +233,15 @@ public class MainActivity extends Activity {
         {
             floor.setCurrFloor(i + 1);
             int drawable = R.drawable.eh_floor2;
-            if (i + 1 > 2)
+            if (i == 1)
+            {
+                drawable = R.drawable.eh_floor2;
+            } else if (i == 2)
             {
                 drawable = R.drawable.eh_floor3;
+            } else if (i == 3)
+            {
+                drawable = R.drawable.eh_floor4;
             }
             if (floor.getSavedFloor() == 1)
             {
@@ -232,14 +250,18 @@ public class MainActivity extends Activity {
                     floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
                             ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
                 } else {
-                    floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                    ArrayList<Node> nodes = new ArrayList<Node>();
+                    ArrayList<Edge> edges = new ArrayList<Edge>();
+                    nodes.add(new Node(0, 0, i, false));
+                    floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
                             ResourcesCompat.getDrawable(getResources(), drawable, null)));
-                    floors.get(i).getNodes().add(new Node(0, 0, i, false));
                 }
             } else {
-                floors.add(new Floor(i + 1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
+                ArrayList<Node> nodes = new ArrayList<Node>();
+                ArrayList<Edge> edges = new ArrayList<Edge>();
+                nodes.add(new Node(0, 0, i, false));
+                floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
                         ResourcesCompat.getDrawable(getResources(), drawable, null)));
-                floors.get(i).getNodes().add(new Node(0, 0, i, false));
             }
         }
         Log.d("Persistence", "persistenceStartUp after for-loop");
@@ -398,6 +420,9 @@ public class MainActivity extends Activity {
                     endFloor();
                     floor.setCurrFloor(curFloorNum + 1);
                     floor.saveFloor(currFloor);
+
+                    mService.setNodesEdges(new ArrayList<Node>(), new ArrayList<Edge>());
+
                     curFloorNum = position;
                     floor.setCurrFloor(curFloorNum + 1);
                     myView.setFloor(floors.get(position));
