@@ -11,5 +11,6 @@
     <string name="navigate">Navigate</string>
     <string name="map">Map</string>
     <string name="add_new_building">Add New Building</string>
+    <string name="remove_building">Remove Building</string>
     <string name="presentation_mode">Save Mode Toggle</string>
 </resources>

@@ -86,6 +86,34 @@ public class MainMenuActivity extends Activity {
         builder.show();
     }
 
+    public void removeBuilding(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Remove this Building?");
+
+        // Set up the buttons
+        builder.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseHelper.removeBuilding(selectedBuildingId);
+                for (int i = 0; i < buildings.size(); i++) {
+                    if (buildings.get(i).getId() == selectedBuildingId) {
+                        buildings.remove(i);
+                        break;
+                    }
+                }
+                buildingAdapter.notifyDataSetChanged();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
     public void presentationModeToggle(View view) {
         if (!presentationMode) {
             presentationMode = true;

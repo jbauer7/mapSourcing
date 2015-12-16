@@ -85,13 +85,22 @@
         android:onClick="addBuilding"/>
 
     <Button
+        android:id="@+id/Button_MainMenu_RemoveBuilding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Button_MainMenu_AddBuilding"
+        android:text="@string/remove_building"
+        android:textSize="24sp"
+        android:onClick="removeBuilding"/>
+
+    <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/presentation_mode"
         android:textSize="24sp"
         android:onClick="presentationModeToggle"
-        android:layout_below="@+id/Button_MainMenu_AddBuilding"
+        android:layout_below="@+id/Button_MainMenu_RemoveBuilding"
         android:layout_centerHorizontal="true" />
 
 

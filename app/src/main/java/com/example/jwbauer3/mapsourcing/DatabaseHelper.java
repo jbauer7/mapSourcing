@@ -152,6 +152,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    private static void removeFloor(SQLiteDatabase db, long floorId) {
+        db.execSQL("DELETE FROM " + EDGE_TABLE + " WHERE floorId = ?",
+                new String[]{Long.toString(floorId)});
+        db.execSQL("DELETE FROM " + NODE_TABLE + " WHERE floorId = ?",
+                new String[]{Long.toString(floorId)});
+        db.execSQL("DELETE FROM " + REFERENCE_STATE_TABLE + " WHERE floorId = ?",
+                new String[]{Long.toString(floorId)});
+        db.execSQL("DELETE FROM " + FLOOR_TABLE + " WHERE floorId = ?",
+                new String[]{Long.toString(floorId)});
+    }
+
     public static void saveFloor(long buildingId, Floor floor)
     {
         DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
@@ -167,14 +178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long floorId = -1;
         while(cur.moveToNext()) {
             floorId = cur.getLong(cur.getColumnIndex("floorId"));
-            db.execSQL("DELETE FROM " + EDGE_TABLE + " WHERE floorId = ?",
-                    new String[]{Long.toString(floorId)});
-            db.execSQL("DELETE FROM " + NODE_TABLE + " WHERE floorId = ?",
-                    new String[]{Long.toString(floorId)});
-            db.execSQL("DELETE FROM " + REFERENCE_STATE_TABLE + " WHERE floorId = ?",
-                    new String[]{Long.toString(floorId)});
-            db.execSQL("DELETE FROM " + FLOOR_TABLE + " WHERE floorId = ?",
-                    new String[]{Long.toString(floorId)});
+            removeFloor(db, floorId);
         }
 
         //Close the cursor
@@ -223,6 +227,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return result;
+    }
+
+    public static void removeBuilding(long buildingId) {
+        DatabaseHelper databaseHelper = new DatabaseHelper(Application.getContext());
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        Cursor cur = db.rawQuery("SELECT * FROM " + FLOOR_TABLE +
+                        " WHERE buildingId = ?",
+                new String[]{Long.toString(buildingId)});
+
+        //Delete old Floor (or multiple if there are more somehow)
+        while(cur.moveToNext()) {
+            removeFloor(db, cur.getLong(cur.getColumnIndex("floorId")));
+        }
+
+        //Close the cursor
+        cur.close();
+
+        //Actually delete the building
+        db.execSQL("DELETE FROM " + BUILDING_TABLE + " WHERE buildingId = " + Long.toString(buildingId));
+
+        db.close();
     }
 
     private static HashMap<Long, Node> nodeHashMap = null;
