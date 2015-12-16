@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
     private boolean gotNorth = false;
     private boolean pressed = false;
     private boolean mBound = false;
-    protected static boolean navigationMode;
+    private boolean navigationMode;
     protected static int curFloorNum=0;
     private EdgeLogService mService;
     private Navigator navigator;
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
         mContext = this;
 
         //Persistence(Context context, int type, String building, int floorNumber)
-        floor = new Persistence(mContext, 1, "ehall", 1);
+        //floor = new Persistence(mContext, 1, "ehall", 1);
 
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -83,9 +83,11 @@ public class MainActivity extends Activity {
         if (bundle != null) {
             if (bundle.getString("mode").equals("navigation")) {
                 navigationMode = true;
+                floor = new Persistence(mContext, 2, "ehall", 1);
                 Toast.makeText(getApplicationContext(), "Navigation Mode",
                         Toast.LENGTH_SHORT).show();
             } else if (bundle.getString("mode").equals("map")) {
+                floor = new Persistence(mContext, 1, "ehall", 1);
                 navigationMode = false;
                 Toast.makeText(getApplicationContext(), "Map Mode",
                         Toast.LENGTH_SHORT).show();

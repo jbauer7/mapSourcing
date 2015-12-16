@@ -55,6 +55,8 @@ public class Persistence {
 
     private HashMap<String, Integer> nodeRequestCount;
 
+    private int type;
+
     public Persistence(Context context, int type, String building, int floorNumber)
     {
         this.context = context;
@@ -64,7 +66,11 @@ public class Persistence {
         floor = new Floor();
         //if type == 1 then persistence is init'ed as floor
         PREF_NAME = "";
-        if (type == 1) {
+        if (type == 1) { // Save floors
+            this.type = 1;
+            PREF_NAME = building + "_floor_" + floorNumber;
+        } else if (type == 2) { // DON'T Save Floors
+            this.type = 2;
             PREF_NAME = building + "_floor_" + floorNumber;
         }
 
@@ -239,7 +245,7 @@ public class Persistence {
     }
 
     public void saveFloor(Floor floorToSave) {
-        if(MainActivity.navigationMode)
+        if(this.type == 2)
         {
             return;
         }
