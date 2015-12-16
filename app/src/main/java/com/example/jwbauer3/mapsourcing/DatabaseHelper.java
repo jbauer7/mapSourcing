@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "mapSourcing.db";
     private static final String BUILDING_TABLE = "Buildings";
     private static final String FLOOR_TABLE = "Floors";
@@ -186,7 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         row.put("buildingId", buildingId);
         row.put("floorNum", floor.getFloorNum());
-        row.put("backgroundImageResId", R.drawable.eh_floor3);
+        row.put("backgroundImageResId", floor.getBackgroundImageResId());
         row.put("maxMeshScaleFactor", floor.maxMeshScaleFactor);
         long newFloorId = db.insertWithOnConflict(FLOOR_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
 
