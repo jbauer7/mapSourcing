@@ -14,7 +14,7 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
     private float altitude;
     protected String nodeRefString;
     protected int drawnRadius;
-
+    protected long id = -1; //For saving to DatabaseHelper
 
     public BaseNode(int xPos, int yPos, int floor, int drawnRadius, final int nodePriority) {
         super(nodePriority);
@@ -26,6 +26,18 @@ public abstract class BaseNode extends CanvasDrawable implements Serializable {
         this.floor = floor;
         nodeRefString = floor + "_" + xPos + "_" + yPos + "_" + nodePriority;
         this.drawnRadius = drawnRadius;
+    }
+
+    //For creating from DatabaseHelper
+    protected BaseNode(final int nodePriority, long id, int defaultXPos, int defaultYPos, int xPos, int yPos, int floorNum) {
+        super(nodePriority);
+        this.id = id;
+        this.defaultXPos = defaultXPos;
+        this.defaultYPos = defaultYPos;
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.edges = new ArrayList<>();
+        this.floor = floorNum;
     }
 
     public int getxPos() {

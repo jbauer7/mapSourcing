@@ -12,4 +12,9 @@ public class Edge extends BaseEdge implements Serializable {
     public Edge(BaseNode start, BaseNode end) {
         super(DEFAULTEDGEPRIORITY, start, end);
     }
+
+    //For creating from DatabaseHelper
+    protected Edge(BaseNode start, BaseNode end, int weight, int direction) {
+        super(DEFAULTEDGEPRIORITY, start, end, weight, direction);
+    }
 }
