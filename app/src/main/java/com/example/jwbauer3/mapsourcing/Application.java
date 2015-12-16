@@ -15,6 +15,10 @@ public class Application extends android.app.Application {
         Application.context = this.getApplicationContext();
     }
 
+    public static Context getContext() {
+        return Application.context;
+    }
+
     public static int getResColor(int resourceId) {
         return ContextCompat.getColor(Application.context, resourceId);
     }

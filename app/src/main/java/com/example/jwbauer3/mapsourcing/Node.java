@@ -29,6 +29,17 @@ public class Node extends BaseNode implements Serializable {
         this(xPos, yPos, floor, false);
     }
 
+    //For creating from DatabaseHelper
+    protected Node(long id, int defaultXPos, int defaultYPos, int xPos, int yPos, boolean stairNode, int floorNum) {
+        super(DEFAULTNODEPRIORITY, id, defaultXPos, defaultYPos, xPos, yPos, floorNum);
+        this.stairNode = stairNode;
+    }
+
+    //For saving to DatabaseHelper
+    protected boolean getIsStairNode() {
+        return this.stairNode;
+    }
+
     @Override
     public void draw(Canvas canvas) {
         //magic number 100, represents radius of node. Might be passed in from MyView, might be a class var

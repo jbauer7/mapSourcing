@@ -35,6 +35,13 @@ public class BaseEdge extends CanvasDrawable implements Serializable {
         options.add(MenuSelection.SEARCH);
     }
 
+    //For creating from DatabaseHelper
+    protected BaseEdge(int priority, BaseNode start, BaseNode end, int weight, int direction) {
+        this(priority, start, end);
+        this.weight = weight;
+        this.direction = direction;
+    }
+
     private void setNodeIDs(BaseNode start, BaseNode end)
     {
         nodeStartId = start.nodeRefString;
