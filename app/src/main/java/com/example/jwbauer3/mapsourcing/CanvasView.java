@@ -3,6 +3,8 @@ package com.example.jwbauer3.mapsourcing;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -16,7 +18,7 @@ import java.util.Comparator;
  * created by Nikhil on 10/11/2015.
  */
 public class CanvasView extends View {
-    private Floor curFloor;
+    private Floor curFloor = null;
     //priority queue for drawing (stores lowest elements first)
     private SortedArrayList<CanvasDrawable> drawables_draw;
     //priority queue for search/touching (stores highest elements first)
@@ -44,6 +46,9 @@ public class CanvasView extends View {
     private ReferenceState canvasReferenceState;
     private ReferenceState meshReferenceState;
     private ReferenceState activeReferenceState;
+    private Drawable currentFloorBackground = null;
+    private int currentFloorBackgroundWidth;
+    private int currentFloorBackgroundHeight;
 
     private ScaleGestureDetector myDetector;
     private int myViewWidth;
@@ -80,12 +85,12 @@ public class CanvasView extends View {
     }
 
     public void setFloor(Floor floor) {
+
         this.curFloor = floor;
         //switch if we already have a floor
         if (meshMode) {
             activeReferenceState = curFloor.getMeshReferenceState();
         }
-
 
         meshReferenceState = curFloor.getMeshReferenceState();
         determineOffsets();
@@ -108,6 +113,12 @@ public class CanvasView extends View {
 
         xOffset = originalXOffset + (int) (meshReferenceState.transX);
         yOffset = originalYOffset + (int) (meshReferenceState.transY);
+
+        //Load the current background image from resources
+        currentFloorBackground = ResourcesCompat.getDrawable(getResources(), curFloor.getBackgroundImageResId(), null);
+        currentFloorBackgroundWidth = currentFloorBackground.getMinimumWidth();
+        currentFloorBackgroundHeight = currentFloorBackground.getMinimumHeight();
+        currentFloorBackground.setBounds(0, 0, currentFloorBackgroundWidth, currentFloorBackgroundHeight);
 
         invalidate();
     }
@@ -146,7 +157,7 @@ public class CanvasView extends View {
         double percentToEnd = distToStart / (distToEnd + distToStart);
 
         //if(mService!=null)
-       mService.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
+        mService.setUserLocation(userLocation.getSourceEdge(), percentToEnd);
     }
 
     /*
@@ -214,7 +225,7 @@ public class CanvasView extends View {
         //TODO: http://stackoverflow.com/questions/10303578/how-to-offset-bitmap-drawn-on-a-canvas
 
         //draw the background image (if there is one)
-        curFloor.getBackgroundImage().draw(canvas);
+        currentFloorBackground.draw(canvas);
 
         //translate the canvas for the canvasDrawable objects.
         canvas.translate(xOffset, yOffset);
@@ -403,8 +414,8 @@ public class CanvasView extends View {
             //only run once per floor.
             //TODO: when a new node is added, also check this.
             if (curFloor.getMaxMeshScaleFactor() == -1f) {
-                float tbScale = curFloor.getBackgroundHeight() / (float) (maxY - minY);
-                float lrScale = curFloor.getBackgroundWidth() / (float) (maxX - minX);
+                float tbScale = currentFloorBackgroundHeight / (float) (maxY - minY);
+                float lrScale = currentFloorBackgroundWidth / (float) (maxX - minX);
                 if (tbScale > lrScale) {
                     curFloor.setMaxMeshScaleFactor(lrScale);
                 } else {
@@ -504,8 +515,8 @@ public class CanvasView extends View {
             meshReferenceState.prevTransX = 0;
         }
         //too far right
-        if (xOffset + originalMaxXOffset > curFloor.getBackgroundWidth()) {
-            xOffset = (curFloor.getBackgroundWidth() - originalMaxXOffset);
+        if (xOffset + originalMaxXOffset > currentFloorBackgroundWidth) {
+            xOffset = (currentFloorBackgroundWidth - originalMaxXOffset);
             meshReferenceState.transX = xOffset - originalXOffset;
             meshReferenceState.prevTransX = meshReferenceState.transX;
         }
@@ -516,8 +527,8 @@ public class CanvasView extends View {
             meshReferenceState.prevTransY = 0;
         }
         //too far bottom
-        if (yOffset + originalMaxYOffset > curFloor.getBackgroundHeight()) {
-            yOffset = (curFloor.getBackgroundHeight() - originalMaxYOffset);
+        if (yOffset + originalMaxYOffset > currentFloorBackgroundHeight) {
+            yOffset = (currentFloorBackgroundHeight - originalMaxYOffset);
             meshReferenceState.transY = yOffset - originalYOffset;
             meshReferenceState.prevTransY = meshReferenceState.transY;
         }
@@ -528,15 +539,15 @@ public class CanvasView extends View {
         //portrait scale fix
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             //If our width is smaller than myViewWidth, we have to adjust
-            if (canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() < myViewWidth) {
-                canvasReferenceState.scaleFactor = ((float) myViewWidth) / curFloor.getBackgroundWidth();
+            if (canvasReferenceState.scaleFactor * currentFloorBackgroundWidth < myViewWidth) {
+                canvasReferenceState.scaleFactor = ((float) myViewWidth) / currentFloorBackgroundWidth;
             }
         }
         //landscape scale fix
         else {
             //If our height is smaller than myViewHeight, we have to adjust
-            if (canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() < myViewHeight) {
-                canvasReferenceState.scaleFactor = ((float) myViewHeight) / curFloor.getBackgroundHeight();
+            if (canvasReferenceState.scaleFactor * currentFloorBackgroundHeight < myViewHeight) {
+                canvasReferenceState.scaleFactor = ((float) myViewHeight) / currentFloorBackgroundHeight;
             }
         }
 
@@ -550,8 +561,8 @@ public class CanvasView extends View {
 
         //left and right
         //don't let image pan past the right edge
-        if (canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() - myViewWidth + canvasReferenceState.transX < 0) {
-            canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * curFloor.getBackgroundWidth() - myViewWidth);
+        if (canvasReferenceState.scaleFactor * currentFloorBackgroundWidth - myViewWidth + canvasReferenceState.transX < 0) {
+            canvasReferenceState.transX = -(canvasReferenceState.scaleFactor * currentFloorBackgroundWidth - myViewWidth);
         }
         //don't let image pan past the left edge
         if (canvasReferenceState.transX > 0) {
@@ -559,8 +570,8 @@ public class CanvasView extends View {
         }
         //top and bottom
         //don't let image pan past the bottom edge
-        if (canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() - myViewHeight + canvasReferenceState.transY < 0) {
-            canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * curFloor.getBackgroundHeight() - myViewHeight);
+        if (canvasReferenceState.scaleFactor * currentFloorBackgroundHeight - myViewHeight + canvasReferenceState.transY < 0) {
+            canvasReferenceState.transY = -(canvasReferenceState.scaleFactor * currentFloorBackgroundHeight - myViewHeight);
         }
         //don't let image pan past the top edge
         if (canvasReferenceState.transY > 0) {
@@ -698,8 +709,8 @@ public class CanvasView extends View {
         return toSet;
     }
 
-    public void connectEdgeLogService(EdgeLogService mService){
-        this.mService=mService;
+    public void connectEdgeLogService(EdgeLogService mService) {
+        this.mService = mService;
     }
 }
 

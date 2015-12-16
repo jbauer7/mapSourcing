@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -109,13 +108,13 @@ public class MainActivity extends Activity {
     private void startUp(){
         //hard coded the intialization of floors TODO generalize this -Joey
         floors.add(new Floor(1, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+                R.drawable.eh_floor1));
         floors.add(new Floor(2, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+                R.drawable.eh_floor2));
         floors.add(new Floor(3, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+                R.drawable.eh_floor3));
         floors.add(new Floor(4, new ArrayList<Node>(), new ArrayList<Edge>(), new ReferenceState(),
-                ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor3, null)));
+                R.drawable.eh_floor4));
 
         // I did this so it would stop crashing gets overwritten later anyway -Joey
         floors.get(0).getNodes().add(new Node(0, 0, 0, false));
@@ -123,15 +122,17 @@ public class MainActivity extends Activity {
         floors.get(0).getNodes().add(new Node(100, 100, 0, false));
 
         floors.get(1).getNodes().add(new Node(0, 0, 1, false));
-        floors.get(2).getNodes().add(new Node(0, 0, 2, false));
-        floors.get(3).getNodes().add(new Node(0, 0, 3, false));
+        floors.get(1).getNodes().add(new Node(0, 100, 1, false));
+        floors.get(1).getNodes().add(new Node(100, 100, 1, false));
 
-        floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
-        floors.get(0).getEdges().add(new Edge( floors.get(0).getNodes().get(1), floors.get(0).getNodes().get(2)));
-        floors.get(1).getNodes().add(new Node(0,0,2,false));
-        floors.get(2).getNodes().add(new Node(0,0,3,false));
-        floors.get(3).getNodes().add(new Node(0,0,4,false));
+        floors.get(2).getNodes().add(new Node(100, 100, 2, false));
+        floors.get(3).getNodes().add(new Node(100, 100, 3, false));
 
+        floors.get(0).getEdges().add(new Edge(floors.get(0).getNodes().get(0), floors.get(0).getNodes().get(1)));
+        floors.get(0).getEdges().add(new Edge(floors.get(0).getNodes().get(1), floors.get(0).getNodes().get(2)));
+
+        floors.get(1).getEdges().add(new Edge(floors.get(1).getNodes().get(0), floors.get(1).getNodes().get(1)));
+        floors.get(1).getEdges().add(new Edge(floors.get(1).getNodes().get(1), floors.get(1).getNodes().get(2)));
 
         currFloor = floors.get(0);
 
@@ -246,21 +247,18 @@ public class MainActivity extends Activity {
             {
                 Floor savedFloor = floor.returnSavedFloor();
                 if (savedFloor.edges.size() > 0 && savedFloor.nodes.size() > 0) {
-                    floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState,
-                            ResourcesCompat.getDrawable(getResources(), R.drawable.eh_floor2, null)));
+                    floors.add(new Floor(i + 1, savedFloor.nodes, savedFloor.edges, savedFloor.meshReferenceState, drawable));
                 } else {
                     ArrayList<Node> nodes = new ArrayList<Node>();
                     ArrayList<Edge> edges = new ArrayList<Edge>();
                     nodes.add(new Node(0, 0, i, false));
-                    floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
-                            ResourcesCompat.getDrawable(getResources(), drawable, null)));
+                    floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(), drawable));
                 }
             } else {
                 ArrayList<Node> nodes = new ArrayList<Node>();
                 ArrayList<Edge> edges = new ArrayList<Edge>();
                 nodes.add(new Node(0, 0, i, false));
-                floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(),
-                        ResourcesCompat.getDrawable(getResources(), drawable, null)));
+                floors.add(new Floor(i + 1, nodes, edges, new ReferenceState(), drawable));
             }
         }
         Log.d("Persistence", "persistenceStartUp after for-loop");

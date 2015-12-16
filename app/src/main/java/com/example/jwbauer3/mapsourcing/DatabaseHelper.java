@@ -30,8 +30,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //int floorId
     //int buildingId
     //int floorNum
-    //int backgroundWidth
-    //int backgroundHeight
     //int backgroundImageResId
     //float maxMeshScaleFactor
     private static final String CREATE_FLOOR_TABLE_QUERY = "CREATE TABLE " + FLOOR_TABLE +
@@ -39,8 +37,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "floorId INTEGER PRIMARY KEY, " +
             "buildingId INTEGER, " +
             "floorNum INTEGER, " +
-            "backgroundWidth INTEGER, " +
-            "backgroundHeight INTEGER, " +
             "backgroundImageResId INTEGER, " +
             "maxMeshScaleFactor REAL" +
             ");";
@@ -190,8 +186,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         row.put("buildingId", buildingId);
         row.put("floorNum", floor.getFloorNum());
-        row.put("backgroundWidth", floor.backgroundWidth);
-        row.put("backgroundHeight", floor.backgroundHeight);
         row.put("backgroundImageResId", R.drawable.eh_floor3);
         row.put("maxMeshScaleFactor", floor.maxMeshScaleFactor);
         long newFloorId = db.insertWithOnConflict(FLOOR_TABLE, null, row, SQLiteDatabase.CONFLICT_REPLACE);
@@ -293,15 +287,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Floor result = null;
         if(cur.moveToNext()) {
             long floorId = cur.getLong(cur.getColumnIndex("floorId"));
-            int backgroundWidth = cur.getInt(cur.getColumnIndex("backgroundWidth"));
-            int backgroundHeight = cur.getInt(cur.getColumnIndex("backgroundHeight"));
             int backgroundImageResId = cur.getInt(cur.getColumnIndex("backgroundImageResId"));
             float maxMeshScaleFactor = cur.getFloat(cur.getColumnIndex("maxMeshScaleFactor"));
 
             result = new Floor();
             result.floorNum = floorNum;
-            result.backgroundWidth = backgroundWidth;
-            result.backgroundHeight = backgroundHeight;
             result.maxMeshScaleFactor = maxMeshScaleFactor;
 
             //Get the ReferenceState
