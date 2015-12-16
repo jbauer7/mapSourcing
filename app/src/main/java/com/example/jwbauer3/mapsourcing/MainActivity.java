@@ -280,6 +280,7 @@ public class MainActivity extends Activity {
         if (mConnection != null)
             unbindService(mConnection);
         //Node.saveNode("aNode", currFloor.getNodes().get(0));
+
         floor.saveFloor(currFloor);
     }
 
@@ -289,8 +290,8 @@ public class MainActivity extends Activity {
 
         //TODO: Persistence TESTING
         //Persistence test
-        //persistenceStartUp();
-        startUp();
+        persistenceStartUp();
+        //startUp();
         /*if (floor.getSavedFloor() == 1)
         {
             Floor savedFloor = floor.returnSavedFloor();
@@ -404,7 +405,7 @@ public class MainActivity extends Activity {
                     setMenuText();
                     endFloor();
                 }
-                //mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
+                mService.setNodesEdges(currFloor.getNodes(), currFloor.getEdges());
             }
 
             @Override
